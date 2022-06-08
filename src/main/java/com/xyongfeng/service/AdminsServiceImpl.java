@@ -21,7 +21,6 @@ public class AdminsServiceImpl implements AdminsService{
      */
     @Override
     public Admins adminLogin(String username, String password) {
-
         return adminsMapper.selectOneByAccount(username);
     }
 
