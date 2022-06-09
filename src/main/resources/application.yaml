@@ -1,3 +1,10 @@
 spring:
   profiles:
     active: '@environment@'  #注意YAML配置文件需要加单引号，否则会报错
+  datasource:
+    url: jdbc:mysql://localhost:3306/meeting
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+

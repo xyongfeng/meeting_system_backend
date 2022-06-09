@@ -11,6 +11,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.java.Log;
 
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 
 import org.springframework.validation.annotation.Validated;
@@ -29,7 +31,7 @@ import javax.annotation.Resource;
  */
 @Api(tags = "后台管理接口",description = "用户管理，会议管理")
 @RestController
-@Log
+@Slf4j
 @RequestMapping("/admin")
 public class BackManageController {
     @Resource

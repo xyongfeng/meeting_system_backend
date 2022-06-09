@@ -15,7 +15,7 @@ class MeetingApplicationTests {
     private AdminsMapper adminsMapper;
     @Test
     void test1(){
-        List<Admins> admins = adminsMapper.selectAll();
-        System.out.println(admins);
+        List<Admins> admins = adminsMapper.selectList(null);
+        admins.forEach(System.out::println);
     }
 }

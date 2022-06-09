@@ -5,6 +5,9 @@ import com.xyongfeng.pojo.Admins;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author xyongfeng
@@ -21,7 +24,14 @@ public class AdminsServiceImpl implements AdminsService{
      */
     @Override
     public Admins adminLogin(String username, String password) {
-        return adminsMapper.selectOneByAccount(username);
+        Map<String,Object> map = new HashMap<>();
+        map.put("username",username);
+        map.put("password",password);
+        List<Admins> adminsList = adminsMapper.selectByMap(map);
+        if(adminsList.size() > 0) {
+            return adminsList.get(0);
+        }
+        return null;
     }
 
     /**
