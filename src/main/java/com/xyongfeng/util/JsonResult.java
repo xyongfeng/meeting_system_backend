@@ -2,26 +2,34 @@ package com.xyongfeng.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
+@ApiModel("meta")
 @Data
 @AllArgsConstructor
 class Meta {
+    @ApiModelProperty("状态码")
     private int status;
+    @ApiModelProperty("状态信息")
     private String message;
 }
 
 /**
  * @author xyongfeng
  */
+@ApiModel("返回json实体")
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class JsonResult<T> {
+    @ApiModelProperty("json核心数据内容")
     private T data;
+    @ApiModelProperty("meta")
     private Meta meta;
     /**
      * 全部默认

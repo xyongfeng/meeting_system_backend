@@ -19,7 +19,7 @@ public class SwaggerConfiguration {
                 .title("会议签到系统 - 在线API接口文档")
                 .version("1.0")
                 .build();
-        return new Docket(DocumentationType.OAS_30)
+        return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.xyongfeng.controller"))

@@ -35,7 +35,6 @@ public class BackManageController {
     @Resource
     private AdminsService adminsService;
 
-
     @ApiOperation("管理员登录")
     @PostMapping("/login")
     public JsonResult<Admins> adminLogin(@RequestBody @Validated(value = {ValidGroups.Default.class}) Admins admins) {
