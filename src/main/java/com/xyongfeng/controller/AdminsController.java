@@ -29,13 +29,14 @@ import javax.annotation.Resource;
 /**
  * @author xyongfeng
  */
-@Api(tags = "后台管理接口",description = "用户管理，会议管理")
+@Api(tags = "操作管理员接口",description = "进行管理员表的操作")
 @RestController
 @Slf4j
-@RequestMapping("/admin")
-public class BackManageController {
+@RequestMapping("/admins")
+public class AdminsController {
     @Resource
     private AdminsService adminsService;
+
 
     @ApiOperation("管理员登录")
     @PostMapping("/login")

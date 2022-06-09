@@ -1,7 +1,11 @@
-package com.xyongfeng.service;
+package com.xyongfeng.service.Impl;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xyongfeng.mapper.AdminsMapper;
+import com.xyongfeng.mapper.UserMapper;
 import com.xyongfeng.pojo.Admins;
+import com.xyongfeng.pojo.User;
+import com.xyongfeng.service.AdminsService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -13,7 +17,7 @@ import java.util.Map;
  * @author xyongfeng
  */
 @Service
-public class AdminsServiceImpl implements AdminsService{
+public class AdminsServiceImpl extends ServiceImpl<AdminsMapper, Admins> implements AdminsService {
     @Resource
     private AdminsMapper adminsMapper;
     /**
