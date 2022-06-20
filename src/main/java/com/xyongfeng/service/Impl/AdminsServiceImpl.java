@@ -1,11 +1,13 @@
 package com.xyongfeng.service.Impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xyongfeng.mapper.AdminsMapper;
-import com.xyongfeng.mapper.UserMapper;
 import com.xyongfeng.pojo.Admins;
-import com.xyongfeng.pojo.User;
+import com.xyongfeng.pojo.MyPage;
 import com.xyongfeng.service.AdminsService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -16,36 +18,57 @@ import java.util.Map;
 /**
  * @author xyongfeng
  */
+@Slf4j
 @Service
 public class AdminsServiceImpl extends ServiceImpl<AdminsMapper, Admins> implements AdminsService {
     @Resource
     private AdminsMapper adminsMapper;
-    /**
-     * 登录管理页面
-     * @param username 账号
-     * @param password 密码
-     * @return 登录是否成功
-     */
+
+
     @Override
     public Admins adminLogin(String username, String password) {
-        Map<String,Object> map = new HashMap<>();
-        map.put("username",username);
-        map.put("password",password);
+        Map<String, Object> map = new HashMap<>();
+        map.put("username", username);
+        map.put("password", password);
         List<Admins> adminsList = adminsMapper.selectByMap(map);
-        if(adminsList.size() > 0) {
+        if (adminsList.size() > 0) {
             return adminsList.get(0);
         }
         return null;
     }
 
-    /**
-     * 增加新的管理员
-     *
-     * @param admins 增加的对象
-     * @return 增加是否成功
-     */
     @Override
-    public boolean adminAdd(Admins admins) {
-        return false;
+    public List<Admins> listPage(MyPage myPage) {
+        log.info(String.format("listPage:%s", myPage));
+        Page<Admins> page = new Page<>(myPage.getCurrent(), myPage.getSize());
+        adminsMapper.selectPage(page, null);
+        return page.getRecords();
+    }
+
+    @Override
+    public int adminUpdateById(Admins admins) {
+
+        return adminsMapper.updateById(admins);
+    }
+
+
+    @Override
+    public int adminAdd(Admins admins) throws Exception {
+        QueryWrapper<Admins> wrapper = new QueryWrapper<>();
+        wrapper.eq("username", admins.getUsername());
+        List<Map<String, Object>> list = adminsMapper.selectMaps(wrapper);
+        if (list.size() > 0) {
+            throw new Exception("用户名重复");
+        }
+        return adminsMapper.insert(admins);
+    }
+
+    @Override
+    public Admins adminDelById(Integer id) {
+        Admins admins = adminsMapper.selectById(id);
+        if (admins != null && adminsMapper.deleteById(id) > 0) {
+            return admins;
+        }
+        return null;
     }
 }

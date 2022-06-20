@@ -1,5 +1,9 @@
 package com.xyongfeng.pojo;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.xyongfeng.util.ValidGroups;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -16,30 +20,36 @@ import javax.validation.constraints.NotNull;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@TableName("user")
 public class User {
     @ApiModelProperty("用户id")
     @NotEmpty(message = "id不能为空",groups = ValidGroups.Update.class)
-    private int id;
+    @TableId(type = IdType.AUTO)
+    private Integer id;
 
 
     @ApiModelProperty("姓名")
     @NotBlank(message = "姓名不能为空",groups = ValidGroups.Update.class)
+    @TableField("name")
     private String name;
 
 
     @ApiModelProperty("用户名")
     @NotBlank(message = "用户名不能为空",groups = ValidGroups.Default.class)
     @Length(max = 20,message = "用户名长度不能大于20",groups = ValidGroups.Default.class)
+    @TableField("username")
     private String username;
 
 
     @ApiModelProperty("密码")
     @NotBlank(message = "密码不能为空",groups = ValidGroups.Default.class)
     @Length(max = 20,message = "密码长度不能大于20",groups = ValidGroups.Default.class)
+    @TableField("password")
     private String password;
 
 
     @ApiModelProperty("脸部照片路径")
     @NotBlank(message = "姓名不能为空",groups = ValidGroups.Update.class)
+    @TableField("faceImgPath")
     private String faceImgPath;
 }
