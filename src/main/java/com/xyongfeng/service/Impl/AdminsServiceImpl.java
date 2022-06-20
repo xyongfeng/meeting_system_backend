@@ -39,7 +39,6 @@ public class AdminsServiceImpl extends ServiceImpl<AdminsMapper, Admins> impleme
 
     @Override
     public List<Admins> listPage(MyPage myPage) {
-        log.info(String.format("listPage:%s", myPage));
         Page<Admins> page = new Page<>(myPage.getCurrent(), myPage.getSize());
         adminsMapper.selectPage(page, null);
         return page.getRecords();

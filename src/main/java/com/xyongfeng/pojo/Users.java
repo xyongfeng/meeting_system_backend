@@ -20,10 +20,10 @@ import javax.validation.constraints.NotNull;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("user")
-public class User {
+@TableName("users")
+public class Users {
     @ApiModelProperty("用户id")
-    @NotEmpty(message = "id不能为空",groups = ValidGroups.Update.class)
+    @NotNull(message = "id不能为空",groups = ValidGroups.Id.class)
     @TableId(type = IdType.AUTO)
     private Integer id;
 
@@ -49,7 +49,7 @@ public class User {
 
 
     @ApiModelProperty("脸部照片路径")
-    @NotBlank(message = "姓名不能为空",groups = ValidGroups.Update.class)
-    @TableField("faceImgPath")
+    @NotBlank(message = "姓名不能为空",groups = ValidGroups.Face.class)
+    @TableField("face_img_path")
     private String faceImgPath;
 }

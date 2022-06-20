@@ -1,18 +1,13 @@
 package com.xyongfeng.controller;
 
-import com.xyongfeng.mapper.AdminsMapper;
 import com.xyongfeng.pojo.Admins;
 import com.xyongfeng.pojo.MyPage;
-import com.xyongfeng.pojo.User;
 import com.xyongfeng.service.AdminsService;
 import com.xyongfeng.util.JsonResult;
 import com.xyongfeng.util.ValidGroups;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import lombok.extern.java.Log;
 
-import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 

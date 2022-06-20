@@ -7,4 +7,6 @@ public class ValidGroups {
 
     public interface Id{}
 
+    public interface Face{}
+
 }
