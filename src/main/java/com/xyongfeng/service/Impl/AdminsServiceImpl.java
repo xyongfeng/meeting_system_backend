@@ -70,4 +70,9 @@ public class AdminsServiceImpl extends ServiceImpl<AdminsMapper, Admins> impleme
         }
         return null;
     }
+
+    @Override
+    public Admins getAdminByUserName(String username) {
+        return adminsMapper.selectOne(new QueryWrapper<Admins>().eq("username",username));
+    }
 }

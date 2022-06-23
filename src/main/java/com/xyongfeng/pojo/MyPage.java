@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MyPage {
+public class MyPage  {
     @ApiModelProperty("当前页码")
     @NotNull(message = "页码不能为空")
     private Integer current;

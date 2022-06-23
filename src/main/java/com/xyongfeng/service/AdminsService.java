@@ -1,5 +1,6 @@
 package com.xyongfeng.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.xyongfeng.pojo.Admins;
 import com.xyongfeng.pojo.MyPage;
 
@@ -10,7 +11,7 @@ import java.util.List;
  * @author xyongfeng
  */
 
-public interface AdminsService {
+public interface AdminsService extends IService<Admins> {
     /**
      * 登录管理页面
      * @param username 账号
@@ -46,4 +47,6 @@ public interface AdminsService {
      * @return 删除结果
      */
     Admins adminDelById(Integer id);
+
+    Admins getAdminByUserName(String username);
 }

@@ -9,19 +9,24 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 @ApiModel(description = "用户实体")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @TableName("users")
-public class Users {
+@EqualsAndHashCode
+@Accessors(chain = true)
+public class Users implements Serializable {
     @ApiModelProperty("用户id")
     @NotNull(message = "id不能为空",groups = ValidGroups.Id.class)
     @TableId(type = IdType.AUTO)

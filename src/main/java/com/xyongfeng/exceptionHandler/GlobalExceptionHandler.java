@@ -1,7 +1,6 @@
 package com.xyongfeng.exceptionHandler;
 
-import com.xyongfeng.util.JsonResult;
-import lombok.extern.java.Log;
+import com.xyongfeng.pojo.JsonResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.ObjectError;
@@ -20,11 +19,11 @@ import java.util.List;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
-    public JsonResult<Object> methodArgumentNotValidException(MethodArgumentNotValidException e, HttpServletResponse response){
+    public JsonResult methodArgumentNotValidException(MethodArgumentNotValidException e, HttpServletResponse response){
 
         List<ObjectError> allErrors = e.getAllErrors();
         ObjectError error = allErrors.get(0);
         log.info(error.getDefaultMessage());
-        return new JsonResult<>(HttpStatus.BAD_REQUEST.value(),error.getDefaultMessage());
+        return new JsonResult(HttpStatus.BAD_REQUEST.value(),error.getDefaultMessage());
     }
 }
