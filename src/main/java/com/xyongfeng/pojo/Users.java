@@ -13,11 +13,14 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.Collection;
 
 @ApiModel(description = "用户实体")
 @Data
@@ -26,7 +29,7 @@ import java.io.Serializable;
 @TableName("users")
 @EqualsAndHashCode
 @Accessors(chain = true)
-public class Users implements Serializable {
+public class Users implements Serializable, UserDetails {
     @ApiModelProperty("用户id")
     @NotNull(message = "id不能为空",groups = ValidGroups.Id.class)
     @TableId(type = IdType.AUTO)
@@ -57,4 +60,29 @@ public class Users implements Serializable {
     @NotBlank(message = "姓名不能为空",groups = ValidGroups.Face.class)
     @TableField("face_img_path")
     private String faceImgPath;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return false;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return false;
+    }
 }

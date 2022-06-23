@@ -48,5 +48,10 @@ public interface AdminsService extends IService<Admins> {
      */
     Admins adminDelById(Integer id);
 
+    /**
+     * 通过username获取admin
+     * @param username
+     * @return
+     */
     Admins getAdminByUserName(String username);
 }

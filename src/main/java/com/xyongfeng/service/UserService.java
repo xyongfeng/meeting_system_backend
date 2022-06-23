@@ -1,5 +1,6 @@
 package com.xyongfeng.service;
 
+import com.xyongfeng.pojo.Admins;
 import com.xyongfeng.pojo.MyPage;
 import com.xyongfeng.pojo.Users;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -50,4 +51,11 @@ public interface UserService extends IService<Users> {
      * @return 删除结果
      */
     Users userDelById(Integer id);
+
+    /**
+     * 通过username获取admin
+     * @param username
+     * @return
+     */
+    Users getUserByUserName(String username);
 }

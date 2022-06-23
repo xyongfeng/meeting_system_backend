@@ -30,6 +30,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements U
 
 
     @Override
+    public Users getUserByUserName(String username) {
+        return userMapper.selectOne(new QueryWrapper<Users>().eq("username",username));
+    }
+
+    @Override
     public Users userLogin(String username, String password) {
         Map<String, Object> map = new HashMap<>();
         map.put("username", username);

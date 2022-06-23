@@ -23,6 +23,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
@@ -50,11 +51,16 @@ public class AdminsController {
 
     @ApiOperation("管理员登录")
     @PostMapping("/login")
-    public JsonResult login(@RequestBody @Validated AdminsLoginParam admins) {
+    public JsonResult login(@RequestBody @Validated AdminsLoginParam admins, HttpServletRequest request) {
         log.info(String.format("post:/adminLogin，进行登录.账号为%s,密码为%s", admins.getUsername(), admins.getPassword()));
+        // 判断验证码
+        String captcha = (String) request.getSession().getAttribute("captcha");
+        if(!captcha.equals(admins.getCode())){
+            return JsonResult.error("验证码输入错误");
+        }
+
         // 登录
         UserDetails userDetails = userDetailsService.loadUserByUsername(admins.getUsername());
-//        log.info(userDetails.getPassword());
 
         if (null == userDetails || ! passwordEncoder.matches(admins.getPassword(), userDetails.getPassword())){
 
@@ -69,15 +75,6 @@ public class AdminsController {
         tokenMap.put("token",token);
         tokenMap.put("tokenHead",tokenHead);
         return JsonResult.success("登录成功",tokenMap);
-//        tokenMap.put()
-//        Admins admin = adminsService.adminLogin(admins.getUsername(), admins.getPassword());
-//        if (admin != null) {
-//            log.info("登录成功");
-//            return new JsonResult(admin, HttpStatus.OK.value(), "登录成功");
-//        } else {
-//            log.info("登录失败");
-//            return new JsonResult(HttpStatus.BAD_REQUEST.value(), "登录失败");
-//        }
     }
     @ApiOperation(value = "获取当前登录管理员信息")
     @GetMapping("/info")
