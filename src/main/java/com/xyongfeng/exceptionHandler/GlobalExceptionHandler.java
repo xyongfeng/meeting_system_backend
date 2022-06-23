@@ -24,6 +24,6 @@ public class GlobalExceptionHandler {
         List<ObjectError> allErrors = e.getAllErrors();
         ObjectError error = allErrors.get(0);
         log.info(error.getDefaultMessage());
-        return new JsonResult(HttpStatus.BAD_REQUEST.value(),error.getDefaultMessage());
+        return JsonResult.error(error.getDefaultMessage());
     }
 }

@@ -12,7 +12,6 @@ import io.swagger.annotations.ApiOperation;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,7 +22,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
@@ -51,46 +53,49 @@ public class AdminsController {
 
     @ApiOperation("管理员登录")
     @PostMapping("/login")
-    public JsonResult login(@RequestBody @Validated AdminsLoginParam admins, HttpServletRequest request) {
-        log.info(String.format("post:/adminLogin，进行登录.账号为%s,密码为%s", admins.getUsername(), admins.getPassword()));
+    public JsonResult login(@RequestBody @Validated AdminsLoginParam admins, HttpServletRequest request
+    ) {
+        log.info(String.format("post:/adminLogin，进行登录,%s", admins));
         // 判断验证码
         String captcha = (String) request.getSession().getAttribute("captcha");
-        if(!captcha.equals(admins.getCode())){
+        log.info(captcha);
+        if (captcha == null || !captcha.equals(admins.getCode())) {
             return JsonResult.error("验证码输入错误");
         }
 
         // 登录
         UserDetails userDetails = userDetailsService.loadUserByUsername(admins.getUsername());
 
-        if (null == userDetails || ! passwordEncoder.matches(admins.getPassword(), userDetails.getPassword())){
+        if (null == userDetails || !passwordEncoder.matches(admins.getPassword(), userDetails.getPassword())) {
 
             return JsonResult.error("用户名或密码错误");
         }
         // 更新security登录用户对象
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         // 生成token
         String token = jwtTokenUtil.generateToken(userDetails);
-        Map<String,String> tokenMap = new HashMap<>();
-        tokenMap.put("token",token);
-        tokenMap.put("tokenHead",tokenHead);
-        return JsonResult.success("登录成功",tokenMap);
+        Map<String, String> tokenMap = new HashMap<>();
+        tokenMap.put("token", token);
+        tokenMap.put("tokenHead", tokenHead);
+        return JsonResult.success("登录成功", tokenMap);
     }
+
     @ApiOperation(value = "获取当前登录管理员信息")
     @GetMapping("/info")
-    public JsonResult getAdminInfo(Principal principal){
-        if (principal == null){
+    public JsonResult getAdminInfo(Principal principal) {
+        if (principal == null) {
             return null;
         }
         String username = principal.getName();
         Admins admins = adminsService.getAdminByUserName(username);
         admins.setPassword(null);
-        return JsonResult.success("获取成功",admins);
+        return JsonResult.success("获取成功", admins);
     }
 
     @ApiOperation(value = "退出登录")
     @PostMapping("/logout")
-    public JsonResult logout(){
+    public JsonResult logout() {
         return JsonResult.success("退出成功");
     }
 
@@ -100,9 +105,9 @@ public class AdminsController {
         log.info(String.format("get:/admin 查看管理员列表。%s", myPage));
         List<Admins> list = adminsService.listPage(myPage);
         if (list.size() == 0) {
-            return new JsonResult(HttpStatus.BAD_REQUEST.value(), "查询失败，页码超过已有大小");
+            return JsonResult.error("查询失败，页码超过已有大小");
         }
-        return new JsonResult(list, HttpStatus.OK.value(), "查询成功");
+        return JsonResult.success("查询成功", list);
     }
 
     @ApiOperation("添加管理员")
@@ -113,9 +118,9 @@ public class AdminsController {
             adminsService.adminAdd(admins);
         } catch (Exception e) {
             log.info(e.getMessage());
-            return new JsonResult(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+            return JsonResult.error(e.getMessage());
         }
-        return new JsonResult(admins, HttpStatus.OK.value(), "添加成功");
+        return JsonResult.success("添加成功", admins);
     }
 
     @ApiOperation("修改管理员")
@@ -125,9 +130,9 @@ public class AdminsController {
         log.info(String.format("put:/admin 修改管理员。%s", admins));
 
         if (adminsService.adminUpdateById(admins) > 0) {
-            return new JsonResult(admins, HttpStatus.OK.value(), "修改成功");
+            return JsonResult.error("修改成功", admins);
         } else {
-            return new JsonResult(HttpStatus.OK.value(), "修改失败");
+            return JsonResult.error("修改失败");
         }
 
     }
@@ -139,9 +144,9 @@ public class AdminsController {
         log.info(String.format("delete:/admin 删除管理员。%s", admins));
         Admins delAdmin = adminsService.adminDelById(admins.getId());
         if (delAdmin != null) {
-            return new JsonResult(delAdmin, HttpStatus.OK.value(), "删除成功");
+            return JsonResult.success("删除成功", delAdmin);
         } else {
-            return new JsonResult(HttpStatus.OK.value(), "删除失败");
+            return JsonResult.error("删除失败");
         }
 
     }
