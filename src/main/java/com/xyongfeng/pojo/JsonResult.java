@@ -6,9 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.omg.CORBA.INTERNAL;
-import org.springframework.http.HttpStatus;
-import springfox.documentation.spring.web.json.Json;
+
 
 
 /**
@@ -32,6 +30,10 @@ public class JsonResult {
         this.message = message;
     }
 
+    public JsonResult(int i, Object data) {
+        this.code = i;
+        this.data = data;
+    }
 
     /**
      * 成功返回结果
@@ -43,6 +45,9 @@ public class JsonResult {
         return new JsonResult(200, message);
     }
 
+    public static JsonResult success(Object data) {
+        return new JsonResult(200,data);
+    }
     /**
      * 成功返回结果
      *

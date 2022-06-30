@@ -19,7 +19,7 @@ import java.util.List;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
-    public JsonResult methodArgumentNotValidException(MethodArgumentNotValidException e, HttpServletResponse response){
+    public JsonResult methodArgumentNotValidException(MethodArgumentNotValidException e, HttpServletResponse response) {
 
         List<ObjectError> allErrors = e.getAllErrors();
         ObjectError error = allErrors.get(0);

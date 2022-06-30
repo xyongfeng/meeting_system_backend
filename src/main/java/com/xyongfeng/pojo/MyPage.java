@@ -1,7 +1,6 @@
 package com.xyongfeng.pojo;
 
 
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -14,7 +13,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MyPage  {
+public class MyPage {
     @ApiModelProperty("当前页码")
     @NotNull(message = "页码不能为空")
     private Integer current;

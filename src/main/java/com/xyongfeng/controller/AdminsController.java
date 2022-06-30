@@ -65,7 +65,6 @@ public class AdminsController {
 
         // 登录
         UserDetails userDetails = userDetailsService.loadUserByUsername(admins.getUsername());
-
         if (null == userDetails || !passwordEncoder.matches(admins.getPassword(), userDetails.getPassword())) {
 
             return JsonResult.error("用户名或密码错误");

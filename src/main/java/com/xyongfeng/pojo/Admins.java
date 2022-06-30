@@ -27,32 +27,27 @@ import java.util.Collection;
 @NoArgsConstructor
 @EqualsAndHashCode
 @Accessors(chain = true)
-@TableName("admins")
-public class Admins implements Serializable,UserDetails {
+@TableName("t_admins")
+public class Admins implements Serializable, UserDetails {
     @ApiModelProperty("管理员id")
-    @NotNull(message = "id不能为空",groups = ValidGroups.Id.class)
+    @NotNull(message = "id不能为空", groups = ValidGroups.Id.class)
     @TableId(type = IdType.AUTO)
     private Integer id;
 
 
     @ApiModelProperty("用户名")
-    @NotBlank(message = "用户名不能为空",groups = ValidGroups.Default.class)
-    @Length(max = 20,message = "用户名长度不能大于20",groups = ValidGroups.Default.class)
+    @NotBlank(message = "用户名不能为空", groups = ValidGroups.Default.class)
+    @Length(max = 20, message = "用户名长度不能大于20", groups = ValidGroups.Default.class)
     @TableField("username")
     private String username;
 
 
     @ApiModelProperty("密码")
-    @NotBlank(message = "密码不能为空",groups = ValidGroups.Default.class)
-    @Length(max = 20,message = "密码长度不能大于20",groups = ValidGroups.Default.class)
+    @NotBlank(message = "密码不能为空", groups = ValidGroups.Default.class)
+    @Length(max = 20, message = "密码长度不能大于20", groups = ValidGroups.Default.class)
     @TableField("password")
     private String password;
 
-
-    @ApiModelProperty("权限")
-    @NotNull(message = "权限不能为空",groups = ValidGroups.Update.class)
-    @TableField("authority")
-    private Integer authority;
 
 
     @Override

@@ -9,13 +9,14 @@ import java.util.Properties;
 
 /**
  * 验证码配置类
+ *
  * @author xyongfeng
  */
 
 @Configuration
 public class CaptchaConfig {
     @Bean
-    public DefaultKaptcha getDefaultKaptcha(){
+    public DefaultKaptcha getDefaultKaptcha() {
         DefaultKaptcha captchaProducer = new DefaultKaptcha();
         Properties properties = new Properties();
         properties.setProperty("kaptcha.border", "yes");

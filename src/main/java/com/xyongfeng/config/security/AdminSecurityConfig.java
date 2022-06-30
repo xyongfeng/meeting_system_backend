@@ -19,6 +19,7 @@ import javax.annotation.Resource;
 
 /**
  * Security配置
+ *
  * @author xyongfeng
  */
 @Configuration
@@ -37,6 +38,7 @@ public class AdminSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService()).passwordEncoder(passwordEncoder());
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -45,15 +47,16 @@ public class AdminSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     @Bean
-    public UserDetailsService userDetailsService(){
+    public UserDetailsService userDetailsService() {
 
         return username -> adminsService.getAdminByUserName(username);
     }
 
     @Bean
-    public JwtAuthencationTokenFilter jwtAuthencationTokenFilter(){
+    public JwtAuthencationTokenFilter jwtAuthencationTokenFilter() {
         return new JwtAuthencationTokenFilter();
     }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         // 使用JWT,不需要csrf

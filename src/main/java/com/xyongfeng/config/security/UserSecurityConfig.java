@@ -20,6 +20,7 @@ import javax.annotation.Resource;
 
 /**
  * Security配置
+ *
  * @author xyongfeng
  */
 //@Configuration

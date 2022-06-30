@@ -19,7 +19,7 @@ import java.util.List;
 @EnableSwagger2
 public class Swagger2Config {
     @Bean
-    public Docket createRestApi(){
+    public Docket createRestApi() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
@@ -30,26 +30,27 @@ public class Swagger2Config {
                 .securitySchemes(securitySchemes());
 
 
-
     }
-    private ApiInfo apiInfo(){
+
+    private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title("会议系统接口文档")
                 .description("会议系统接口文档")
-                .contact(new Contact("xyongfeng","","979204556@qq.com"))
+                .contact(new Contact("xyongfeng", "", "979204556@qq.com"))
                 .version("1.0")
                 .build();
 
     }
-    private List<ApiKey> securitySchemes(){
+
+    private List<ApiKey> securitySchemes() {
         // 设置请求头信息
         List<ApiKey> result = new ArrayList<>();
-        ApiKey apiKey = new ApiKey("Authorization","Authorization","Header");
+        ApiKey apiKey = new ApiKey("Authorization", "Authorization", "Header");
         result.add(apiKey);
         return result;
     }
 
-    private List<SecurityContext> securityContexts(){
+    private List<SecurityContext> securityContexts() {
         // 设置需要登录认证的路径
         List<SecurityContext> result = new ArrayList<>();
         result.add(getContextByPath("/admins/.*"));
@@ -66,10 +67,10 @@ public class Swagger2Config {
     private List<SecurityReference> defaultAuth() {
         List<SecurityReference> result = new ArrayList<>();
 
-        AuthorizationScope authorizationScope = new AuthorizationScope("global","accessEverything");
+        AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
         AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
         authorizationScopes[0] = authorizationScope;
-        result.add(new SecurityReference("Authorization",authorizationScopes));
+        result.add(new SecurityReference("Authorization", authorizationScopes));
         return result;
     }
 

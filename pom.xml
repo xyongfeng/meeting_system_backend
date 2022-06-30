@@ -126,6 +126,19 @@
                     <include>application-${environment}.yaml</include>
                 </includes>
             </resource>
+
+
+            <!--  将mapper.xml打包   -->
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+                <!-- 开启资源打包过滤 -->
+                <filtering>false</filtering>
+            </resource>
+
+
         </resources>
 
         <plugins>

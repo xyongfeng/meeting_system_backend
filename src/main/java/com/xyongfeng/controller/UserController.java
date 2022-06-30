@@ -49,7 +49,7 @@ public class UserController {
         if (list.size() == 0) {
             return JsonResult.error("查询失败，页码超过已有大小");
         }
-        return JsonResult.success("查询成功",list);
+        return JsonResult.success("查询成功", list);
     }
 
     @ApiOperation("添加用户")
@@ -62,7 +62,7 @@ public class UserController {
             log.info(e.getMessage());
             return JsonResult.error(e.getMessage());
         }
-        return JsonResult.success("添加成功",users);
+        return JsonResult.success("添加成功", users);
     }
 
     @ApiOperation("修改用户")
@@ -72,12 +72,13 @@ public class UserController {
         log.info(String.format("put:/user 修改用户。%s", users));
 
         if (userService.userUpdateById(users) > 0) {
-            return JsonResult.success("修改成功",users);
+            return JsonResult.success("修改成功", users);
         } else {
             return JsonResult.error("修改失败");
         }
 
     }
+
     @ApiOperation("删除用户")
     @DeleteMapping("/user")
     public JsonResult delete(@RequestBody @Validated(value =
@@ -85,7 +86,7 @@ public class UserController {
         log.info(String.format("delete:/user 删除用户。%s", users));
         Users delUser = userService.userDelById(users.getId());
         if (delUser != null) {
-            return JsonResult.success("删除成功",delUser);
+            return JsonResult.success("删除成功", delUser);
         } else {
             return JsonResult.error("删除失败");
         }
