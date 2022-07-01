@@ -1,11 +1,11 @@
 package com.xyongfeng.config.security;
 
-import com.xyongfeng.service.AdminsService;
+import com.xyongfeng.service.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -23,15 +23,15 @@ import javax.annotation.Resource;
  * @author xyongfeng
  */
 @Configuration
-@Order(1)
-public class AdminSecurityConfig extends WebSecurityConfigurerAdapter {
-    @Resource
-    private AdminsService adminsService;
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    @Autowired
+    private UsersService usersService;
 
-    @Resource
+    @Autowired
     private RestAuthorizeationEntryPoint restAuthorizeationEntryPoint;
 
-    @Resource
+    @Autowired
     private RestfulAccessDeniedHandler restfulAccessDeniedHandler;
 
     @Override
@@ -49,7 +49,7 @@ public class AdminSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public UserDetailsService userDetailsService() {
 
-        return username -> adminsService.getAdminByUserName(username);
+        return username -> usersService.getUserByUserName(username);
     }
 
     @Bean

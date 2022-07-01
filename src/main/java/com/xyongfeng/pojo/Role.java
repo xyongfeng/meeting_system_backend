@@ -29,6 +29,9 @@ public class Role implements Serializable {
     @ApiModelProperty(value = "id")
     private Integer id;
 
+    @ApiModelProperty(value = "权限识别")
+    private String perms;
+
     @ApiModelProperty(value = "权限名")
     private String name;
 

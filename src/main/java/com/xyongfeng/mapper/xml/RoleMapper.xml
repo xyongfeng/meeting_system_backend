@@ -9,4 +9,22 @@
         <result column="remark" property="remark" />
     </resultMap>
 
+    <select id="selectRoleWithUserid" resultType="com.xyongfeng.pojo.Role">
+        SELECT
+            r.id,
+            r.perms,
+            r.`name`,
+            r.remark
+        FROM
+            t_users a,
+            t_users_role ar,
+            t_role r
+        WHERE
+            a.id = ar.user_id
+          AND
+            ar.user_id = r.id
+          AND
+            a.id = #{id};
+    </select>
+
 </mapper>

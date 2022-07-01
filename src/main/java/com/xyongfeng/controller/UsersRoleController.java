@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2022-06-25
  */
 @RestController
-@RequestMapping("/admins-role")
-public class AdminsRoleController {
+@RequestMapping("/users-role")
+public class UsersRoleController {
 
 }
 

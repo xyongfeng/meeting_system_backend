@@ -2,7 +2,6 @@ package com.xyongfeng.service.Impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xyongfeng.mapper.MenuMapper;
-import com.xyongfeng.pojo.Admins;
 import com.xyongfeng.pojo.JsonResult;
 import com.xyongfeng.pojo.Users;
 import com.xyongfeng.service.MenuService;
@@ -10,9 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import com.xyongfeng.pojo.Menu;
-import springfox.documentation.spi.service.contexts.SecurityContext;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -30,8 +27,8 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
 
 
     @Override
-    public JsonResult getMenusByAdminId() {
-        List<Menu> menus = menuMapper.getMenusByAdminId(((Admins) SecurityContextHolder
+    public JsonResult getMenusByUserId() {
+        List<Menu> menus = menuMapper.getMenusByUserId(((Users) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal()).getId());
         return JsonResult.success(menus);
     }

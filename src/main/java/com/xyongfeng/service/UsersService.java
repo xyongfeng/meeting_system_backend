@@ -1,32 +1,29 @@
 package com.xyongfeng.service;
 
-import com.xyongfeng.pojo.Admins;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.xyongfeng.pojo.MyPage;
 import com.xyongfeng.pojo.Users;
-import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+
 /**
- * <p>
- * 服务类
- * </p>
- *
  * @author xyongfeng
- * @since 2022-06-09
  */
-public interface UserService extends IService<Users> {
+
+public interface UsersService extends IService<Users> {
     /**
-     * 用户登录
+     * 登录管理页面
      *
      * @param username 账号
      * @param password 密码
      * @return 登录是否成功
      */
-    Users userLogin(String username, String password);
+    Users adminLogin(String username, String password);
 
     /**
-     * 增加新的用户
+     * 增加新的管理员
      *
      * @param users 增加的对象
      * @return 返回执行状态
@@ -34,15 +31,15 @@ public interface UserService extends IService<Users> {
     int userAdd(Users users) throws Exception;
 
     /**
-     * 分页获取用户列表
+     * 分页获取管理员列表
      *
      * @param myPage current(当前页码),size(页码大小)
-     * @return 用户列表
+     * @return 管理员列表
      */
     List<Users> listPage(MyPage myPage);
 
     /**
-     * 根据id修改用户
+     * 根据id修改管理员
      *
      * @param users 修改的对象
      * @return 修改结果
@@ -50,9 +47,9 @@ public interface UserService extends IService<Users> {
     int userUpdateById(Users users);
 
     /**
-     * 根据id删除用户
+     * 根据id删除管理员
      *
-     * @param id 删除的用户id
+     * @param id 删除的管理员id
      * @return 删除结果
      */
     Users userDelById(Integer id);

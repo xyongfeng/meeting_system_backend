@@ -18,5 +18,5 @@ public interface MenuService extends IService<Menu> {
      * @return
      */
 
-    JsonResult getMenusByAdminId();
+    JsonResult getMenusByUserId();
 }

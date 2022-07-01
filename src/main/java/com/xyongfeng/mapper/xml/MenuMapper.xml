@@ -31,7 +31,7 @@
     </resultMap>
 
     <!--  根据id查找列表  -->
-    <select id="getMenusByAdminId" resultMap="Menus">
+    <select id="getMenusByUserId" resultMap="Menus">
         SELECT DISTINCT m1.*,
                         m2.id        AS id2,
                         m2.url       AS url2,
@@ -42,12 +42,13 @@
                         m2.enabled   AS enabled2
         FROM t_menu m1,
              t_menu m2,
-             t_admins_role ar,
+             t_users_role ar,
              t_menu_role mr
         WHERE m1.id = m2.parentid
           AND m2.id = mr.menu_id
           AND mr.role_id = ar.role_id
           AND m2.enabled = TRUE
-          AND ar.admins_id = #{id}
+          AND ar.user_id = #{id}
     </select>
+
 </mapper>

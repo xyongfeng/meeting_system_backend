@@ -1,11 +1,13 @@
 package com.xyongfeng;
 
-import com.xyongfeng.mapper.AdminsMapper;
 import com.xyongfeng.mapper.MenuMapper;
-import com.xyongfeng.pojo.Admins;
+import com.xyongfeng.mapper.UserMapper;
 import com.xyongfeng.pojo.Menu;
 import com.xyongfeng.pojo.MyPage;
-import com.xyongfeng.service.AdminsService;
+import com.xyongfeng.pojo.Role;
+import com.xyongfeng.pojo.Users;
+import com.xyongfeng.service.RoleService;
+import com.xyongfeng.service.UsersService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,23 +21,27 @@ import java.util.List;
 class MeetingApplicationTests {
 
     @Resource
-    private AdminsMapper adminsMapper;
+    private UserMapper usersMapper;
     @Resource
-    private AdminsService adminsService;
+    private UsersService adminsService;
     @Resource
     private PasswordEncoder passwordEncoder;
     @Resource
     private MenuMapper menuMapper;
+
+    @Resource
+    private RoleService roleService;
+
     @Test
     void test1() {
-        List<Admins> admins = adminsMapper.selectList(null);
+        List<Users> admins = usersMapper.selectList(null);
         admins.forEach(System.out::println);
     }
 
     @Test
     void test2() {
         log.info("test2");
-        List<Admins> admins = adminsService.listPage(new MyPage(0, 3));
+        List<Users> admins = adminsService.listPage(new MyPage(0, 3));
         admins.forEach(System.out::println);
     }
 //    $2a$10$XXwc8A48H3gHxnGKQ7T.aeRn4hkyrB48UTrqR67X3V567jL9mCDGi
@@ -47,7 +53,14 @@ class MeetingApplicationTests {
 
     @Test
     void test4() {
-        List<Menu> menus = menuMapper.getMenusByAdminId(1);
+        List<Menu> menus = menuMapper.getMenusByUserId(1);
         System.out.println(menus);
     }
+
+    @Test
+    void test5(){
+        List<Role> roles = roleService.selectRoleWithUserid(1);
+        System.out.println(roles);
+    }
+
 }

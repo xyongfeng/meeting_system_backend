@@ -1,9 +1,9 @@
 package com.xyongfeng.service.Impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.xyongfeng.mapper.AdminsRoleMapper;
-import com.xyongfeng.pojo.AdminsRole;
-import com.xyongfeng.service.AdminsRoleService;
+import com.xyongfeng.mapper.UsersRoleMapper;
+import com.xyongfeng.pojo.UsersRole;
+import com.xyongfeng.service.UsersRoleService;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,6 +15,6 @@ import org.springframework.stereotype.Service;
  * @since 2022-06-25
  */
 @Service
-public class AdminsRoleServiceImpl extends ServiceImpl<AdminsRoleMapper, AdminsRole> implements AdminsRoleService {
+public class UsersRoleServiceImpl extends ServiceImpl<UsersRoleMapper, UsersRole> implements UsersRoleService {
 
 }

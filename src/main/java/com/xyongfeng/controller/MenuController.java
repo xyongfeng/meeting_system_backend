@@ -22,7 +22,7 @@ import java.util.List;
  * @since 2022-06-25
  */
 @RestController
-@RequestMapping("/admin/menu")
+@RequestMapping("/admins/menu")
 public class MenuController {
     @Autowired
     private MenuService menuService;
@@ -30,7 +30,7 @@ public class MenuController {
     @ApiOperation(value = "通过用户ID查询菜单列表")
     @GetMapping
     public JsonResult getMenusByAdminId(){
-        return menuService.getMenusByAdminId();
+        return menuService.getMenusByUserId();
     }
 
 

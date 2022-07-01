@@ -1,7 +1,7 @@
 package com.xyongfeng.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.xyongfeng.pojo.AdminsRole;
+import com.xyongfeng.pojo.UsersRole;
 
 /**
  * <p>
@@ -11,6 +11,6 @@ import com.xyongfeng.pojo.AdminsRole;
  * @author xyongfeng
  * @since 2022-06-25
  */
-public interface AdminsRoleService extends IService<AdminsRole> {
+public interface UsersRoleService extends IService<UsersRole> {
 
 }
