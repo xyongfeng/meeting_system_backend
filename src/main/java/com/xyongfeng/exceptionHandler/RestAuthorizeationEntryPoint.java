@@ -1,4 +1,4 @@
-package com.xyongfeng.config.security;
+package com.xyongfeng.exceptionHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xyongfeng.pojo.JsonResult;

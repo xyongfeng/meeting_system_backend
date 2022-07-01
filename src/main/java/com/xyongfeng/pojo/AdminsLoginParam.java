@@ -17,7 +17,6 @@ import java.io.Serializable;
  */
 @Data
 @EqualsAndHashCode
-@Accessors(chain = true)
 @ApiModel(description = "管理员实体")
 public class AdminsLoginParam implements Serializable {
     @ApiModelProperty(value = "用户名", required = true)

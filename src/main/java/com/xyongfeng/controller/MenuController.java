@@ -4,6 +4,8 @@ package com.xyongfeng.controller;
 import com.xyongfeng.pojo.JsonResult;
 import com.xyongfeng.pojo.Menu;
 import com.xyongfeng.service.MenuService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +23,7 @@ import java.util.List;
  * @author xyongfeng
  * @since 2022-06-25
  */
+@Api("菜单控制")
 @RestController
 @RequestMapping("/admins/menu")
 public class MenuController {

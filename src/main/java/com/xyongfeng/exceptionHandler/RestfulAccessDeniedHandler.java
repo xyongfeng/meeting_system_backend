@@ -1,4 +1,4 @@
-package com.xyongfeng.config.security;
+package com.xyongfeng.exceptionHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xyongfeng.pojo.JsonResult;
@@ -16,7 +16,7 @@ import java.io.PrintWriter;
  * 当访问接口没有权限时，自定义返回结果
  */
 @Component
-public class    RestfulAccessDeniedHandler implements AccessDeniedHandler {
+public class RestfulAccessDeniedHandler implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
         response.setCharacterEncoding("UTF-8");

@@ -3,6 +3,9 @@ package com.xyongfeng.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xyongfeng.pojo.MyPage;
 import com.xyongfeng.pojo.Users;
+import com.xyongfeng.pojo.UsersAddParam;
+import com.xyongfeng.pojo.UsersUpdateParam;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,7 +31,7 @@ public interface UsersService extends IService<Users> {
      * @param users 增加的对象
      * @return 返回执行状态
      */
-    int userAdd(Users users) throws Exception;
+    int userAdd(UsersAddParam users, PasswordEncoder passwordEncoder) throws Exception;
 
     /**
      * 分页获取管理员列表
@@ -41,10 +44,10 @@ public interface UsersService extends IService<Users> {
     /**
      * 根据id修改管理员
      *
-     * @param users 修改的对象
+     * @param users users
      * @return 修改结果
      */
-    int userUpdateById(Users users);
+    int userUpdateById(UsersUpdateParam users);
 
     /**
      * 根据id删除管理员

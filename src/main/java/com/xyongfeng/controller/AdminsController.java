@@ -1,12 +1,8 @@
 package com.xyongfeng.controller;
 
-import com.xyongfeng.pojo.AdminsLoginParam;
-import com.xyongfeng.pojo.MyPage;
-import com.xyongfeng.pojo.Users;
-import com.xyongfeng.pojo.JsonResult;
+import com.xyongfeng.pojo.*;
 import com.xyongfeng.service.UsersService;
 import com.xyongfeng.util.JwtTokenUtil;
-import com.xyongfeng.util.ValidGroups;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -46,8 +42,11 @@ public class AdminsController {
     private PasswordEncoder passwordEncoder;
     @Resource
     private JwtTokenUtil jwtTokenUtil;
+
     @Value("${jwt.tokenHead}")
     private String tokenHead;
+
+
 
     @ApiOperation("管理员登录")
     @PostMapping("/login")
@@ -96,7 +95,7 @@ public class AdminsController {
         return JsonResult.success("退出成功");
     }
 
-    @PreAuthorize("hasAuthority('sys::user')")
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::user')")
     @ApiOperation("分页查看管理员列表")
     @GetMapping("/admin")
     public JsonResult select(@RequestBody @Validated MyPage myPage) {
@@ -108,13 +107,13 @@ public class AdminsController {
         return JsonResult.success("查询成功", list);
     }
 
-    @PreAuthorize("hasAuthority('sys::user')")
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::user')")
     @ApiOperation("添加管理员")
     @PostMapping("/admin")
-    public JsonResult add(@RequestBody @Validated Users users) {
+    public JsonResult add(@RequestBody @Validated UsersAddParam users) {
         log.info(String.format("post:/admin 添加管理员。%s", users));
         try {
-            usersService.userAdd(users);
+            usersService.userAdd(users,passwordEncoder);
         } catch (Exception e) {
             log.info(e.getMessage());
             return JsonResult.error(e.getMessage());
@@ -122,10 +121,10 @@ public class AdminsController {
         return JsonResult.success("添加成功", users);
     }
 
-    @PreAuthorize("hasAuthority('sys::user')")
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::user')")
     @ApiOperation("修改管理员")
     @PutMapping("/admin")
-    public JsonResult update(@RequestBody @Validated Users users) {
+    public JsonResult update(@RequestBody @Validated UsersUpdateParam users) {
         log.info(String.format("put:/admin 修改管理员。%s", users));
 
         if (usersService.userUpdateById(users) > 0) {
@@ -136,12 +135,12 @@ public class AdminsController {
 
     }
 
-    @PreAuthorize("hasAuthority('sys::user')")
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::user')")
     @ApiOperation("删除管理员")
     @DeleteMapping("/admin")
-    public JsonResult delete(@RequestBody @Validated Users users) {
-        log.info(String.format("delete:/admin 删除管理员。%s", users));
-        Users delAdmin = usersService.userDelById(users.getId());
+    public JsonResult delete(@RequestBody @Validated IDParam id) {
+        log.info(String.format("delete:/admin 删除管理员。%s", id));
+        Users delAdmin = usersService.userDelById(id.getId());
         if (delAdmin != null) {
             return JsonResult.success("删除成功", delAdmin);
         } else {

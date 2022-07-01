@@ -12,12 +12,19 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
+ * 全局错误抓取
  * @author xyongfeng
  */
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
 
+    /**
+     * 抓取字段错误
+     * @param e
+     * @param response
+     * @return
+     */
     @ExceptionHandler({MethodArgumentNotValidException.class})
     public JsonResult methodArgumentNotValidException(MethodArgumentNotValidException e, HttpServletResponse response) {
 

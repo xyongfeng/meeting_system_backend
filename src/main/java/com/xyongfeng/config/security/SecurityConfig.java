@@ -1,5 +1,7 @@
 package com.xyongfeng.config.security;
 
+import com.xyongfeng.exceptionHandler.RestAuthorizeationEntryPoint;
+import com.xyongfeng.exceptionHandler.RestfulAccessDeniedHandler;
 import com.xyongfeng.service.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -14,8 +16,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import javax.annotation.Resource;
 
 /**
  * Security配置
@@ -67,9 +67,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                //允许登录访问
-//                .antMatchers("/admin/login","/admin/logout")
-//                .permitAll()
+                //只有管理员才能访问/admins/**
+                .antMatchers("/admins/**").hasAuthority("admin")
                 // 除了上面所有请求都要认证
                 .anyRequest()
                 .authenticated()
@@ -83,7 +82,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.exceptionHandling()
                 .accessDeniedHandler(restfulAccessDeniedHandler)
                 .authenticationEntryPoint(restAuthorizeationEntryPoint);
-
+        // 允许跨域
+        http.cors();
     }
 
     @Override

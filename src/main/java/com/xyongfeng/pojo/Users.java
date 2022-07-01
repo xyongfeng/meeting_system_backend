@@ -14,6 +14,7 @@ import org.hibernate.validator.constraints.Length;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -33,9 +34,7 @@ import java.util.stream.Collectors;
  * @since 2022-06-30
  */
 @ApiModel(description = "用户实体")
-@ToString(doNotUseGetters = true)
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
@@ -86,7 +85,7 @@ public class Users implements Serializable, UserDetails {
 
     @ApiModelProperty(value = "是否拥有后台权限")
     @TableField("isAdmin")
-    private String isAdmin;
+    private boolean isAdmin;
 
 
     @ApiModelProperty("权限列表")
@@ -97,32 +96,29 @@ public class Users implements Serializable, UserDetails {
     @TableField(exist = false)
     private List<GrantedAuthority> authorities;
 
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if(authorities == null){
+        if(authorities == null && perms != null){
             authorities = perms.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
         }
         return authorities;
     }
-
     @Override
     public boolean isAccountNonExpired() {
         return false;
     }
-
     @Override
     public boolean isAccountNonLocked() {
         return false;
     }
-
     @Override
     public boolean isCredentialsNonExpired() {
         return false;
     }
-
     @Override
     public boolean isEnabled() {
-        return false;
+        return true;
     }
 
 
