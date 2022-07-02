@@ -8,7 +8,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class MeetingApplication {
 
     public static void main(String[] args) {
+
         SpringApplication.run(MeetingApplication.class, args);
+        System.setProperty("tomcat.util.http.parser.HttpParser.requestTargetAllow","|{}");
     }
 
 }

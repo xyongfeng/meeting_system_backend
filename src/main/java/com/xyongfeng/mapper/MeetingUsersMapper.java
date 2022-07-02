@@ -1,8 +1,7 @@
 package com.xyongfeng.mapper;
 
-import com.xyongfeng.pojo.Meeting;
+import com.xyongfeng.pojo.MeetingUsers;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.springframework.stereotype.Component;
 
 /**
  * <p>
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Component;
  * @author xyongfeng
  * @since 2022-07-02
  */
-@Component
-public interface MeetingMapper extends BaseMapper<Meeting> {
+public interface MeetingUsersMapper extends BaseMapper<MeetingUsers> {
 
 }

@@ -7,7 +7,7 @@ import com.xyongfeng.mapper.UserMapper;
 import com.xyongfeng.pojo.*;
 import com.xyongfeng.service.RoleService;
 import com.xyongfeng.service.UsersService;
-import com.xyongfeng.util.UserParmConverter;
+import com.xyongfeng.util.UserParamConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -54,7 +54,7 @@ public class UsersServiceImpl extends ServiceImpl<UserMapper, Users> implements 
     @Override
     public int userUpdateById(UsersUpdateParam usersUpdateParam) {
 
-        return usersMapper.updateById(UserParmConverter.getUsers(usersUpdateParam));
+        return usersMapper.updateById(UserParamConverter.getUsers(usersUpdateParam));
     }
 
 
@@ -68,8 +68,7 @@ public class UsersServiceImpl extends ServiceImpl<UserMapper, Users> implements 
         }
         // 对密码加密
         users.setPassword(passwordEncoder.encode(users.getPassword()));
-
-        return usersMapper.insert(UserParmConverter.getUsers(users));
+        return usersMapper.insert(UserParamConverter.getUsers(users));
     }
 
     @Override

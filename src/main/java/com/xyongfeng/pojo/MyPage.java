@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 
+/**
+ * @author xyongfeng
+ */
 @ApiModel(description = "分页类实体")
 @Data
 @AllArgsConstructor

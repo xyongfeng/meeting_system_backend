@@ -9,7 +9,7 @@ import com.xyongfeng.pojo.UsersUpdateParam;
  * @author xyongfeng
  */
 
-public class UserParmConverter {
+public class UserParamConverter {
 
     public static Users getUsers(UsersUpdateParam usersUpdateParam){
         return new Users()

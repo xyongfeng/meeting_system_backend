@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletResponse;
+import java.sql.SQLException;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 /**
@@ -22,15 +24,25 @@ public class GlobalExceptionHandler {
     /**
      * 抓取字段错误
      * @param e
-     * @param response
      * @return
      */
-    @ExceptionHandler({MethodArgumentNotValidException.class})
-    public JsonResult methodArgumentNotValidException(MethodArgumentNotValidException e, HttpServletResponse response) {
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public JsonResult methodArgumentNotValidException(MethodArgumentNotValidException e) {
 
         List<ObjectError> allErrors = e.getAllErrors();
         ObjectError error = allErrors.get(0);
         log.info(error.getDefaultMessage());
         return JsonResult.error(error.getDefaultMessage());
     }
+    @ExceptionHandler(SQLException.class)
+    public JsonResult sqlException(SQLException e){
+        return JsonResult.error("数据库异常,操作失败");
+    }
+
+    @ExceptionHandler(DateTimeParseException.class)
+    public JsonResult dateTimeParseException(DateTimeParseException e){
+
+        return JsonResult.error(String.format("%s: 时间格式错误 格式为:yyyy-MM-dd HH:mm:ss",e.getParsedString()));
+    }
+
 }

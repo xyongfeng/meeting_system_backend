@@ -1,8 +1,13 @@
 package com.xyongfeng.service;
 
-
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.xyongfeng.pojo.*;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.xyongfeng.pojo.Meeting;
+import io.swagger.models.auth.In;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.List;
 
 /**
  * <p>
@@ -10,8 +15,37 @@ import com.xyongfeng.pojo.Meeting;
  * </p>
  *
  * @author xyongfeng
- * @since 2022-06-25
+ * @since 2022-07-02
  */
 public interface MeetingService extends IService<Meeting> {
 
+    List<Meeting> listPage(MyPage myPage, QueryWrapper<Meeting> wrapper);
+
+    List<Meeting> listPage(MyPage myPage);
+
+    List<Meeting> listPageByUserid(MyPage myPage, Integer userid);
+
+    int meetingAdd(MeetingAddParam meeting);
+
+    int meetingUpdateById(MeetingUpdateParam meeting);
+
+    Meeting meetingDelById(Long id);
+
+    JsonResult select(MyPage myPage);
+
+    JsonResult select(MyPage myPage, QueryWrapper<Meeting> wrapper);
+
+    JsonResult add(MeetingAddParam meeting);
+
+    JsonResult update(MeetingUpdateParam meeting);
+
+    JsonResult delete(LongIDParam id);
+
+    JsonResult selectByUser(MyPage myPage);
+
+    JsonResult addByUser(MeetingAddParam meeting);
+
+    JsonResult updateByUser(MeetingUpdateParam meeting);
+
+    JsonResult deleteByUser(LongIDParam id);
 }

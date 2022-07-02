@@ -4,7 +4,10 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
+import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -17,7 +20,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author xyongfeng
- * @since 2022-06-25
+ * @since 2022-07-02
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -29,8 +32,8 @@ public class Meeting implements Serializable {
     private static final long serialVersionUID=1L;
 
     @ApiModelProperty(value = "id")
-    @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
+    private Long id;
 
     @ApiModelProperty(value = "会议名称")
     private String name;
@@ -39,10 +42,16 @@ public class Meeting implements Serializable {
     private Integer userId;
 
     @ApiModelProperty(value = "创建会议的时间")
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private LocalDateTime createDate;
 
     @ApiModelProperty(value = "会议开始时间")
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private LocalDateTime startDate;
+
+    @ApiModelProperty(value = "进入会议是否需要创建者认可")
+    @TableField("haveLicence")
+    private Integer haveLicence;
 
 
 }
