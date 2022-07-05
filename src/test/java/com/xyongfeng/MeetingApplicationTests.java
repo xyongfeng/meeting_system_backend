@@ -1,15 +1,15 @@
 package com.xyongfeng;
 
+import com.xyongfeng.mapper.MeetingMapper;
 import com.xyongfeng.mapper.MenuMapper;
-import com.xyongfeng.mapper.UserMapper;
-import com.xyongfeng.pojo.Menu;
-import com.xyongfeng.pojo.MyPage;
-import com.xyongfeng.pojo.Role;
-import com.xyongfeng.pojo.Users;
+import com.xyongfeng.mapper.UsersMapper;
+import com.xyongfeng.pojo.*;
+import com.xyongfeng.service.MeetingService;
 import com.xyongfeng.service.RoleService;
 import com.xyongfeng.service.UsersService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -21,7 +21,7 @@ import java.util.List;
 class MeetingApplicationTests {
 
     @Resource
-    private UserMapper usersMapper;
+    private UsersMapper usersMapper;
     @Resource
     private UsersService adminsService;
     @Resource
@@ -31,6 +31,9 @@ class MeetingApplicationTests {
 
     @Resource
     private RoleService roleService;
+
+    @Autowired
+    private MeetingService meetingService;
 
     @Test
     void test1() {
@@ -63,4 +66,15 @@ class MeetingApplicationTests {
         System.out.println(roles);
     }
 
+    @Test
+    void test6(){
+        List<Meeting> meetings = meetingService.listPage(new MyPage(1, 3));
+        System.out.println(meetings);
+    }
+
+    @Test
+    void test7(){
+        List<Meeting> meetings = meetingService.listPageByUserid(new MyPage(1, 3),2);
+        System.out.println(meetings);
+    }
 }

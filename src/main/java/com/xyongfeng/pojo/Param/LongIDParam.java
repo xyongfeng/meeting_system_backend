@@ -1,4 +1,4 @@
-package com.xyongfeng.pojo;
+package com.xyongfeng.pojo.Param;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

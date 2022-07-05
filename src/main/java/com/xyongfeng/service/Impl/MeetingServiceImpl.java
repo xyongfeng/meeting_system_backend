@@ -1,25 +1,23 @@
 package com.xyongfeng.service.Impl;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xyongfeng.pojo.*;
 import com.xyongfeng.mapper.MeetingMapper;
+import com.xyongfeng.pojo.Param.LongIDParam;
+import com.xyongfeng.pojo.Param.MeetingAddParam;
+import com.xyongfeng.pojo.Param.MeetingUpdateParam;
 import com.xyongfeng.service.MeetingService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xyongfeng.util.MeetingParamConverter;
 import com.xyongfeng.util.SecurityUtil;
-import com.xyongfeng.util.UserParamConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>
@@ -73,8 +71,8 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
     @Override
     public List<Meeting> listPage(MyPage myPage, QueryWrapper<Meeting> wrapper) {
         Page<Meeting> page = new Page<>(myPage.getCurrent(), myPage.getSize());
-        meetingMapper.selectPage(page,wrapper);
-        return page.getRecords();
+
+        return meetingMapper.selectOneToOne(page,wrapper);
     }
 
     @Override

@@ -3,9 +3,9 @@ package com.xyongfeng.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xyongfeng.pojo.*;
 import com.baomidou.mybatisplus.extension.service.IService;
-import io.swagger.models.auth.In;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
+import com.xyongfeng.pojo.Param.LongIDParam;
+import com.xyongfeng.pojo.Param.MeetingAddParam;
+import com.xyongfeng.pojo.Param.MeetingUpdateParam;
 
 import java.util.List;
 

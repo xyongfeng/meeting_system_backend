@@ -1,13 +1,14 @@
 package com.xyongfeng.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.xyongfeng.pojo.MyPage;
-import com.xyongfeng.pojo.Users;
-import com.xyongfeng.pojo.UsersAddParam;
-import com.xyongfeng.pojo.UsersUpdateParam;
+import com.xyongfeng.pojo.*;
+import com.xyongfeng.pojo.Param.UsersAddParam;
+import com.xyongfeng.pojo.Param.UsersSetAdminParam;
+import com.xyongfeng.pojo.Param.UsersSetImgParam;
+import com.xyongfeng.pojo.Param.UsersUpdateParam;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -64,4 +65,15 @@ public interface UsersService extends IService<Users> {
      * @return
      */
     Users getUserByUserName(String username);
+
+    /**
+     * 设置管理员
+     * @param param
+     * @return
+     */
+    JsonResult setAdmin(UsersSetAdminParam param);
+
+    JsonResult setHeadImg(UsersSetImgParam param);
+    JsonResult setFaceImg(UsersSetImgParam param);
+
 }

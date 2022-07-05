@@ -53,5 +53,6 @@ public class Meeting implements Serializable {
     @TableField("haveLicence")
     private Integer haveLicence;
 
-
+    @ApiModelProperty(value = "创建用户")
+    private Users users;
 }

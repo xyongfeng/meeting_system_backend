@@ -1,6 +1,7 @@
 package com.xyongfeng.controller;
 
 import com.xyongfeng.pojo.*;
+import com.xyongfeng.pojo.Param.*;
 import com.xyongfeng.service.UsersService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -15,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -83,7 +85,21 @@ public class AdminsUsersController {
         } else {
             return JsonResult.error("删除失败");
         }
-
     }
 
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::user')")
+    @ApiOperation("设置用户为管理员")
+    @PutMapping("/users/admin")
+    public JsonResult setAdmin(@RequestBody @Validated UsersSetAdminParam param) {
+        log.info(String.format("Put:/users/admin 设置用户为管理员。%s", param));
+        return usersService.setAdmin(param);
+    }
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::user')")
+    @ApiOperation("设置用户头像")
+    @PostMapping("/users/headImg")
+    public JsonResult setHeadImg(@Validated UsersSetImgParam param) throws IOException {
+        log.info(String.format("Put:/users/headImg 设置用户头像。%s", param));
+
+        return usersService.setHeadImg(param);
+    }
 }

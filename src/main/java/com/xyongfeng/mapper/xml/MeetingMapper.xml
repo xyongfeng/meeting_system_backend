@@ -12,4 +12,31 @@
         <result column="haveLicence" property="haveLicence" />
     </resultMap>
 
+    <resultMap id="OneToOneResultMap" type="com.xyongfeng.pojo.Meeting" extends="BaseResultMap">
+        <association property="users" javaType="com.xyongfeng.pojo.Users">
+            <id column="id(1)" property="id"/>
+            <result column="name(1)" property="name"/>
+            <result column="username" property="username"/>
+            <result column="telephone" property="telephone"/>
+            <result column="email" property="email"/>
+            <result column="faceImage" property="faceImage"/>
+            <result column="isAdmin" property="admin"/>
+        </association>
+    </resultMap>
+    <select id="selectOneToOne" resultMap="OneToOneResultMap">
+        SELECT
+            *
+        FROM
+            t_meeting as m,
+            t_users as u
+        <where>
+            m.user_id = u.id
+            <if test="ew != null">
+            and
+                ${ew.sqlSegment}
+            </if>
+
+        </where>
+    </select>
+
 </mapper>

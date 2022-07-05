@@ -1,6 +1,6 @@
 package com.xyongfeng.controller;
 
-import com.xyongfeng.pojo.AdminsLoginParam;
+import com.xyongfeng.pojo.Param.AdminsLoginParam;
 import com.xyongfeng.pojo.JsonResult;
 import com.xyongfeng.pojo.Users;
 import com.xyongfeng.service.UsersService;
@@ -26,8 +26,8 @@ import java.util.Map;
 @Api(tags = "普通用户user操作")
 @RestController
 @Slf4j
-@RequestMapping("/user")
-public class UserController {
+@RequestMapping("/users")
+public class UsersController {
     @Resource
     private JwtTokenUtil jwtTokenUtil;
     @Resource

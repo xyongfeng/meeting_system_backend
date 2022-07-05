@@ -1,4 +1,4 @@
-package com.xyongfeng.pojo;
+package com.xyongfeng.pojo.Param;
 
 import com.xyongfeng.util.ValidGroups;
 import io.swagger.annotations.ApiModel;

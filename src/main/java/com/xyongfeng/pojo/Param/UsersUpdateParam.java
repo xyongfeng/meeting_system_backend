@@ -1,4 +1,4 @@
-package com.xyongfeng.pojo;
+package com.xyongfeng.pojo.Param;
 
 
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -51,9 +51,9 @@ public class UsersUpdateParam {
     private String email;
 
     @ApiModelProperty(value = "头像路径")
-    private String faceImage;
+    private String headImage;
 
     @ApiModelProperty(value = "是否拥有后台权限")
-    private boolean isAdmin;
+    private Boolean isAdmin;
 
 }

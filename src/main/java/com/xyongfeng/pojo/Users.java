@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.xyongfeng.util.ValidGroups;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -14,20 +14,21 @@ import org.hibernate.validator.constraints.Length;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import springfox.documentation.annotations.ApiIgnore;
+
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author xyongfeng
@@ -42,7 +43,8 @@ import java.util.stream.Collectors;
 @TableName("t_users")
 public class Users implements Serializable, UserDetails {
 
-    private static final long serialVersionUID=1L;
+    private static final long serialVersionUID = 1L;
+
 
     @ApiModelProperty("id")
     @NotNull(message = "id不能为空")
@@ -80,12 +82,12 @@ public class Users implements Serializable, UserDetails {
     private String email;
 
     @ApiModelProperty(value = "头像路径")
-    @TableField("faceImage")
-    private String faceImage;
+    @TableField("headImage")
+    private String headImage;
 
     @ApiModelProperty(value = "是否拥有后台权限")
     @TableField("isAdmin")
-    private boolean isAdmin;
+    private Boolean isAdmin;
 
 
     @ApiModelProperty("权限列表")
@@ -99,27 +101,42 @@ public class Users implements Serializable, UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if(authorities == null && perms != null){
+        if (authorities == null && perms != null) {
             authorities = perms.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
         }
         return authorities;
     }
+
     @Override
     public boolean isAccountNonExpired() {
         return false;
     }
+
     @Override
     public boolean isAccountNonLocked() {
         return false;
     }
+
     @Override
     public boolean isCredentialsNonExpired() {
         return false;
     }
+
     @Override
     public boolean isEnabled() {
         return true;
     }
 
-
+//    public Users setHeadImage(String headImage) {
+//
+//        this.headImage = headImage;
+//        return this;
+//    }
+//
+//    public String getHeadImage() {
+//        String headpath = "img/head";
+//        Path path = Paths.get(FileUtil.getClassPathUrl())
+//                .resolve(headpath).resolve(headImage);
+//        return path.toString();
+//    }
 }

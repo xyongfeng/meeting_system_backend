@@ -2,17 +2,17 @@ package com.xyongfeng.controller;
 
 
 import com.xyongfeng.pojo.*;
+import com.xyongfeng.pojo.Param.LongIDParam;
+import com.xyongfeng.pojo.Param.MeetingAddParam;
+import com.xyongfeng.pojo.Param.MeetingUpdateParam;
 import com.xyongfeng.service.MeetingService;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * <p>

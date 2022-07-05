@@ -1,8 +1,8 @@
 package com.xyongfeng.util;
 
 import com.xyongfeng.pojo.Meeting;
-import com.xyongfeng.pojo.MeetingAddParam;
-import com.xyongfeng.pojo.MeetingUpdateParam;
+import com.xyongfeng.pojo.Param.MeetingAddParam;
+import com.xyongfeng.pojo.Param.MeetingUpdateParam;
 
 
 /**
