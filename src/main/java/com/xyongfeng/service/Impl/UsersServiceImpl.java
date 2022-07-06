@@ -98,6 +98,9 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     @Override
     public Users getUserByUserName(String username) {
         Users users = usersMapper.selectOne(new QueryWrapper<Users>().eq("username", username));
+        if(users == null){
+            return null;
+        }
         List<Role> roles = roleService.selectRoleWithUserid(users.getId());
         List<String> perms = roles.stream().map(Role::getPerms).collect(Collectors.toList());
         if (users.getIsAdmin()) {
@@ -141,7 +144,8 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         }
         String filename = UUID.randomUUID().toString().concat(end);
         if (FileUtil.uploadFile(file, subPath, filename)) {
-            return JsonResult.success("上传成功",filename);
+                // 成功就返回图片相对路径
+            return JsonResult.success("上传成功",Paths.get(subPath).resolve(filename).toString());
         } else {
             return JsonResult.error("上传失败");
         }

@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
 @ApiModel(description = "ID实体类")
 public class IDParam {
 
-    @ApiModelProperty("id")
+    @ApiModelProperty(value = "id",required = true)
     @NotNull(message = "id不能为空")
     private Integer id;
 

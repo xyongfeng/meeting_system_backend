@@ -27,7 +27,7 @@ public class FileUtil {
     public static boolean uploadFile(MultipartFile file, String subPath, String fileName) {
         try {
             String classpath = ResourceUtils.getURL("classpath:").getPath().substring(1);
-            Path path = Paths.get(classpath).resolve(subPath);
+            Path path = Paths.get(classpath).resolve("static").resolve(subPath);
             // 创建文件夹
             Files.createDirectories(path);
             // 写入文件

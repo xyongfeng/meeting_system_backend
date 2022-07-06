@@ -19,11 +19,11 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @ApiModel(description = "User设置管理员")
 public class UsersSetAdminParam {
-    @ApiModelProperty("id")
+    @ApiModelProperty(value = "id",required = true)
     @NotNull(message = "id不能为空")
     private Integer id;
 
-    @ApiModelProperty(value = "是否为管理员")
+    @ApiModelProperty(value = "是否为管理员",required = true)
     @NotNull(message = "管理员状态不能为空")
     private Boolean isAdmin;
 }

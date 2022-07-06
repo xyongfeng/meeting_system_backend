@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 @ApiModel(description = "LongID实体类")
 public class LongIDParam {
 
-    @ApiModelProperty("id")
+    @ApiModelProperty(value = "id",required = true)
     @NotNull(message = "id不能为空")
     private Long id;
 
