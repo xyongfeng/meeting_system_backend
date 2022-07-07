@@ -4,9 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xyongfeng.pojo.*;
 import com.xyongfeng.mapper.MeetingMapper;
-import com.xyongfeng.pojo.Param.LongIDParam;
-import com.xyongfeng.pojo.Param.MeetingAddParam;
-import com.xyongfeng.pojo.Param.MeetingUpdateParam;
+import com.xyongfeng.pojo.Param.*;
 import com.xyongfeng.service.MeetingService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xyongfeng.util.MeetingParamConverter;
@@ -52,7 +50,7 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
     }
 
     @Override
-    public Meeting meetingDelById(Long id) {
+    public Meeting meetingDelById(String id) {
         Meeting meeting = meetingMapper.selectById(id);
         if (meeting != null && meetingMapper.deleteById(id) > 0) {
             return meeting;
@@ -62,37 +60,37 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
 
 
     @Override
-    public List<Meeting> listPageByUserid(MyPage myPage, Integer userid) {
+    public List<Meeting> listPageByUserid(PageParam pageParam, Integer userid) {
         QueryWrapper<Meeting> wrapper = new QueryWrapper<>();
         wrapper.eq("user_id",userid);
-        return listPage(myPage,wrapper);
+        return listPage(pageParam,wrapper);
     }
 
     @Override
-    public List<Meeting> listPage(MyPage myPage, QueryWrapper<Meeting> wrapper) {
-        Page<Meeting> page = new Page<>(myPage.getCurrent(), myPage.getSize());
+    public List<Meeting> listPage(PageParam pageParam, QueryWrapper<Meeting> wrapper) {
+        Page<Meeting> page = new Page<>(pageParam.getCurrent(), pageParam.getSize());
 
         return meetingMapper.selectOneToOne(page,wrapper);
     }
 
     @Override
-    public List<Meeting> listPage(MyPage myPage) {
-        return listPage(myPage,null);
+    public List<Meeting> listPage(PageParam pageParam) {
+        return listPage(pageParam,null);
     }
 
     @Override
-    public JsonResult select(MyPage myPage) {
+    public JsonResult select(PageParam pageParam) {
 
-        return select(myPage,null);
+        return select(pageParam,null);
     }
 
     @Override
-    public JsonResult select(MyPage myPage,QueryWrapper<Meeting> wrapper) {
-        List<Meeting> list = listPage(myPage,wrapper);
+    public JsonResult select(PageParam pageParam, QueryWrapper<Meeting> wrapper) {
+        List<Meeting> list = listPage(pageParam,wrapper);
         if (list.size() == 0) {
             return JsonResult.error("查询失败，页码超过已有大小");
         }
-        return JsonResult.success("查询成功", list);
+        return JsonResult.success(list);
     }
 
 
@@ -110,7 +108,7 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
     @Override
     public JsonResult update(MeetingUpdateParam meeting) {
         if (meetingUpdateById(meeting) > 0) {
-            return JsonResult.error("修改成功", meeting);
+            return JsonResult.success("修改成功", meeting);
         } else {
             return JsonResult.error("修改失败");
         }
@@ -128,14 +126,20 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
 
 
     @Override
-    public JsonResult selectByUser(MyPage myPage) {
+    public JsonResult selectByUser(PageParam pageParam) {
         Users users = SecurityUtil.getUsers();
         // 只输出当前用户创建的会议
 
         assert users != null;
-        return select(myPage,new QueryWrapper<Meeting>().eq("user_id",users.getId()));
+        return select(pageParam,new QueryWrapper<Meeting>().eq("user_id",users.getId()));
     }
-    private boolean isBelongUser(Long meetingId){
+
+    /**
+     * 查看这个会议是否属于这个用户
+     * @param meetingId
+     * @return
+     */
+    private boolean isBelongUser(String meetingId){
         QueryWrapper<Meeting> wrapper = new QueryWrapper<>();
         Users users = SecurityUtil.getUsers();
         if (users == null){
@@ -167,5 +171,17 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
             return JsonResult.error("删除失败");
         }
         return delete(id);
+    }
+
+    @Override
+    public JsonResult setLicence(MeetSetLicenceParam param) {
+        int i = meetingMapper.updateById(
+                new Meeting()
+                        .setId(param.getId())
+                        .setHaveLicence(param.getHaveLicence()));
+        if (i != 0) {
+            return JsonResult.success("修改成功");
+        }
+        return JsonResult.error("修改失败");
     }
 }

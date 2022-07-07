@@ -1,4 +1,4 @@
-package com.xyongfeng.pojo;
+package com.xyongfeng.pojo.Param;
 
 
 import io.swagger.annotations.ApiModel;
@@ -16,12 +16,12 @@ import javax.validation.constraints.NotNull;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MyPage {
-    @ApiModelProperty("当前页码")
+public class PageParam {
+    @ApiModelProperty(value = "当前页码",required = true)
     @NotNull(message = "页码不能为空")
     private Integer current;
 
-    @ApiModelProperty("页面大小")
+    @ApiModelProperty(value = "页面大小",required = true)
     @NotNull(message = "页面大小不能为空")
     private Integer size;
 }

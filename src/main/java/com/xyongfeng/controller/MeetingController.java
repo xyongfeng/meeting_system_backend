@@ -5,6 +5,7 @@ import com.xyongfeng.pojo.*;
 import com.xyongfeng.pojo.Param.LongIDParam;
 import com.xyongfeng.pojo.Param.MeetingAddParam;
 import com.xyongfeng.pojo.Param.MeetingUpdateParam;
+import com.xyongfeng.pojo.Param.PageParam;
 import com.xyongfeng.service.MeetingService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -32,9 +33,9 @@ public class MeetingController {
 
     @ApiOperation("分页查看会议列表")
     @PostMapping("/meetinglist")
-    public JsonResult select(@RequestBody @Validated MyPage myPage) {
-        log.info(String.format("get:/meeting 查看会议列表。%s", myPage));
-        return meetingService.selectByUser(myPage);
+    public JsonResult select(@RequestBody @Validated PageParam pageParam) {
+        log.info(String.format("get:/meeting 查看会议列表。%s", pageParam));
+        return meetingService.selectByUser(pageParam);
     }
 
     @ApiOperation("添加会议")

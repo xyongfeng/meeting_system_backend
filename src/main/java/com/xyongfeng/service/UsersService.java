@@ -2,13 +2,9 @@ package com.xyongfeng.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xyongfeng.pojo.*;
-import com.xyongfeng.pojo.Param.UsersAddParam;
-import com.xyongfeng.pojo.Param.UsersSetAdminParam;
-import com.xyongfeng.pojo.Param.UsersSetImgParam;
-import com.xyongfeng.pojo.Param.UsersUpdateParam;
+import com.xyongfeng.pojo.Param.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.io.IOException;
 import java.util.List;
 
 
@@ -37,10 +33,10 @@ public interface UsersService extends IService<Users> {
     /**
      * 分页获取管理员列表
      *
-     * @param myPage current(当前页码),size(页码大小)
+     * @param pageParam current(当前页码),size(页码大小)
      * @return 管理员列表
      */
-    List<Users> listPage(MyPage myPage);
+    List<Users> listPage(PageParam pageParam);
 
     /**
      * 根据id修改管理员

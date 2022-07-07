@@ -33,6 +33,6 @@ public class MeetingAddParam {
 
     @ApiModelProperty(value = "进入会议是否需要创建者认可")
     @TableField("haveLicence")
-    private Integer haveLicence;
+    private Boolean haveLicence;
 
 }

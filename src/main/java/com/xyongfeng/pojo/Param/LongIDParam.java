@@ -15,7 +15,7 @@ public class LongIDParam {
 
     @ApiModelProperty(value = "id",required = true)
     @NotNull(message = "id不能为空")
-    private Long id;
+    private String id;
 
 
 }

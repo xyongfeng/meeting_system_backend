@@ -23,7 +23,7 @@ import java.util.List;
  * @author xyongfeng
  * @since 2022-06-25
  */
-@Api("菜单控制")
+@Api(tags = "管理员操作meeting接口")
 @RestController
 @RequestMapping("/admins/menu")
 public class MenuController {

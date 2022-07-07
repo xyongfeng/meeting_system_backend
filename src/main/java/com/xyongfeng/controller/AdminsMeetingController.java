@@ -2,9 +2,7 @@ package com.xyongfeng.controller;
 
 
 import com.xyongfeng.pojo.*;
-import com.xyongfeng.pojo.Param.LongIDParam;
-import com.xyongfeng.pojo.Param.MeetingAddParam;
-import com.xyongfeng.pojo.Param.MeetingUpdateParam;
+import com.xyongfeng.pojo.Param.*;
 import com.xyongfeng.service.MeetingService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -35,9 +33,9 @@ public class AdminsMeetingController {
     @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::meeting')")
     @ApiOperation("分页查看会议列表")
     @PostMapping("/meetinglist")
-    public JsonResult select(@RequestBody @Validated MyPage myPage) {
-        log.info(String.format("get:/meeting 查看会议列表。%s", myPage));
-        return meetingService.select(myPage);
+    public JsonResult select(@RequestBody @Validated PageParam pageParam) {
+        log.info(String.format("get:/meeting 查看会议列表。%s", pageParam));
+        return meetingService.select(pageParam);
     }
 
     @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::meeting')")
@@ -65,7 +63,13 @@ public class AdminsMeetingController {
     }
 
 
-
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::meeting')")
+    @ApiOperation("会议是否需要创建者许可才能进入")
+    @PutMapping("/meeting/licence")
+    public JsonResult setLicence(@RequestBody @Validated MeetSetLicenceParam param) {
+        log.info(String.format("Put:/meeting/licence 会议是否需要创建者许可才能进入。%s", param));
+        return meetingService.setLicence(param);
+    }
 
 }
 

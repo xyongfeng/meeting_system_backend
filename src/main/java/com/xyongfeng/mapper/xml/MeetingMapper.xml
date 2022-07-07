@@ -14,18 +14,25 @@
 
     <resultMap id="OneToOneResultMap" type="com.xyongfeng.pojo.Meeting" extends="BaseResultMap">
         <association property="users" javaType="com.xyongfeng.pojo.Users">
-            <id column="id(1)" property="id"/>
-            <result column="name(1)" property="name"/>
+            <id column="userId" property="id"/>
+            <result column="uName" property="name"/>
             <result column="username" property="username"/>
             <result column="telephone" property="telephone"/>
             <result column="email" property="email"/>
-            <result column="faceImage" property="faceImage"/>
-            <result column="isAdmin" property="admin"/>
+            <result column="headImage" property="headImage"/>
+            <result column="isAdmin" property="isAdmin"/>
         </association>
     </resultMap>
     <select id="selectOneToOne" resultMap="OneToOneResultMap">
         SELECT
-            *
+        m.*,
+        u.id as userId,
+        u.`name` as uName,
+        u.username,
+        u.telephone,
+        u.headImage,
+        u.email,
+        u.isAdmin
         FROM
             t_meeting as m,
             t_users as u

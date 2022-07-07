@@ -3,9 +3,7 @@ package com.xyongfeng.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xyongfeng.pojo.*;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.xyongfeng.pojo.Param.LongIDParam;
-import com.xyongfeng.pojo.Param.MeetingAddParam;
-import com.xyongfeng.pojo.Param.MeetingUpdateParam;
+import com.xyongfeng.pojo.Param.*;
 
 import java.util.List;
 
@@ -19,21 +17,21 @@ import java.util.List;
  */
 public interface MeetingService extends IService<Meeting> {
 
-    List<Meeting> listPage(MyPage myPage, QueryWrapper<Meeting> wrapper);
+    List<Meeting> listPage(PageParam pageParam, QueryWrapper<Meeting> wrapper);
 
-    List<Meeting> listPage(MyPage myPage);
+    List<Meeting> listPage(PageParam pageParam);
 
-    List<Meeting> listPageByUserid(MyPage myPage, Integer userid);
+    List<Meeting> listPageByUserid(PageParam pageParam, Integer userid);
 
     int meetingAdd(MeetingAddParam meeting);
 
     int meetingUpdateById(MeetingUpdateParam meeting);
 
-    Meeting meetingDelById(Long id);
+    Meeting meetingDelById(String id);
 
-    JsonResult select(MyPage myPage);
+    JsonResult select(PageParam pageParam);
 
-    JsonResult select(MyPage myPage, QueryWrapper<Meeting> wrapper);
+    JsonResult select(PageParam pageParam, QueryWrapper<Meeting> wrapper);
 
     JsonResult add(MeetingAddParam meeting);
 
@@ -41,11 +39,13 @@ public interface MeetingService extends IService<Meeting> {
 
     JsonResult delete(LongIDParam id);
 
-    JsonResult selectByUser(MyPage myPage);
+    JsonResult selectByUser(PageParam pageParam);
 
     JsonResult addByUser(MeetingAddParam meeting);
 
     JsonResult updateByUser(MeetingUpdateParam meeting);
 
     JsonResult deleteByUser(LongIDParam id);
+
+    JsonResult setLicence(MeetSetLicenceParam param);
 }

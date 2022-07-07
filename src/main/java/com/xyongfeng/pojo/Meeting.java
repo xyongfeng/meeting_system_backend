@@ -33,7 +33,7 @@ public class Meeting implements Serializable {
 
     @ApiModelProperty(value = "id")
     @TableId(value = "id", type = IdType.ASSIGN_ID)
-    private Long id;
+    private String id;
 
     @ApiModelProperty(value = "会议名称")
     private String name;
@@ -51,8 +51,9 @@ public class Meeting implements Serializable {
 
     @ApiModelProperty(value = "进入会议是否需要创建者认可")
     @TableField("haveLicence")
-    private Integer haveLicence;
+    private Boolean haveLicence;
 
     @ApiModelProperty(value = "创建用户")
+    @TableField(exist = false)
     private Users users;
 }

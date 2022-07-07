@@ -34,10 +34,10 @@ public class GlobalExceptionHandler {
         log.info(error.getDefaultMessage());
         return JsonResult.error(error.getDefaultMessage());
     }
-    @ExceptionHandler(SQLException.class)
-    public JsonResult sqlException(SQLException e){
-        return JsonResult.error("数据库异常,操作失败");
-    }
+//    @ExceptionHandler(SQLException.class)
+//    public JsonResult sqlException(SQLException e){
+//        return JsonResult.error("数据库异常,操作失败");
+//    }
 
     @ExceptionHandler(DateTimeParseException.class)
     public JsonResult dateTimeParseException(DateTimeParseException e){

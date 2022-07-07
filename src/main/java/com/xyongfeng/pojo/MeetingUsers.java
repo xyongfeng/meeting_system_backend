@@ -31,7 +31,7 @@ public class MeetingUsers implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    private Integer meetingId;
+    private String meetingId;
 
     private Integer usersId;
 

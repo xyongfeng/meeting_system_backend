@@ -5,28 +5,19 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xyongfeng.mapper.UsersMapper;
 import com.xyongfeng.pojo.*;
-import com.xyongfeng.pojo.Param.UsersAddParam;
-import com.xyongfeng.pojo.Param.UsersSetAdminParam;
-import com.xyongfeng.pojo.Param.UsersSetImgParam;
-import com.xyongfeng.pojo.Param.UsersUpdateParam;
+import com.xyongfeng.pojo.Param.*;
 import com.xyongfeng.service.RoleService;
 import com.xyongfeng.service.UsersService;
 import com.xyongfeng.util.FileUtil;
 import com.xyongfeng.util.UserParamConverter;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -56,8 +47,8 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     }
 
     @Override
-    public List<Users> listPage(MyPage myPage) {
-        Page<Users> page = new Page<>(myPage.getCurrent(), myPage.getSize());
+    public List<Users> listPage(PageParam pageParam) {
+        Page<Users> page = new Page<>(pageParam.getCurrent(), pageParam.getSize());
         QueryWrapper<Users> wrapper = new QueryWrapper<>();
         // 输出字段不包括password
         wrapper.select(Users.class, e -> !"password".equals(e.getColumn()));
@@ -90,6 +81,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     public Users userDelById(Integer id) {
         Users users = usersMapper.selectById(id);
         if (users != null && usersMapper.deleteById(id) > 0) {
+            users.setPassword(null);
             return users;
         }
         return null;
@@ -119,7 +111,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         if (i != 0) {
             return JsonResult.success("修改成功");
         }
-        return JsonResult.success("修改失败");
+        return JsonResult.error("修改失败");
     }
 
     public static JsonResult uploadImg(MultipartFile file, String subPath) {

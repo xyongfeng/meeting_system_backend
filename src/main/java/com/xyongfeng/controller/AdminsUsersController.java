@@ -37,13 +37,13 @@ public class AdminsUsersController {
     @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::user')")
     @ApiOperation("分页查看用户列表")
     @PostMapping("/userslist")
-    public JsonResult select(@RequestBody @Validated MyPage myPage) {
-        log.info(String.format("get:/users 查看用户列表。%s", myPage));
-        List<Users> list = usersService.listPage(myPage);
+    public JsonResult select(@RequestBody @Validated PageParam pageParam) {
+        log.info(String.format("get:/users 查看用户列表。%s", pageParam));
+        List<Users> list = usersService.listPage(pageParam);
         if (list.size() == 0) {
             return JsonResult.error("查询失败，页码超过已有大小");
         }
-        return JsonResult.success("查询成功", list);
+        return JsonResult.success( list);
     }
 
     @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::user')")
@@ -67,7 +67,7 @@ public class AdminsUsersController {
         log.info(String.format("put:/users 修改用户。%s", users));
 
         if (usersService.userUpdateById(users) > 0) {
-            return JsonResult.error("修改成功", users);
+            return JsonResult.success("修改成功", users);
         } else {
             return JsonResult.error("修改失败");
         }
@@ -88,7 +88,7 @@ public class AdminsUsersController {
     }
 
     @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::user')")
-    @ApiOperation("设置用户为管理员")
+    @ApiOperation("设置用户是否为管理员")
     @PutMapping("/users/admin")
     public JsonResult setAdmin(@RequestBody @Validated UsersSetAdminParam param) {
         log.info(String.format("Put:/users/admin 设置用户为管理员。%s", param));
