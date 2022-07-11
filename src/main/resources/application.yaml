@@ -26,9 +26,11 @@ jwt:
   # JWT 负载中拿到开头
   tokenHead: Bearer
 
-
 img:
   # 头像图片储存位置
   head: img/head
   # 面部图片存储位置
   face: img/face
+
+flask:
+  headerUrl: http://127.0.0.1:5000/

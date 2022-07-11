@@ -72,4 +72,5 @@ public interface UsersService extends IService<Users> {
     JsonResult setHeadImg(UsersSetImgParam param);
     JsonResult setFaceImg(UsersSetImgParam param);
 
+    JsonResult register(UsersRegisterParam param);
 }

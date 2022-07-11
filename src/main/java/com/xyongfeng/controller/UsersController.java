@@ -2,6 +2,7 @@ package com.xyongfeng.controller;
 
 import com.xyongfeng.pojo.Param.AdminsLoginParam;
 import com.xyongfeng.pojo.JsonResult;
+import com.xyongfeng.pojo.Param.UsersRegisterParam;
 import com.xyongfeng.pojo.Users;
 import com.xyongfeng.service.UsersService;
 import com.xyongfeng.util.JwtTokenUtil;
@@ -87,6 +88,10 @@ public class UsersController {
         return JsonResult.success("退出成功");
     }
 
-
+    @ApiOperation(value = "签到")
+    @PostMapping("/register")
+    public JsonResult register(@RequestBody @Validated UsersRegisterParam param) {
+        return usersService.register(param);
+    }
 
 }
