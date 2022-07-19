@@ -1,6 +1,5 @@
 package com.xyongfeng.service.Impl;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -8,21 +7,19 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xyongfeng.mapper.UsersMapper;
 import com.xyongfeng.pojo.*;
 import com.xyongfeng.pojo.Param.*;
+import com.xyongfeng.pojo.config.ImgPathPro;
 import com.xyongfeng.service.RoleService;
 import com.xyongfeng.service.UsersService;
 import com.xyongfeng.util.FileUtil;
 import com.xyongfeng.util.SecurityUtil;
 import com.xyongfeng.util.UserParamConverter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.reflection.wrapper.ObjectWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-import springfox.documentation.spring.web.json.Json;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -40,7 +37,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     @Autowired
     private RoleService roleService;
     @Autowired
-    private ImgPathConfig imgPathConfig;
+    private ImgPathPro imgPathPro;
     @Autowired
     private RestTemplate restTemplate;
 
@@ -155,7 +152,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 
     @Override
     public JsonResult setHeadImg(UsersSetImgParam param) {
-        JsonResult jsonResult = uploadImg(param.getFile(), imgPathConfig.getHead());
+        JsonResult jsonResult = uploadImg(param.getFile(), imgPathPro.getHead());
         if(jsonResult.getCode() == 200){
             usersMapper.updateById(new Users().setId(param.getId()).setHeadImage((String)jsonResult.getData()));
             return JsonResult.success(jsonResult.getMessage());
@@ -165,22 +162,26 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 
     @Override
     public JsonResult setFaceImg(UsersSetImgParam param) {
-        return uploadImg(param.getFile(), imgPathConfig.getFace());
+        return uploadImg(param.getFile(), imgPathPro.getFace());
     }
 
     @Override
     public JsonResult register(UsersRegisterParam param) {
         String imgBase64 = param.getImgBase64();
+
         Map<String,Object> map = new HashMap<>();
         map.put("imgBase64",imgBase64);
+
         String res = restTemplate.postForObject(headerUrl.concat("/predict"), map, String.class);
-        // 覆盖map
+
         JSONObject jsonObject = JSONObject.parseObject(res);
 
         if(jsonObject.getInteger("code") != 200){
             return JsonResult.error(jsonObject.getInteger("code"),jsonObject.getString("message"));
         }
+
         String name = jsonObject.getJSONObject("data").getString("name");
+
         if (!name.equals(Objects.requireNonNull(SecurityUtil.getUsers()).getName())){
             return JsonResult.error("签到失败，人脸检测非本人");
         }

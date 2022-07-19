@@ -1,16 +1,25 @@
 package com.xyongfeng;
 
-import org.mybatis.spring.annotation.MapperScan;
+import com.corundumstudio.socketio.SocketIOServer;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MeetingApplication {
+@Slf4j
+public class MeetingApplication implements CommandLineRunner {
+    @Autowired
+    private SocketIOServer socketIOServer;
 
     public static void main(String[] args) {
-
         SpringApplication.run(MeetingApplication.class, args);
-        System.setProperty("tomcat.util.http.parser.HttpParser.requestTargetAllow","|{}");
     }
 
+    @Override
+    public void run(String... args) throws Exception {
+        socketIOServer.start();
+        log.info("socket.io启动");
+    }
 }
