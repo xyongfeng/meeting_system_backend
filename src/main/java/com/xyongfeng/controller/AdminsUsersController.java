@@ -36,7 +36,7 @@ public class AdminsUsersController {
 
     @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::user')")
     @ApiOperation("分页查看用户列表")
-    @PostMapping("/userslist")
+    @PostMapping("/usersList")
     public JsonResult select(@RequestBody @Validated PageParam pageParam) {
         log.info(String.format("get:/users 查看用户列表。%s", pageParam));
         List<Users> list = usersService.listPage(pageParam);

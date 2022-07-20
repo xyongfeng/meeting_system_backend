@@ -2,6 +2,7 @@ package com.xyongfeng.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xyongfeng.mapper.MeetingUsersMapper;
 import com.xyongfeng.pojo.*;
 import com.xyongfeng.mapper.MeetingMapper;
 import com.xyongfeng.pojo.Param.*;
@@ -30,7 +31,8 @@ import java.util.List;
 public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> implements MeetingService {
     @Autowired
     private MeetingMapper meetingMapper;
-
+    @Autowired
+    private MeetingUsersMapper meetingUsersMapper;
 
     @Override
     public int meetingAdd(MeetingAddParam meeting) {
@@ -87,9 +89,7 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
     @Override
     public JsonResult select(PageParam pageParam, QueryWrapper<Meeting> wrapper) {
         List<Meeting> list = listPage(pageParam,wrapper);
-        if (list.size() == 0) {
-            return JsonResult.error("查询失败，页码超过已有大小");
-        }
+
         return JsonResult.success(list);
     }
 
@@ -129,8 +129,9 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
     public JsonResult selectByUser(PageParam pageParam) {
         Users users = SecurityUtil.getUsers();
         // 只输出当前用户创建的会议
-
-        assert users != null;
+        if(users == null) {
+            return JsonResult.error("获取用户信息失败，请重新登录");
+        }
         return select(pageParam,new QueryWrapper<Meeting>().eq("user_id",users.getId()));
     }
 
@@ -173,6 +174,7 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
         return delete(id);
     }
 
+
     @Override
     public JsonResult setLicence(MeetSetLicenceParam param) {
         int i = meetingMapper.updateById(
@@ -183,5 +185,73 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
             return JsonResult.success("修改成功");
         }
         return JsonResult.error("修改失败");
+    }
+
+    @Override
+    public JsonResult setLicenceByUser(MeetSetLicenceParam param) {
+        if(!isBelongUser(param.getId())){
+            return JsonResult.error("修改失败");
+        }
+        return setLicence(param);
+    }
+
+    /**
+     * 分页查看自己加入的会议列表
+     * @param pageParam
+     * @return
+     */
+    @Override
+    public JsonResult selectByUserJoined(PageParam pageParam) {
+        Users users = SecurityUtil.getUsers();
+        // 只输出当前用户创建的会议
+        if(users == null) {
+            return JsonResult.error("获取用户信息失败，请重新登录");
+        }
+
+        Page<Meeting> page = new Page<>(pageParam.getCurrent(), pageParam.getSize());
+
+        List<Meeting> meetings = meetingMapper.selectOneToMany(page,users.getId());
+        return JsonResult.success(meetings);
+    }
+
+
+
+    private JsonResult joinMeeting(LongIDParam parm,Boolean isOut) {
+        Meeting meeting = meetingMapper.selectOne((new QueryWrapper<Meeting>().eq("id", parm.getId())));
+        if(meeting == null){
+            return JsonResult.error("会议没找到，请检查会议号");
+        }
+        Users users = SecurityUtil.getUsers();
+        if(users == null) {
+            return JsonResult.error("获取用户信息失败，请重新登录");
+        }
+        QueryWrapper<MeetingUsers> wrapper = (new QueryWrapper<MeetingUsers>())
+                .eq("users_id", users.getId())
+                .eq("meeting_id", meeting.getId());
+        if(isOut){
+
+            int state = meetingUsersMapper.delete(wrapper);
+
+            return state > 0 ? JsonResult.success("退出成功") : JsonResult.error("退出失败");
+        }
+        if(meetingUsersMapper.selectOne(wrapper) != null){
+            return JsonResult.error("你已经参加此会议了");
+        }
+
+        // todo 要写申请入会
+        meetingUsersMapper.insert((new MeetingUsers())
+                .setMeetingId(meeting.getId())
+                .setUsersId(users.getId()));
+        return JsonResult.success("参加成功");
+    }
+
+    @Override
+    public JsonResult joinMeeting(LongIDParam parm) {
+        return joinMeeting(parm,false);
+    }
+
+    @Override
+    public JsonResult outMeeting(LongIDParam parm) {
+        return joinMeeting(parm,true);
     }
 }

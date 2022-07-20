@@ -45,7 +45,20 @@ public interface MeetingService extends IService<Meeting> {
 
     JsonResult updateByUser(MeetingUpdateParam meeting);
 
-    JsonResult deleteByUser(LongIDParam id);
+    JsonResult deleteByUser(LongIDParam parm);
 
     JsonResult setLicence(MeetSetLicenceParam param);
+
+    JsonResult setLicenceByUser(MeetSetLicenceParam param);
+
+    /**
+     * 分页查看自己加入的会议列表
+     * @param pageParam
+     * @return
+     */
+    JsonResult selectByUserJoined(PageParam pageParam);
+
+    JsonResult joinMeeting(LongIDParam parm);
+
+    JsonResult outMeeting(LongIDParam parm);
 }

@@ -32,7 +32,7 @@ public class AdminsMeetingController {
 
     @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::meeting')")
     @ApiOperation("分页查看会议列表")
-    @PostMapping("/meetinglist")
+    @PostMapping("/meetingList")
     public JsonResult select(@RequestBody @Validated PageParam pageParam) {
         log.info(String.format("get:/meeting 查看会议列表。%s", pageParam));
         return meetingService.select(pageParam);
