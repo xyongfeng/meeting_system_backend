@@ -61,4 +61,6 @@ public interface MeetingService extends IService<Meeting> {
     JsonResult joinMeeting(LongIDParam parm);
 
     JsonResult outMeeting(LongIDParam parm);
+
+    JsonResult getMeetingById(Long id,Boolean isAdmin);
 }

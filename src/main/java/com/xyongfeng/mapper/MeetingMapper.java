@@ -36,4 +36,11 @@ public interface MeetingMapper extends BaseMapper<Meeting> {
      * @return
      */
     List<Meeting> selectOneToMany(Page<Meeting> page, @Param("user_id") Integer userId);
+
+    /**
+     * 获得是否存在该用户参与表中是否存在此会议
+     * @param meetId
+     * @param userId
+     */
+    Meeting getExistMeetWithUser(@Param("meeting_id")Long meetId, @Param("user_id") Integer userId);
 }

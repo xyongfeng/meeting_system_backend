@@ -84,5 +84,12 @@ public class MeetingController {
         log.info(String.format("delete:/meeting 退出会议。%s", id));
         return meetingService.outMeeting(id);
     }
+
+    @ApiOperation("通过id查询自己参与的会议的信息")
+    @GetMapping("/meeting/{id}")
+    public JsonResult getMeeting(@PathVariable Long id) {
+        log.info(String.format("delete:/meeting 通过id查询自己参与的会议的信息。%s", id));
+        return meetingService.getMeetingById(id,false);
+    }
 }
 

@@ -93,5 +93,6 @@ public class UsersController {
     public JsonResult register(@RequestBody @Validated UsersRegisterParam param) {
         return usersService.register(param);
     }
+    
 
 }

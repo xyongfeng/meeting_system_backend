@@ -7,12 +7,17 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.OnConnect;
 import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.corundumstudio.socketio.annotation.OnEvent;
+import com.xyongfeng.pojo.JsonResult;
+import com.xyongfeng.pojo.Users;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 
-import java.util.Collection;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -22,69 +27,166 @@ public class SocketHandler {
     @Autowired
     private SocketIOServer socketIoServer;
     /**
-     * 当前连接的用户
+     * 连接上的用户公共房间
      */
-    public static ConcurrentMap<String, SocketIOClient> socketIOClientMap = new ConcurrentHashMap<>();
+    private final static String CONNECTROOMID = "CONNECTED";
+    @AllArgsConstructor
+    private static class SocketUser{
+        SocketIOClient client;
+        Users users;
+        List<String> meetings;
+    }
+    /**
+     * 用户sessionId对应用户信息的map
+     */
+    public static ConcurrentMap<UUID, SocketUser> connectUsersMap = new ConcurrentHashMap<>();
 
     /**
      * 监听连接
      * @param client
      */
+
     @OnConnect
     public void onConnectEvent(SocketIOClient client){
-        client.sendEvent("news", "conn ok");
         log.info(String.format("连接成功 %s",client.getSessionId()));
     }
 
+    /**
+     * 用户断开连接要删除信息
+     * @param client
+     */
     @OnDisconnect
     public void onDisconnectEvent(SocketIOClient client){
-        log.info(String.format("断开连接：%s",client.getSessionId()));
+        // 更新房间的人数
+        connectUsersMap.get(client.getSessionId()).meetings.forEach(this::sendUserList);
+        connectUsersMap.remove(client.getSessionId());
+        log.info(String.format("断开连接：%s",client.getSessionId())+ " "+connectUsersMap.size());
     }
+    /**
+     * 接收连接人信息
+     * @param client
+     * @param users
+     */
+    @OnEvent("info")
+    public void onInfoEvent(SocketIOClient client, Users users){
+        // 加入连接用户列表
+        connectUsersMap.put(client.getSessionId(),new SocketUser(client,users,new ArrayList<>()));
+        // 加入用户公共房间
+        client.joinRoom(CONNECTROOMID);
 
+        log.info("info：" + users);
+    }
+    /**
+     * 房间消息
+     * @param client
+     * @param data
+     */
     @OnEvent("news")
     public void onNewsEvent(SocketIOClient client, JSONObject data){
-        client.sendEvent("news", data);
-        log.info("发来消息：" + data);
+        String meetingId = data.getString("meetingId");
+        socketIoServer.getRoomOperations(meetingId).sendEvent("news", data);
+        log.info("news：" + data);
     }
 
+    /**
+     * 请求加入会议
+     * @param client
+     * @param data
+     */
     @OnEvent("join")
     public void onJoinRoomEvent(SocketIOClient client, JSONObject data){
-
-        String meetingID = data.getString("meetingID");
-        String name = data.getString("name");
+        String meetingId = data.getString("meetingId");
         // 如果存在
-        if(isExist(meetingID,client)){
+        if(isExist(meetingId,client)){
             return;
         }
-
-        client.sendEvent("message", "joined");
-        client.joinRoom(meetingID);
-        socketIOClientMap.put(name,client);
-        socketIoServer.getRoomOperations(meetingID).sendEvent("news",name + "加入房间");
-        log.info(String.valueOf(socketIoServer.getRoomOperations(meetingID).getClients().size()));
+        // 新加入的用户信息
+        Users joinedUser = connectUsersMap.get(client.getSessionId()).users;
+        // 告诉客户端已经加入可以进行sdp交换了
+        JSONObject res = new JSONObject();
+        res.put("type","joined");
+        res.put("meetingId",meetingId);
+        client.sendEvent("message",res );
+        // 向房间里的人发送加入消息
+        socketIoServer.getRoomOperations(meetingId).sendEvent("news",joinedUser.getName() + "加入房间");
+        // 记录此人加入的房间
+        connectUsersMap.get(client.getSessionId()).meetings.add(meetingId);
+        client.joinRoom(meetingId);
+        sendUserList(meetingId);
+        log.info(String.format("%s 加入房间 %d",joinedUser.getName(),socketIoServer.getRoomOperations(meetingId).getClients().size()));
     }
+
+    private void sendUserList(String meetingId) {
+        List<Users> usersList = new ArrayList<>();
+        // 把房间里的用户通过sessionid找到信息，并加入users列表
+        socketIoServer.getRoomOperations(meetingId).getClients().forEach(x->usersList.add(connectUsersMap.get(x.getSessionId()).users));
+        // 将房间用户信息发送给刚加入的人
+        socketIoServer.getRoomOperations(meetingId).sendEvent("meeting_users",usersList);
+    }
+
+    @OnEvent("leave")
+    public void onLeaveRoomEvent(SocketIOClient client, JSONObject data){
+        String meetingId = data.getString("meetingId");
+        client.leaveRoom(meetingId);
+        sendUserList(meetingId);
+        log.info(String.format("%s 离开房间 %d",connectUsersMap.get(client.getSessionId()).users.getName(),socketIoServer.getRoomOperations(meetingId).getClients().size()));
+    }
+    /**
+     * WebRtc建立通话
+     * @param client
+     * @param data
+     */
     @OnEvent("message")
     public void onMesssageEvent(SocketIOClient client, JSONObject data){
-        String meetingID = data.getString("meetingID");
-        sendMeetWithout(client,meetingID,"message",data);
+        String meetingId = data.getString("meetingId");
+        Integer toId = data.getInteger("toId");
+        if(toId != null){
+            sendMeetById(toId,meetingId,"message",data);
+        }else{
+            sendMeetWithout(client,meetingId,"message",data);
+        }
         log.info(String.format("Messsage：%s", data));
     }
 
     /**
+     * 发送给该房间该id的人
+     * @param userId
+     * @param meetingId
+     * @param event
+     * @param data
+     */
+    private void sendMeetById(Integer userId,String meetingId,String event,Object data){
+        Collection<SocketIOClient> clients = socketIoServer.getRoomOperations(meetingId).getClients();
+        for(SocketIOClient c:clients){
+            if(connectUsersMap.get(c.getSessionId()).users.getId().equals(userId)) {
+                log.info(event + " " +connectUsersMap.get(c.getSessionId()).users.getName());
+                c.sendEvent(event,data);
+                return;
+            }
+        }
+
+    }
+    /**
      * 发给房间里的其他人
      */
-    private void sendMeetWithout(SocketIOClient client,String meetingID,String event,Object data){
-        Collection<SocketIOClient> clients = socketIoServer.getRoomOperations(meetingID).getClients();
+    private void sendMeetWithout(SocketIOClient client,String meetingId,String event,Object data){
+        Collection<SocketIOClient> clients = socketIoServer.getRoomOperations(meetingId).getClients();
+
         for(SocketIOClient c:clients){
             if(c.getSessionId() != client.getSessionId()) {
                 c.sendEvent(event,data);
             }
         }
-
     }
 
-    private boolean isExist(String meetingID,SocketIOClient client){
-        Collection<SocketIOClient> clients = socketIoServer.getRoomOperations(meetingID).getClients();
+    /**
+     * 是否已经存在于会议
+     * @param meetingId
+     * @param client
+     * @return
+     */
+    private boolean isExist(String meetingId,SocketIOClient client){
+        Collection<SocketIOClient> clients = socketIoServer.getRoomOperations(meetingId).getClients();
         for(SocketIOClient c:clients){
             if(c.getSessionId() == client.getSessionId()) {
                 return true;

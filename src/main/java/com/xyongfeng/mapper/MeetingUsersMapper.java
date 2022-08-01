@@ -1,6 +1,7 @@
 package com.xyongfeng.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.xyongfeng.pojo.Meeting;
 import com.xyongfeng.pojo.MeetingUsers;
 import org.springframework.stereotype.Component;
 

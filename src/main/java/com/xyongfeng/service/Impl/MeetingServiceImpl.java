@@ -215,9 +215,15 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
     }
 
 
-
+    /**
+     * isOut为假就是加入会议，isOut为真就是退出会议
+     * @param parm
+     * @param isOut
+     * @return
+     */
     private JsonResult joinMeeting(LongIDParam parm,Boolean isOut) {
-        Meeting meeting = meetingMapper.selectOne((new QueryWrapper<Meeting>().eq("id", parm.getId())));
+
+        Meeting meeting = meetingMapper.selectById(parm.getId());
         if(meeting == null){
             return JsonResult.error("会议没找到，请检查会议号");
         }
@@ -228,15 +234,17 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
         QueryWrapper<MeetingUsers> wrapper = (new QueryWrapper<MeetingUsers>())
                 .eq("users_id", users.getId())
                 .eq("meeting_id", meeting.getId());
+        // 判断是否退出
         if(isOut){
-
             int state = meetingUsersMapper.delete(wrapper);
 
             return state > 0 ? JsonResult.success("退出成功") : JsonResult.error("退出失败");
         }
-        if(meetingUsersMapper.selectOne(wrapper) != null){
+
+        if(meeting.getUserId().equals(users.getId()) || meetingUsersMapper.selectOne(wrapper) != null){
             return JsonResult.error("你已经参加此会议了");
         }
+
 
         // todo 要写申请入会
         meetingUsersMapper.insert((new MeetingUsers())
@@ -248,6 +256,29 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
     @Override
     public JsonResult joinMeeting(LongIDParam parm) {
         return joinMeeting(parm,false);
+    }
+
+
+    @Override
+    public JsonResult getMeetingById(Long id,Boolean isAdmin) {
+        Users users = SecurityUtil.getUsers();
+        assert users != null;
+        Meeting meeting = null;
+        if(!isAdmin){
+            // 如果不是管理则从用户参加的会议中查找，找到了则返回成功信息，如果没找到后面还要判断用户是否是房主
+            meeting = meetingMapper.getExistMeetWithUser(id,users.getId());
+        }
+
+        if(meeting == null){
+            meeting = meetingMapper.selectById(id);
+            // 如果有管理权限或者是房主则开通
+            if(meeting != null && (isAdmin || meeting.getUserId().equals(users.getId()))){
+                return JsonResult.success(meeting);
+            }
+            return JsonResult.error("找不到该会议，请检查会议号");
+        }
+        return JsonResult.success(meeting);
+
     }
 
     @Override

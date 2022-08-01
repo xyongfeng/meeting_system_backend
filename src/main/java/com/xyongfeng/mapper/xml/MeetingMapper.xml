@@ -47,7 +47,6 @@
 
     </select>
     <select id="selectOneToMany" resultMap="OneToOneResultMap">
-
         SELECT
             m.*,
             u.id as userId,
@@ -65,6 +64,27 @@
             m.user_id = u.id
           and mu.meeting_id = m.id
           and mu.users_id = ${user_id}
+    </select>
+    <select id="getExistMeetWithUser" resultType="com.xyongfeng.pojo.Meeting">
+        SELECT
+            m.*,
+            u.id as userId,
+            u.`name` as uName,
+            u.username,
+            u.telephone,
+            u.headImage,
+            u.email,
+            u.isAdmin
+        FROM
+            t_meeting as m,
+            t_users as u,
+            t_meeting_users as mu
+        WHERE
+            m.user_id = u.id
+          and mu.meeting_id = m.id
+          and mu.users_id = ${user_id}
+          and mu.meeting_id = ${meeting_id}
+
     </select>
 
 </mapper>
