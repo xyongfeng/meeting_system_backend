@@ -58,7 +58,9 @@ public class SocketHandler {
     @OnDisconnect
     public void onDisconnectEvent(SocketIOClient client){
         // 更新房间的人数
-        connectUsersMap.get(client.getSessionId()).meetings.forEach(this::sendUserList);
+        Users users = connectUsersMap.get(client.getSessionId()).users;
+        connectUsersMap.get(client.getSessionId()).meetings.forEach(mid->sendMeetWithout(client,mid,"left_user",users.getId()));
+
         connectUsersMap.remove(client.getSessionId());
         log.info(String.format("断开连接：%s",client.getSessionId())+ " "+connectUsersMap.size());
     }
@@ -98,6 +100,7 @@ public class SocketHandler {
         String meetingId = data.getString("meetingId");
         // 如果存在
         if(isExist(meetingId,client)){
+            sendUserListByid(meetingId,getUserIdBySess(client.getSessionId()));
             return;
         }
         // 新加入的用户信息
@@ -108,27 +111,41 @@ public class SocketHandler {
         res.put("meetingId",meetingId);
         client.sendEvent("message",res );
         // 向房间里的人发送加入消息
+        socketIoServer.getRoomOperations(meetingId).sendEvent("joined_user",joinedUser);
         socketIoServer.getRoomOperations(meetingId).sendEvent("news",joinedUser.getName() + "加入房间");
         // 记录此人加入的房间
         connectUsersMap.get(client.getSessionId()).meetings.add(meetingId);
         client.joinRoom(meetingId);
-        sendUserList(meetingId);
+        sendUserListByid(meetingId,joinedUser.getId());
         log.info(String.format("%s 加入房间 %d",joinedUser.getName(),socketIoServer.getRoomOperations(meetingId).getClients().size()));
     }
-
-    private void sendUserList(String meetingId) {
+    private Integer getUserIdBySess(UUID sessionId){
+        return connectUsersMap.get(sessionId).users.getId();
+    }
+    private List<Users> getUserListByMid(String meetingId){
         List<Users> usersList = new ArrayList<>();
         // 把房间里的用户通过sessionid找到信息，并加入users列表
         socketIoServer.getRoomOperations(meetingId).getClients().forEach(x->usersList.add(connectUsersMap.get(x.getSessionId()).users));
+        return usersList;
+    }
+
+    private void sendUserListByid(String meetingId,Integer userId) {
+        List<Users> usersList = getUserListByMid(meetingId);
         // 将房间用户信息发送给刚加入的人
-        socketIoServer.getRoomOperations(meetingId).sendEvent("meeting_users",usersList);
+        sendMeetById(userId,meetingId,"meeting_users",usersList);
+    }
+
+    private void sendUserListWithout(String meetingId,SocketIOClient client) {
+        List<Users> usersList = getUserListByMid(meetingId);
+        // 将房间用户信息发送给刚加入的人
+        sendMeetWithout(client,meetingId,"meeting_users",usersList);
     }
 
     @OnEvent("leave")
     public void onLeaveRoomEvent(SocketIOClient client, JSONObject data){
         String meetingId = data.getString("meetingId");
         client.leaveRoom(meetingId);
-        sendUserList(meetingId);
+        sendMeetWithout(client,meetingId,"left_user",getUserIdBySess(client.getSessionId()));
         log.info(String.format("%s 离开房间 %d",connectUsersMap.get(client.getSessionId()).users.getName(),socketIoServer.getRoomOperations(meetingId).getClients().size()));
     }
     /**
@@ -159,7 +176,7 @@ public class SocketHandler {
         Collection<SocketIOClient> clients = socketIoServer.getRoomOperations(meetingId).getClients();
         for(SocketIOClient c:clients){
             if(connectUsersMap.get(c.getSessionId()).users.getId().equals(userId)) {
-                log.info(event + " " +connectUsersMap.get(c.getSessionId()).users.getName());
+//                log.info(event + " " +connectUsersMap.get(c.getSessionId()).users.getName());
                 c.sendEvent(event,data);
                 return;
             }
