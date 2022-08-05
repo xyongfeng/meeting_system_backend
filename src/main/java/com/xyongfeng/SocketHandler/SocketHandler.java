@@ -78,16 +78,28 @@ public class SocketHandler {
 
         log.info("info：" + users);
     }
+    private void sendMeetchatBySys(String meetingId,String msg){
+        Users user = new Users().setId(-1).setName("sys");
+        JSONObject data = new JSONObject();
+        data.put("msg",msg);
+        sendMeetchat(meetingId,user,data);
+
+    }
+    private void sendMeetchat(String meetingId,Users users, JSONObject data){
+        data.put("user",users);
+        socketIoServer.getRoomOperations(meetingId).sendEvent("meetchat", data);
+    }
     /**
      * 房间消息
      * @param client
      * @param data
      */
-    @OnEvent("news")
-    public void onNewsEvent(SocketIOClient client, JSONObject data){
+    @OnEvent("meetchat")
+    public void onMeetchatEvent(SocketIOClient client, JSONObject data){
         String meetingId = data.getString("meetingId");
-        socketIoServer.getRoomOperations(meetingId).sendEvent("news", data);
-        log.info("news：" + data);
+        Users users = connectUsersMap.get(client.getSessionId()).users;
+        sendMeetchat(meetingId,users,data);
+        log.info("meetchat：" + data);
     }
 
     /**
@@ -112,7 +124,7 @@ public class SocketHandler {
         client.sendEvent("message",res );
         // 向房间里的人发送加入消息
         socketIoServer.getRoomOperations(meetingId).sendEvent("joined_user",joinedUser);
-        socketIoServer.getRoomOperations(meetingId).sendEvent("news",joinedUser.getName() + "加入房间");
+        sendMeetchatBySys(meetingId,joinedUser.getName().concat("加入房间"));
         // 记录此人加入的房间
         connectUsersMap.get(client.getSessionId()).meetings.add(meetingId);
         client.joinRoom(meetingId);
@@ -176,7 +188,6 @@ public class SocketHandler {
         Collection<SocketIOClient> clients = socketIoServer.getRoomOperations(meetingId).getClients();
         for(SocketIOClient c:clients){
             if(connectUsersMap.get(c.getSessionId()).users.getId().equals(userId)) {
-//                log.info(event + " " +connectUsersMap.get(c.getSessionId()).users.getName());
                 c.sendEvent(event,data);
                 return;
             }

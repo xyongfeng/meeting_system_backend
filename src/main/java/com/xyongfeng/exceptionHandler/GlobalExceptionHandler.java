@@ -1,6 +1,7 @@
 package com.xyongfeng.exceptionHandler;
 
 import com.xyongfeng.pojo.JsonResult;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.ObjectError;
@@ -44,5 +45,8 @@ public class GlobalExceptionHandler {
 
         return JsonResult.error(String.format("%s: 时间格式错误 格式为:yyyy-MM-dd HH:mm:ss",e.getParsedString()));
     }
-
+    @ExceptionHandler(ExpiredJwtException.class)
+    public JsonResult expiredJwtException(ExpiredJwtException e){
+        return JsonResult.error("登录认证过期，请重新登录");
+    }
 }
