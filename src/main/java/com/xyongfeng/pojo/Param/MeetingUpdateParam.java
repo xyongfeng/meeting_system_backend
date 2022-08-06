@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -20,9 +21,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel(description = "Meeting修改实体类")
+@Accessors(chain = true)
 public class MeetingUpdateParam {
     @ApiModelProperty(value = "会议id",required = true)
-    @NotNull(message = "会议id不能为空")
+//    @NotNull(message = "会议id不能为空")
     private String id;
 
     @ApiModelProperty(value = "会议名称")

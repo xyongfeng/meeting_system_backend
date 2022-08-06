@@ -25,7 +25,7 @@ import javax.validation.constraints.Pattern;
 public class UsersUpdateParam {
 
     @ApiModelProperty(value = "id",required = true)
-    @NotNull(message = "id不能为空")
+//    @NotNull(message = "id不能为空")
     private Integer id;
 
     @ApiModelProperty(value = "姓名")

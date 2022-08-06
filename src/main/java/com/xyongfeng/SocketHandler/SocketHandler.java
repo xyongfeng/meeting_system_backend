@@ -1,17 +1,14 @@
 package com.xyongfeng.SocketHandler;
 
 import com.alibaba.fastjson.JSONObject;
-import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.OnConnect;
 import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.corundumstudio.socketio.annotation.OnEvent;
-import com.xyongfeng.pojo.JsonResult;
+
 import com.xyongfeng.pojo.Users;
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

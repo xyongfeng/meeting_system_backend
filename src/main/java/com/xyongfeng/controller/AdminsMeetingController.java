@@ -32,10 +32,10 @@ public class AdminsMeetingController {
 
     @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::meeting')")
     @ApiOperation("分页查看会议列表")
-    @PostMapping("/meetingList")
-    public JsonResult select(@RequestBody @Validated PageParam pageParam) {
-        log.info(String.format("get:/meeting 查看会议列表。%s", pageParam));
-        return meetingService.select(pageParam);
+    @GetMapping("/meeting/{current}/{size}")
+    public JsonResult select(@PathVariable Integer current,@PathVariable Integer size) {
+        log.info(String.format("get:/meeting 查看会议列表。%d , %d", current,size));
+        return meetingService.select(new PageParam(current,size));
     }
 
     @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::meeting')")
@@ -48,27 +48,28 @@ public class AdminsMeetingController {
 
     @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::meeting')")
     @ApiOperation("修改会议")
-    @PutMapping("/meeting")
-    public JsonResult update(@RequestBody @Validated MeetingUpdateParam meeting) {
+    @PutMapping("/meeting/{mid}")
+    public JsonResult update(@RequestBody @Validated MeetingUpdateParam meeting, @PathVariable String mid) {
+        meeting.setId(mid);
         log.info(String.format("put:/meeting 修改会议。%s", meeting));
         return meetingService.update(meeting);
     }
 
     @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::meeting')")
     @ApiOperation("删除会议")
-    @DeleteMapping("/meeting")
-    public JsonResult delete(@RequestBody @Validated LongIDParam id) {
-        log.info(String.format("delete:/meeting 删除会议。%s", id));
-        return meetingService.delete(id);
+    @DeleteMapping("/meeting/{mid}")
+    public JsonResult delete(@PathVariable String mid) {
+        log.info(String.format("delete:/meeting 删除会议。%s", mid));
+        return meetingService.delete(new LongIDParam(mid));
     }
 
 
     @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::meeting')")
     @ApiOperation("会议是否需要创建者许可才能进入")
-    @PutMapping("/meeting/licence")
-    public JsonResult setLicence(@RequestBody @Validated MeetSetLicenceParam param) {
-        log.info(String.format("Put:/meeting/licence 会议是否需要创建者许可才能进入。%s", param));
-        return meetingService.setLicence(param);
+    @PutMapping("/meeting/{mid}/licence/{haveLicence}")
+    public JsonResult setLicence(@PathVariable String mid, @PathVariable Integer haveLicence) {
+        log.info(String.format("Put:/meeting/licence 会议是否需要创建者许可才能进入。%s %d", mid,haveLicence));
+        return meetingService.setLicence(new MeetSetLicenceParam(mid,haveLicence == 1));
     }
 
 }

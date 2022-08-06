@@ -31,17 +31,17 @@ public class MeetingController {
     private MeetingService meetingService;
 
     @ApiOperation("分页查看自己创建的会议列表")
-    @PostMapping("/meetingList")
-    public JsonResult selectByCreated(@RequestBody @Validated PageParam pageParam) {
-        log.info(String.format("post:/meetingList 分页查看自己创建的会议列表。%s", pageParam));
-        return meetingService.selectByUser(pageParam);
+    @GetMapping("/meeting/{current}/{size}")
+    public JsonResult selectByCreated(@PathVariable Integer current,@PathVariable Integer size) {
+        log.info(String.format("post:/meetingList 分页查看自己创建的会议列表。%d , %d", current,size));
+        return meetingService.selectByUser(new PageParam(current,size));
     }
 
     @ApiOperation("分页查看自己加入的会议列表")
-    @PostMapping("/joinedMeetingList")
-    public JsonResult selectByJoined(@RequestBody @Validated PageParam pageParam) {
-        log.info(String.format("post:/joinedMeetingList 分页查看自己加入的会议列表。%s", pageParam));
-        return meetingService.selectByUserJoined(pageParam);
+    @GetMapping("/meeting/joined/{current}/{size}")
+    public JsonResult selectByJoined(@PathVariable Integer current,@PathVariable Integer size) {
+        log.info(String.format("post:/joinedMeetingList 分页查看自己加入的会议列表。%d , %d", current,size));
+        return meetingService.selectByUserJoined(new PageParam(current,size));
     }
 
     @ApiOperation("添加会议")
@@ -52,37 +52,38 @@ public class MeetingController {
     }
 
     @ApiOperation("修改会议")
-    @PutMapping("/meeting")
-    public JsonResult update(@RequestBody @Validated MeetingUpdateParam meeting) {
+    @PutMapping("/meeting/{mid}")
+    public JsonResult update(@RequestBody @Validated MeetingUpdateParam meeting, @PathVariable String mid) {
+        meeting.setId(mid);
         log.info(String.format("put:/meeting 修改会议。%s", meeting));
         return meetingService.updateByUser(meeting);
     }
 
     @ApiOperation("删除会议")
-    @DeleteMapping("/meeting")
-    public JsonResult delete(@RequestBody @Validated LongIDParam id) {
-        log.info(String.format("delete:/meeting 删除会议。%s", id));
-        return meetingService.deleteByUser(id);
+    @DeleteMapping("/meeting/{mid}")
+    public JsonResult delete( @PathVariable String mid) {
+        log.info(String.format("delete:/meeting 删除会议。%s", mid));
+        return meetingService.deleteByUser(new LongIDParam(mid));
     }
 
     @ApiOperation("会议是否需要创建者许可才能进入")
-    @PutMapping("/meeting/licence")
-    public JsonResult setLicence(@RequestBody @Validated MeetSetLicenceParam param) {
-        log.info(String.format("Put:/meeting/licence 会议是否需要创建者许可才能进入。%s", param));
-        return meetingService.setLicenceByUser(param);
+    @PutMapping("/meeting/{mid}/licence/{haveLicence}")
+    public JsonResult setLicence(@PathVariable String mid, @PathVariable Integer haveLicence) {
+        log.info(String.format("Put:/meeting/licence 会议是否需要创建者许可才能进入。%s %d", mid,haveLicence));
+        return meetingService.setLicenceByUser(new MeetSetLicenceParam(mid,haveLicence == 1));
     }
 
     @ApiOperation("加入会议")
-    @PostMapping("/joinMeeting")
-    public JsonResult joinMeeting(@RequestBody @Validated LongIDParam id) {
-        log.info(String.format("delete:/meeting 加入会议。%s", id));
-        return meetingService.joinMeeting(id);
+    @PostMapping("/joinMeeting/{mid}")
+    public JsonResult joinMeeting( @PathVariable String mid) {
+        log.info(String.format("delete:/meeting 加入会议。%s", mid));
+        return meetingService.joinMeeting(new LongIDParam(mid));
     }
     @ApiOperation("退出会议")
-    @DeleteMapping("/joinMeeting")
-    public JsonResult outMeeting(@RequestBody @Validated LongIDParam id) {
-        log.info(String.format("delete:/meeting 退出会议。%s", id));
-        return meetingService.outMeeting(id);
+    @DeleteMapping("/joinMeeting/{mid}")
+    public JsonResult outMeeting(@PathVariable String mid) {
+        log.info(String.format("delete:/meeting 退出会议。%s", mid));
+        return meetingService.outMeeting(new LongIDParam(mid));
     }
 
     @ApiOperation("通过id查询自己参与的会议的信息")

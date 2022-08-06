@@ -16,7 +16,7 @@ import javax.validation.constraints.NotNull;
 @ApiModel(description = "User设置头像")
 public class UsersSetImgParam {
     @ApiModelProperty(value = "id",required = true)
-    @NotNull(message = "id不能为空")
+//    @NotNull(message = "id不能为空")
     private Integer id;
 
     @ApiModelProperty(value = "图片",required = true)

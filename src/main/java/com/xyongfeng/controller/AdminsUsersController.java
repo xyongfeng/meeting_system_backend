@@ -36,10 +36,10 @@ public class AdminsUsersController {
 
     @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::user')")
     @ApiOperation("分页查看用户列表")
-    @PostMapping("/usersList")
-    public JsonResult select(@RequestBody @Validated PageParam pageParam) {
-        log.info(String.format("get:/users 查看用户列表。%s", pageParam));
-        List<Users> list = usersService.listPage(pageParam);
+    @GetMapping("/users/{current}/{size}")
+    public JsonResult select(@PathVariable Integer current, @PathVariable Integer size) {
+        log.info(String.format("get:/users 查看用户列表。%d,%d",current, size));
+        List<Users> list = usersService.listPage(new PageParam(current,size));
         if (list.size() == 0) {
             return JsonResult.error("查询失败，页码超过已有大小");
         }
@@ -62,10 +62,10 @@ public class AdminsUsersController {
 
     @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::user')")
     @ApiOperation("修改用户")
-    @PutMapping("/users")
-    public JsonResult update(@RequestBody @Validated UsersUpdateParam users) {
+    @PutMapping("/users/{uid}")
+    public JsonResult update(@RequestBody @Validated UsersUpdateParam users, @PathVariable Integer uid) {
+        users.setId(uid);
         log.info(String.format("put:/users 修改用户。%s", users));
-
         if (usersService.userUpdateById(users) > 0) {
             return JsonResult.success("修改成功", users);
         } else {
@@ -76,10 +76,10 @@ public class AdminsUsersController {
 
     @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::user')")
     @ApiOperation("删除用户")
-    @DeleteMapping("/users")
-    public JsonResult delete(@RequestBody @Validated IDParam id) {
-        log.info(String.format("delete:/users 删除用户。%s", id));
-        Users delAdmin = usersService.userDelById(id.getId());
+    @DeleteMapping("/users/{uid}")
+    public JsonResult delete(@PathVariable Integer uid) {
+        log.info(String.format("delete:/users 删除用户。%s", uid));
+        Users delAdmin = usersService.userDelById(uid);
         if (delAdmin != null) {
             return JsonResult.success("删除成功", delAdmin);
         } else {
@@ -89,17 +89,17 @@ public class AdminsUsersController {
 
     @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::user')")
     @ApiOperation("设置用户是否为管理员")
-    @PutMapping("/users/admin")
-    public JsonResult setAdmin(@RequestBody @Validated UsersSetAdminParam param) {
-        log.info(String.format("Put:/users/admin 设置用户为管理员。%s", param));
-        return usersService.setAdmin(param);
+    @PutMapping("/users/{uid}/admin/{isAdmin}")
+    public JsonResult setAdmin(@PathVariable Integer uid, @PathVariable Integer isAdmin) {
+        log.info(String.format("Put:/users/admin 设置用户为管理员。%d,%d", uid,isAdmin));
+        return usersService.setAdmin(new UsersSetAdminParam(uid,isAdmin == 1));
     }
     @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::user')")
     @ApiOperation("设置用户头像")
-    @PostMapping("/users/headImg")
-    public JsonResult setHeadImg(@Validated UsersSetImgParam param) throws IOException {
+    @PutMapping("/users/{uid}/headImg")
+    public JsonResult setHeadImg(@Validated UsersSetImgParam param, @PathVariable Integer uid) throws IOException {
+        param.setId(uid);
         log.info(String.format("Put:/users/headImg 设置用户头像。%s", param));
-
         return usersService.setHeadImg(param);
     }
 }
