@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 
-
 /**
  * @author xyongfeng
  */
@@ -24,6 +23,11 @@ public class JsonResult {
     private String message;
     @ApiModelProperty("json核心数据内容")
     private Object data;
+
+    public JsonResult(int i) {
+        this.code = i;
+
+    }
 
     public JsonResult(int i, String message) {
         this.code = i;
@@ -45,9 +49,14 @@ public class JsonResult {
         return new JsonResult(200, message);
     }
 
-    public static JsonResult success(Object data) {
-        return new JsonResult(200,data);
+    public static JsonResult success() {
+        return new JsonResult(200);
     }
+
+    public static JsonResult success(Object data) {
+        return new JsonResult(200, data);
+    }
+
     /**
      * 成功返回结果
      *

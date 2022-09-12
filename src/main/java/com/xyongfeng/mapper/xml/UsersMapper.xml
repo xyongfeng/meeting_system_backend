@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xyongfeng.mapper.UsersMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xyongfeng.pojo.Users">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="telephone" property="telephone"/>
+        <result column="email" property="email"/>
+        <result column="headImage" property="headImage"/>
+        <result column="isAdmin" property="isAdmin"/>
+    </resultMap>
+    <resultMap id="FriendsAndChat" type="com.xyongfeng.pojo.FriendsAndChat">
+        <id column="id" property="uid"/>
+        <result column="name" property="name"/>
+        <result column="headImage" property="headImage"/>
+        <collection property="chatMessage" ofType="com.xyongfeng.pojo.UsersFriendInform">
+            <result column="type" property="type"/>
+            <result column="from_id" property="fromId"/>
+            <result column="to_id" property="toId"/>
+            <result column="content" property="content"/>
+            <result column="state" property="state"/>
+            <result column="send_time" property="sendTime"/>
+        </collection>
+
+    </resultMap>
+
+    <select id="selectFriendsAndChatPage" resultMap="FriendsAndChat">
+        SELECT u.id,
+               u.name,
+               u.headImage,
+               ufi.type,
+               ufi.from_id,
+               ufi.to_id,
+               ufi.content,
+               ufi.state,
+               ufi.send_time
+        FROM t_users_friend uf,
+             t_users u,
+             t_users_friend_inform ufi
+        WHERE (u.id = uf.user_id2
+                   AND
+               uf.user_id1 = ${ownerId}
+            OR
+               u.id = uf.user_id1
+                   AND
+               uf.user_id2 = ${ownerId})
+          AND ufi.type = 1
+          AND (ufi.from_id = ${ownerId} AND ufi.to_id = u.id OR ufi.to_id = ${ownerId} AND ufi.from_id = u.id)
+    </select>
+
+</mapper>

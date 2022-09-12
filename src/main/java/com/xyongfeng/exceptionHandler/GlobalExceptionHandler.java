@@ -3,14 +3,15 @@ package com.xyongfeng.exceptionHandler;
 import com.xyongfeng.pojo.JsonResult;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.servlet.http.HttpServletResponse;
-import java.sql.SQLException;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
@@ -45,8 +46,13 @@ public class GlobalExceptionHandler {
 
         return JsonResult.error(String.format("%s: 时间格式错误 格式为:yyyy-MM-dd HH:mm:ss",e.getParsedString()));
     }
-    @ExceptionHandler(ExpiredJwtException.class)
-    public JsonResult expiredJwtException(ExpiredJwtException e){
-        return JsonResult.error("登录认证过期，请重新登录");
+    @ExceptionHandler(SocketTimeoutException.class)
+    public JsonResult socketTimeoutException(SocketTimeoutException e){
+        return JsonResult.error("请求超时，请稍后再试");
     }
+    @ExceptionHandler(ConnectException.class)
+    public JsonResult connectException(ConnectException e){
+        return JsonResult.error("人脸识别服务未启动，请通知管理员");
+    }
+
 }

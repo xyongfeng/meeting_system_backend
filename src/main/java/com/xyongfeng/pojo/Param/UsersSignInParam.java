@@ -16,10 +16,11 @@ import javax.validation.constraints.NotNull;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UsersRegisterParam {
+public class UsersSignInParam {
 
     @ApiModelProperty(value = "base64编码后的图片",required = true)
     @NotBlank(message = "图片不能为空")
     private String imgBase64;
 
+    private String meetingId;
 }

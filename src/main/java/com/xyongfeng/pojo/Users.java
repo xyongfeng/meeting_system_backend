@@ -22,6 +22,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -89,10 +91,14 @@ public class Users implements Serializable, UserDetails {
     @TableField("isAdmin")
     private Boolean isAdmin;
 
-
     @ApiModelProperty("权限列表")
     @TableField(exist = false)
     private List<String> perms;
+
+    @ApiModelProperty("签到时间")
+    @TableField(exist = false)
+    private LocalDateTime hadSignInTime;
+
 
     @JsonIgnore
     @TableField(exist = false)

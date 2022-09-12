@@ -4,8 +4,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
-import java.time.LocalDateTime;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -18,27 +16,23 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author xyongfeng
- * @since 2022-07-02
+ * @since 2022-08-22
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("t_meeting_users")
-@ApiModel(value="MeetingUsers对象", description="")
-public class MeetingUsers implements Serializable {
+@TableName("t_users_friend")
+@ApiModel(value="UsersFriend对象", description="")
+public class UsersFriend implements Serializable {
 
     private static final long serialVersionUID=1L;
 
-    @ApiModelProperty(value = "id")
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    private String meetingId;
+    private Integer userId1;
 
-    private Integer usersId;
-    
-    private Boolean hadSignIn;
+    private Integer userId2;
 
-    private LocalDateTime hadSignInTime;
 
 }

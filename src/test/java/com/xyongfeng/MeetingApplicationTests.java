@@ -1,5 +1,6 @@
 package com.xyongfeng;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.xyongfeng.mapper.MenuMapper;
 import com.xyongfeng.mapper.UsersMapper;
 import com.xyongfeng.pojo.*;
@@ -44,8 +45,8 @@ class MeetingApplicationTests {
     @Test
     void test2() {
         log.info("test2");
-        List<Users> admins = adminsService.listPage(new PageParam(0, 3));
-        admins.forEach(System.out::println);
+        IPage<Users> admins = adminsService.listPage(new PageParam(0, 3));
+//        admins.forEach(System.out::println);
     }
 //    $2a$10$XXwc8A48H3gHxnGKQ7T.aeRn4hkyrB48UTrqR67X3V567jL9mCDGi
 
@@ -68,13 +69,13 @@ class MeetingApplicationTests {
 
     @Test
     void test6(){
-        List<Meeting> meetings = meetingService.listPage(new PageParam(1, 3));
+        IPage<Meeting> meetings = meetingService.listPage(new PageParam(1, 3));
         System.out.println(meetings);
     }
 
     @Test
     void test7(){
-        List<Meeting> meetings = meetingService.listPageByUserid(new PageParam(1, 3),2);
+        IPage<Meeting> meetings = meetingService.listPageByUserid(new PageParam(1, 3),2);
         System.out.println(meetings);
     }
 }

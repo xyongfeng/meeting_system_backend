@@ -1,9 +1,11 @@
 package com.xyongfeng.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.xyongfeng.pojo.*;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xyongfeng.pojo.Param.*;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -17,11 +19,11 @@ import java.util.List;
  */
 public interface MeetingService extends IService<Meeting> {
 
-    List<Meeting> listPage(PageParam pageParam, QueryWrapper<Meeting> wrapper);
+    IPage<Meeting> listPage(PageParam pageParam, QueryWrapper<Meeting> wrapper);
 
-    List<Meeting> listPage(PageParam pageParam);
+    IPage<Meeting> listPage(PageParam pageParam);
 
-    List<Meeting> listPageByUserid(PageParam pageParam, Integer userid);
+    IPage<Meeting> listPageByUserid(PageParam pageParam, Integer userid);
 
     int meetingAdd(MeetingAddParam meeting);
 
@@ -63,4 +65,14 @@ public interface MeetingService extends IService<Meeting> {
     JsonResult outMeeting(LongIDParam parm);
 
     JsonResult getMeetingById(Long id,Boolean isAdmin);
+
+    /**
+     * 分页查看自己会议的用户签到列表
+     * @param mid
+     * @param current
+     * @param size
+     * @return
+     */
+    JsonResult selectHadSignInList(String mid,  Integer current,  Integer size);
+
 }

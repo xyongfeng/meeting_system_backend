@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xyongfeng.mapper.UsersFriendInformMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xyongfeng.pojo.UsersFriendInform">
+        <id column="id" property="id" />
+        <result column="type" property="type" />
+        <result column="from_id" property="fromId" />
+        <result column="to_id" property="toId" />
+        <result column="content" property="content" />
+        <result column="state" property="state" />
+        <result column="send_time" property="sendTime" />
+    </resultMap>
+
+    <resultMap id="WithFromer" type="com.xyongfeng.pojo.UsersFriendInform" extends="BaseResultMap">
+        <association property="fromer" javaType="com.xyongfeng.pojo.Users">
+            <id column="userId" property="id"/>
+            <result column="uName" property="name"/>
+            <result column="username" property="username"/>
+            <result column="telephone" property="telephone"/>
+            <result column="email" property="email"/>
+            <result column="headImage" property="headImage"/>
+            <result column="isAdmin" property="isAdmin"/>
+        </association>
+    </resultMap>
+
+    <select id="selectPageWithFromerInfo" resultMap="WithFromer">
+        SELECT
+        ufi.*,
+        u.id as userId,
+        u.`name` as uName,
+        u.username,
+        u.telephone,
+        u.headImage,
+        u.email,
+        u.isAdmin
+        FROM
+        t_users u,
+        t_users_friend_inform ufi
+        where
+        ufi.from_id = u.id
+        <if test="ew">
+            and ${ew.sqlSegment}
+        </if>
+    </select>
+
+</mapper>

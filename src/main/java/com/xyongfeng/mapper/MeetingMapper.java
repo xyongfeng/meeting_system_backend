@@ -1,6 +1,7 @@
 package com.xyongfeng.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xyongfeng.pojo.JsonResult;
 import com.xyongfeng.pojo.Meeting;
@@ -27,7 +28,7 @@ public interface MeetingMapper extends BaseMapper<Meeting> {
      * @param wrapper
      * @return
      */
-    List<Meeting> selectOneToOne(Page<Meeting> page, @Param("ew") QueryWrapper<Meeting> wrapper);
+    IPage<Meeting> selectOneToOne(Page<Meeting> page, @Param("ew") QueryWrapper<Meeting> wrapper);
 
     /**
      * 一个用户与多个会议对应
@@ -35,7 +36,7 @@ public interface MeetingMapper extends BaseMapper<Meeting> {
      * @param userId
      * @return
      */
-    List<Meeting> selectOneToMany(Page<Meeting> page, @Param("user_id") Integer userId);
+    IPage<Meeting> selectOneToMany(Page<Meeting> page, @Param("user_id") Integer userId);
 
     /**
      * 获得是否存在该用户参与表中是否存在此会议

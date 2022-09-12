@@ -1,5 +1,6 @@
 package com.xyongfeng.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.xyongfeng.pojo.*;
 import com.xyongfeng.pojo.Param.*;
 import com.xyongfeng.service.UsersService;
@@ -39,11 +40,8 @@ public class AdminsUsersController {
     @GetMapping("/users/{current}/{size}")
     public JsonResult select(@PathVariable Integer current, @PathVariable Integer size) {
         log.info(String.format("get:/users 查看用户列表。%d,%d",current, size));
-        List<Users> list = usersService.listPage(new PageParam(current,size));
-        if (list.size() == 0) {
-            return JsonResult.error("查询失败，页码超过已有大小");
-        }
-        return JsonResult.success( list);
+        IPage<Users> list = usersService.listPage(new PageParam(current,size));
+        return JsonResult.success(list);
     }
 
     @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::user')")

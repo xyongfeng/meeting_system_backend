@@ -7,7 +7,27 @@
         <id column="id" property="id" />
         <result column="meeting_id" property="meetingId" />
         <result column="users_id" property="usersId" />
+        <result column="had_sign_in" property="hadSignIn" />
+        <result column="had_sign_in_time" property="hadSignInTime" />
     </resultMap>
+    <select id="selectHadSignInList" resultType="com.xyongfeng.pojo.Users">
+        SELECT
+            u.id,
+            u.username,
+            u.`name`,
+            u.headImage,
+            u.email,
+            u.telephone,
+            mu.had_sign_in_time
+        FROM
+            t_users u,
+            t_meeting_users mu
+        WHERE
+            mu.had_sign_in = 1 AND
+            u.id = mu.users_id AND
+            mu.meeting_id = ${mid}
+
+    </select>
 
 
 </mapper>
