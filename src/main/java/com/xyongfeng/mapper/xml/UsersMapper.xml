@@ -46,10 +46,11 @@
                uf.user_id1 = ${ownerId}
             OR
                u.id = uf.user_id1
-                   AND
+                    AND
                uf.user_id2 = ${ownerId})
           AND ufi.type = 1
           AND (ufi.from_id = ${ownerId} AND ufi.to_id = u.id OR ufi.to_id = ${ownerId} AND ufi.from_id = u.id)
+        order by ufi.send_time desc
     </select>
 
 </mapper>

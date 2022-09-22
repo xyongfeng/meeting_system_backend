@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xyongfeng.mapper.MeetingNoticeUsersMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xyongfeng.pojo.MeetingNoticeUsers">
+        <id column="id" property="id" />
+        <result column="user_id" property="userId" />
+        <result column="notice_id" property="noticeId" />
+        <result column="state" property="state" />
+    </resultMap>
+    <insert id="insertMeetingNoticePushToUser">
+        INSERT INTO t_meeting_notice_users(`user_id`,`notice_id`,`state`)
+        SELECT ${uid} as `user_id`,`id` as `notice_id`,0 as `state`
+        FROM t_meeting_notice
+        WHERE
+            meeting_id=${mid} AND
+            type=2;
+    </insert>
+
+</mapper>

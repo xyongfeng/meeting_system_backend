@@ -21,5 +21,5 @@ import java.util.List;
 @Component
 public interface MeetingUsersMapper extends BaseMapper<MeetingUsers> {
 
-    IPage<Users> selectHadSignInList(String mid, Page<Users> page);
+    IPage<Users> selectHadSignInList(Page<Users> page,String mid );
 }

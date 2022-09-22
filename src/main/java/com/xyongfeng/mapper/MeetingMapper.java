@@ -28,20 +28,34 @@ public interface MeetingMapper extends BaseMapper<Meeting> {
      * @param wrapper
      * @return
      */
-    IPage<Meeting> selectOneToOne(Page<Meeting> page, @Param("ew") QueryWrapper<Meeting> wrapper);
+    IPage<Meeting> selectMeetingWithCreater(Page<Meeting> page, @Param("ew") QueryWrapper<Meeting> wrapper);
 
     /**
-     * 一个用户与多个会议对应
+     * 输出id对应的会议携带创建者users
+     * @param meetId
+     * @return
+     */
+    Meeting selectMeetingWithCreaterOne(@Param("meeting_id")String meetId);
+
+    /**
+     * 输出当前用户参与的会议列表
      * @param page
      * @param userId
      * @return
      */
-    IPage<Meeting> selectOneToMany(Page<Meeting> page, @Param("user_id") Integer userId);
+    IPage<Meeting> selectMeetingByParticipants(Page<Meeting> page, @Param("user_id") Integer userId);
 
     /**
      * 获得是否存在该用户参与表中是否存在此会议
      * @param meetId
      * @param userId
      */
-    Meeting getExistMeetWithUser(@Param("meeting_id")Long meetId, @Param("user_id") Integer userId);
+    Meeting getExistMeetWithUser(@Param("meeting_id")String meetId, @Param("user_id") Integer userId);
+
+    /**
+     * 输出该会议的参与者列表
+     * @param meetId
+     * @return
+     */
+    List<Users> selectOneWithParticipantById(@Param("meeting_id") String meetId);
 }

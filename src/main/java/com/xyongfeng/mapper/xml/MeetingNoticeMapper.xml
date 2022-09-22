@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xyongfeng.mapper.MeetingNoticeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xyongfeng.pojo.MeetingNotice">
+        <id column="id" property="id" />
+        <result column="meeting_id" property="meetingId" />
+        <result column="sender_id" property="senderId" />
+        <result column="title" property="title" />
+        <result column="content" property="content" />
+        <result column="type" property="type" />
+        <result column="send_time" property="sendTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="inform_id" property="informId" />
+    </resultMap>
+    <resultMap id="MeetingNoticeWithMeetUser" type="com.xyongfeng.pojo.MeetingNotice" extends="BaseResultMap">
+        <association property="meeting" javaType="com.xyongfeng.pojo.Meeting">
+            <id column="mid" property="id"/>
+            <result column="mname" property="name" />
+            <result column="user_id" property="userId" />
+            <result column="create_date" property="createDate" />
+            <result column="start_date" property="startDate" />
+            <result column="haveLicence" property="haveLicence" />
+        </association>
+        <association property="sender" javaType="com.xyongfeng.pojo.Users">
+            <id column="uid" property="id"/>
+            <result column="uname" property="name"/>
+            <result column="telephone" property="telephone"/>
+            <result column="email" property="email"/>
+            <result column="headImage" property="headImage"/>
+        </association>
+    </resultMap>
+    <select id="selectMeetingNoticePushWithUid" resultMap="MeetingNoticeWithMeetUser">
+        SELECT
+            tmn.id, tmn.meeting_id, tmn.sender_id, tmn.title, tmn.content, tmn.type, tmn.send_time, tmn.update_time,tmnu.id inform_id,
+            tu.id uid, tu.name uname, tu.username,  tu.telephone, tu.email, tu.headImage,
+            tm.id mid, tm.name mname, tm.user_id, tm.create_date, tm.start_date, tm.haveLicence
+        FROM
+            t_meeting_notice tmn,
+            t_meeting_notice_users tmnu,
+            t_users tu,
+            t_meeting tm
+        WHERE
+            tmn.sender_id=tu.id AND
+            tmn.id = tmnu.notice_id AND
+            tmn.meeting_id = tm.id AND
+            tmnu.state = 0 AND
+            tmnu.user_id = ${uid}
+    </select>
+    <select id="selectMeetingNotice" resultMap="MeetingNoticeWithMeetUser">
+        SELECT
+            tmn.id, tmn.meeting_id, tmn.sender_id, tmn.title, tmn.content, tmn.type, tmn.send_time, tmn.update_time,
+            tu.id uid, tu.name uname, tu.username,  tu.telephone, tu.email, tu.headImage,
+            tm.id mid, tm.name mname, tm.user_id, tm.create_date, tm.start_date, tm.haveLicence
+        FROM
+            t_meeting_notice tmn,
+            t_users tu,
+            t_meeting tm
+        WHERE
+            tmn.meeting_id = ${mid} AND
+            tmn.sender_id = tu.id AND
+            tm.id = tmn.meeting_id
+        ORDER BY tmn.update_time DESC
+    </select>
+
+</mapper>

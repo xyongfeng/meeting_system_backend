@@ -83,7 +83,7 @@ public class UsersController {
         String username = principal.getName();
         Users users = usersService.getUserByUserName(username);
         users.setPassword(null);
-        return JsonResult.success("获取成功", users);
+        return JsonResult.success(users);
     }
 
     @ApiOperation(value = "退出登录")
@@ -161,9 +161,9 @@ public class UsersController {
     @ApiOperation(value = "对好友消息进行已读")
     @PutMapping("/friend/{userid}/chat")
     public JsonResult readFriChat(@PathVariable Integer userid) {
-
         return usersService.readFriChat(userid);
     }
+
 
 
 

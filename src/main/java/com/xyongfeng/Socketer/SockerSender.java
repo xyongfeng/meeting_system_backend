@@ -8,33 +8,36 @@ import org.springframework.stereotype.Component;
 @Component
 public class SockerSender {
 
-    private final int WAY_FRIENDAPPLY = 1, WAY_MEETAPPLY = 2, WAY_MEETINFORM = 3;
+//    private final int WAY_FRIENDAPPLY = 1, WAY_MEETAPPLY = 2, WAY_MEETINFORM = 3;
 
     /**
-     * 告诉用户有新通知接收
-     * @param toId 接收人
-     * @param way  1 好友申请 2 会议申请 3 会议通知
+     * 发送通知消息给对面
+     * 其中way参数 1代表好友申请通知，2代表会议申请通知，3代表会议公告通知
      */
-    public void addInform(int toId, int way) {
-        for (SocketUser socketUser : SocketState.CONNECT_USERS_MAP.values()) {
-            if (socketUser.users.getId() == toId) {
-                socketUser.client.sendEvent("updateInform", way);
-                break;
-            }
-        }
+    public void sendInform(JSONObject data, Integer way, Integer toId) {
+        data.put("toId", toId);
+        sendInform(data, way);
+    }
+
+    public void sendInform(JSONObject data, Integer way) {
+        data.put("way", way);
+        sendMessage("updateInform", data);
     }
 
     /**
      * 将聊天内容并发送到对面
      */
     public void sendChat(JSONObject data) {
+        sendMessage("friendChat", data);
+    }
+
+    private void sendMessage(String event, JSONObject data) {
         Integer toId = data.getInteger("toId");
         for (SocketUser socketUser : SocketState.CONNECT_USERS_MAP.values()) {
             if (socketUser.users.getId().equals(toId)) {
-                socketUser.client.sendEvent("friendChat", data);
+                socketUser.client.sendEvent(event, data);
                 break;
             }
         }
     }
-
 }

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
 import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
@@ -56,4 +57,9 @@ public class Meeting implements Serializable {
     @ApiModelProperty(value = "创建用户")
     @TableField(exist = false)
     private Users users;
+
+
+    @ApiModelProperty(value = "参加用户列表")
+    @TableField(exist = false)
+    private List<Users> participants;
 }

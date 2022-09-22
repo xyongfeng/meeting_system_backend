@@ -6,6 +6,7 @@ import com.xyongfeng.pojo.Param.*;
 import com.xyongfeng.service.MeetingService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +64,7 @@ public class MeetingController {
     @DeleteMapping("/meeting/{mid}")
     public JsonResult delete(@PathVariable String mid) {
         log.info(String.format("delete:/meeting 删除会议。%s", mid));
-        return meetingService.deleteByUser(new LongIDParam(mid));
+        return meetingService.deleteByUser(mid);
     }
 
     @ApiOperation("会议是否需要创建者许可才能进入")
@@ -77,21 +78,21 @@ public class MeetingController {
     @PostMapping("/meeting/joined/{mid}")
     public JsonResult joinMeeting(@PathVariable String mid) {
         log.info(String.format("delete:/meeting 加入会议。%s", mid));
-        return meetingService.joinMeeting(new LongIDParam(mid));
+        return meetingService.joinMeeting(mid);
     }
 
     @ApiOperation("退出会议")
     @DeleteMapping("/meeting/joined/{mid}")
     public JsonResult outMeeting(@PathVariable String mid) {
         log.info(String.format("delete:/meeting 退出会议。%s", mid));
-        return meetingService.outMeeting(new LongIDParam(mid));
+        return meetingService.outMeeting(mid);
     }
 
     @ApiOperation("通过id查询自己参与的会议的信息")
-    @GetMapping("/meeting/{id}")
-    public JsonResult getMeeting(@PathVariable Long id) {
-        log.info(String.format("delete:/meeting 通过id查询自己参与的会议的信息。%s", id));
-        return meetingService.getMeetingById(id, false);
+    @GetMapping("/meeting/{mid}")
+    public JsonResult getMeeting(@PathVariable String mid) {
+        log.info(String.format("delete:/meeting 通过id查询自己参与的会议的信息。%s", mid));
+        return meetingService.getMeetingById(mid, false);
     }
 
     @ApiOperation("分页查看自己会议的用户签到列表")
@@ -100,6 +101,64 @@ public class MeetingController {
         log.info(String.format("get:/getHadSignInList 分页查看自己会议的用户签到列表。%d , %d", current, size));
         return meetingService.selectHadSignInList(mid, current, size);
     }
+
+    @ApiOperation("分页查看自己会议的申请通知（未读）")
+    @GetMapping("/meeting/application/{current}/{size}")
+    public JsonResult getMeetingApplications(@PathVariable Integer current, @PathVariable Integer size) {
+        log.info(String.format("get:/getMeetingApplications 分页查看自己会议的申请通知。%d , %d", current, size));
+        return meetingService.selectMeetingApplications(current, size);
+    }
+
+    @ApiOperation(value = "回应会议申请")
+    @PostMapping("/meeting/{meetingId}/application/{userId}/{result}")
+    public JsonResult replyMeetingApplication(@PathVariable String meetingId, @PathVariable Integer userId, @PathVariable Integer result) {
+        log.info(String.format("post:/replyMeetingApplication 回应会议申请。%s , %d , %d", meetingId, userId, result));
+        return meetingService.replyMeetingApplication(meetingId, userId, result);
+    }
+
+    @ApiOperation("获得自己参加会议的通知列表(未读)")
+    @GetMapping("/meeting/inform/{current}/{size}")
+    public JsonResult getMeetingNoticePushWithUid(@PathVariable Integer current, @PathVariable Integer size) {
+        log.info(String.format("get:/getMeetingNoticePushWithUid 获得自己参加会议的通知列表。%d , %d", current, size));
+        return meetingService.selectMeetingNoticePush(current, size);
+    }
+
+    @ApiOperation("对会议通知进行已读")
+    @PostMapping("/meeting/inform/{informId}")
+    public JsonResult readMeetinInfrom(@PathVariable Integer informId) {
+        log.info(String.format("post:/readMeetinInform 对会议通知进行已读。%d", informId));
+        return meetingService.readMeetinInfrom(informId);
+    }
+
+    @ApiOperation("获取mid对应会议的公告列表")
+    @GetMapping("/meeting/{mid}/notice/{current}/{size}")
+    public JsonResult getMeetingNoticeById(@PathVariable String mid, @PathVariable Integer current, @PathVariable Integer size) {
+        log.info(String.format("get:/getMeetingNoticeById 获取mid对应会议的公告列表。%s %d %d", mid, current, size));
+        return meetingService.getMeetingNoticeById(mid, current, size);
+    }
+
+    @ApiOperation("为会议加入公告")
+    @PostMapping("/meeting/{mid}/notice")
+    public JsonResult addMeetingNotice(@PathVariable String mid, @RequestBody MeetingNotice meetingNotice) {
+        log.info(String.format("post:/addMeetingNotice 为会议加入公告。%s", mid));
+        return meetingService.addMeetingNotice(meetingNotice.setMeetingId(mid));
+    }
+
+    @ApiOperation("编辑会议公告")
+    @PutMapping("/meeting/{mid}/notice")
+    public JsonResult updateMeetingNotice(@PathVariable String mid, @RequestBody MeetingNotice meetingNotice) {
+        log.info(String.format("update:/updateMeetingNotice 编辑会议公告。%s", mid));
+        meetingNotice.setMeetingId(mid);
+        return meetingService.updateMeetingNotice(meetingNotice);
+    }
+
+    @ApiOperation("删除指定id的公告")
+    @DeleteMapping("/meeting/{mid}/notice/{noticeId}")
+    public JsonResult delMeetingNoticeById(@PathVariable String mid, @PathVariable Integer noticeId) {
+        log.info(String.format("delete:/delMeetingNoticeById 获取mid对应会议的公告列表。%s %d", mid, noticeId));
+        return meetingService.delMeetingNoticeById(mid,noticeId);
+    }
+
 
 }
 

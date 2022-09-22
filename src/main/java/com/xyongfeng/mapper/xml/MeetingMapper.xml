@@ -24,7 +24,7 @@
         </association>
     </resultMap>
 
-    <select id="selectOneToOne" resultMap="OneToOneResultMap">
+    <select id="selectMeetingWithCreater" resultMap="OneToOneResultMap">
         SELECT
         m.*,
         u.id as userId,
@@ -42,11 +42,8 @@
             <if test="ew">
                 and ${ew.sqlSegment}
             </if>
-
-
-
     </select>
-    <select id="selectOneToMany" resultMap="OneToOneResultMap">
+    <select id="selectMeetingByParticipants" resultMap="OneToOneResultMap">
         SELECT
             m.*,
             u.id as userId,
@@ -85,6 +82,39 @@
           and mu.users_id = ${user_id}
           and mu.meeting_id = ${meeting_id}
 
+    </select>
+    <select id="selectOneWithParticipantById" resultType="com.xyongfeng.pojo.Users">
+        SELECT
+            u.id,
+            u.headImage,
+            u.email,
+            u.`name`,
+            u.telephone,
+            u.username
+        FROM
+            t_users u,
+            t_meeting_users mu
+        WHERE
+            mu.users_id=u.id AND
+            mu.meeting_id=${meeting_id}
+
+    </select>
+    <select id="selectMeetingWithCreaterOne" resultType="com.xyongfeng.pojo.Meeting">
+        SELECT
+        m.*,
+        u.id as userId,
+        u.`name` as uName,
+        u.username,
+        u.telephone,
+        u.headImage,
+        u.email,
+        u.isAdmin
+        FROM
+        t_meeting as m,
+        t_users as u
+        where
+        m.user_id = u.id AND
+        m.id = ${meeting_id}
     </select>
 
 </mapper>

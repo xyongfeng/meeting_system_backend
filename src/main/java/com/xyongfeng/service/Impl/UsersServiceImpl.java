@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xyongfeng.Socketer.SockerSender;
-import com.xyongfeng.Socketer.SocketHandler;
 import com.xyongfeng.mapper.*;
 import com.xyongfeng.pojo.*;
 import com.xyongfeng.pojo.Param.*;
@@ -14,7 +13,7 @@ import com.xyongfeng.pojo.config.ImgPathPro;
 import com.xyongfeng.service.RoleService;
 import com.xyongfeng.service.UsersService;
 import com.xyongfeng.util.FileUtil;
-import com.xyongfeng.util.SecurityUtil;
+import com.xyongfeng.util.MyUtil;
 import com.xyongfeng.util.UserParamConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -209,14 +208,14 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 
         String name = jsonObject.getJSONObject("data").getString("name");
 
-        if (!name.equals(Objects.requireNonNull(SecurityUtil.getUsers()).getName())) {
+        if (!name.equals(Objects.requireNonNull(MyUtil.getUsers()).getName())) {
             return JsonResult.error("签到失败，人脸检测非本人");
         }
 
         QueryWrapper<MeetingUsers> queryWrapper = new QueryWrapper<>();
         queryWrapper
                 .eq("meeting_id", meetingId)
-                .eq("users_id", SecurityUtil.getUsers().getId());
+                .eq("users_id", MyUtil.getUsers().getId());
         meetingUsersMapper.update(
                 (new MeetingUsers())
                         .setHadSignIn(true)
@@ -228,7 +227,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         QueryWrapper<MeetingUsers> queryWrapper = new QueryWrapper<>();
         queryWrapper
                 .eq("meeting_id", meetingId)
-                .eq("users_id", SecurityUtil.getUsers().getId());
+                .eq("users_id", MyUtil.getUsers().getId());
         MeetingUsers meetingUsers = meetingUsersMapper.selectOne(queryWrapper);
         if (meetingUsers == null) {
             return false;
@@ -273,7 +272,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         if (usersMapper.selectById(userid) == null) {
             return JsonResult.error("申请失败，该用户不存在");
         }
-        Integer ownerId = SecurityUtil.getUsers().getId();
+        Integer ownerId = MyUtil.getUsers().getId();
         if (ownerId.equals(userid)) {
             return JsonResult.error("申请失败，不能对自己发送申请");
         }
@@ -291,16 +290,20 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         if (isFriend(userid, ownerId)) {
             return JsonResult.error("申请失败，你们已经是好友了");
         }
-
-        usersFriendInformMapper.insert((new UsersFriendInform())
+        UsersFriendInform usersFriendInform = new UsersFriendInform()
                 .setType(0)
                 .setFromId(ownerId)
                 .setContent("")
                 .setToId(userid)
                 .setState(0)
-                .setSendTime(LocalDateTime.now())
-        );
-        sockerSender.addInform(userid, 1);
+                .setSendTime(LocalDateTime.now());
+
+        usersFriendInformMapper.insert(usersFriendInform);
+
+        usersFriendInform.setFromer(MyUtil.getUsers());
+
+        JSONObject jsonObject = (JSONObject) JSONObject.toJSON(usersFriendInform);
+        sockerSender.sendInform(jsonObject, 1);
         return JsonResult.success("申请成功");
     }
 
@@ -313,6 +316,9 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
                 (new QueryWrapper<UsersFriend>())
                         .eq("user_id1", userId1)
                         .eq("user_id2", userId2)
+                        .or()
+                        .eq("user_id2", userId1)
+                        .eq("user_id1", userId2)
         ) > 0;
     }
 
@@ -324,7 +330,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 
     @Override
     public JsonResult replyFriApplication(Integer userid, Integer result) {
-        Integer ownerId = SecurityUtil.getUsers().getId();
+        Integer ownerId = MyUtil.getUsers().getId();
         UsersFriendInform usersFriendInform = usersFriendInformMapper.selectOne(
                 (new QueryWrapper<UsersFriendInform>())
                         .eq("type", 0)
@@ -360,7 +366,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 
     @Override
     public JsonResult getFriApplications(Integer current, Integer size) {
-        Integer ownerId = SecurityUtil.getUsers().getId();
+        Integer ownerId = MyUtil.getUsers().getId();
         Page<UsersFriendInform> page = new Page<>(current, size);
         IPage<UsersFriendInform> usersFriendInformPage = usersFriendInformMapper.selectPageWithFromerInfo(page,
                 (new QueryWrapper<UsersFriendInform>())
@@ -374,7 +380,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 
     @Override
     public JsonResult delFriendById(Integer userid) {
-        Integer ownerId = SecurityUtil.getUsers().getId();
+        Integer ownerId = MyUtil.getUsers().getId();
 
         if (userid > ownerId) {
             swapUserId(userid, ownerId);
@@ -384,6 +390,9 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
                 (new QueryWrapper<UsersFriend>())
                         .eq("user_id1", userid)
                         .eq("user_id2", ownerId)
+                        .or()
+                        .eq("user_id1", ownerId)
+                        .eq("user_id2", userid)
         );
         if (result == 0) {
             return JsonResult.error("删除失败");
@@ -394,7 +403,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 
     @Override
     public JsonResult getFriendsAndChat(Integer current, Integer size) {
-        Integer ownerId = SecurityUtil.getUsers().getId();
+        Integer ownerId = MyUtil.getUsers().getId();
 
         Page<Users> page = new Page<>(current, size);
 
@@ -405,7 +414,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 
     @Override
     public JsonResult getFriChat(Integer userid, Integer current, Integer size) {
-        Integer ownerId = SecurityUtil.getUsers().getId();
+        Integer ownerId = MyUtil.getUsers().getId();
         Page<UsersFriendInform> page = new Page<>(current, size);
         IPage<UsersFriendInform> usersFriendInformPage = usersFriendInformMapper.selectPage(page,
                 (new QueryWrapper<UsersFriendInform>())
@@ -423,22 +432,23 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 
     @Override
     public JsonResult sendFriChat(Integer userid, String conetent) {
-        Integer ownerId = SecurityUtil.getUsers().getId();
+        Integer ownerId = MyUtil.getUsers().getId();
+        if(!isFriend(userid,ownerId)){
+            return JsonResult.error("发送失败，该好友不存在");
+        }
         LocalDateTime now = LocalDateTime.now();
-        usersFriendInformMapper.insert(
-                (new UsersFriendInform())
-                        .setType(1)
-                        .setFromId(ownerId)
-                        .setToId(userid)
-                        .setContent(conetent)
-                        .setState(0)
-                        .setSendTime(now)
-        );
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("toId", userid);
-        jsonObject.put("fromId", ownerId);
-        jsonObject.put("content", conetent);
-        jsonObject.put("sendTime", now.toString());
+        UsersFriendInform usersFriendInform = new UsersFriendInform()
+                .setType(1)
+                .setFromId(ownerId)
+                .setToId(userid)
+                .setContent(conetent)
+                .setState(0)
+                .setSendTime(now);
+
+        usersFriendInformMapper.insert(usersFriendInform);
+
+        JSONObject jsonObject = (JSONObject) JSONObject.toJSON(usersFriendInform);
+
         sockerSender.sendChat(jsonObject);
         return JsonResult.success(jsonObject);
     }

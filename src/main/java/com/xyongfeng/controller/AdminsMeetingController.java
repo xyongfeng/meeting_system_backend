@@ -60,7 +60,7 @@ public class AdminsMeetingController {
     @DeleteMapping("/meeting/{mid}")
     public JsonResult delete(@PathVariable String mid) {
         log.info(String.format("delete:/meeting 删除会议。%s", mid));
-        return meetingService.delete(new LongIDParam(mid));
+        return meetingService.delete(mid);
     }
 
 

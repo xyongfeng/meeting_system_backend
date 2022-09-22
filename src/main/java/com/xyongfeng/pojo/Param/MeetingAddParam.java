@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @ApiModel(description = "Meeting添加实体类")
 public class MeetingAddParam {
-
+    private String id;
     @ApiModelProperty(value = "会议名称",required = true)
     @NotBlank(message = "会议名不能为空")
     private String name;

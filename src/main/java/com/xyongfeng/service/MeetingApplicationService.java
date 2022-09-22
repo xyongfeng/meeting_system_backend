@@ -1,6 +1,6 @@
 package com.xyongfeng.service;
 
-import com.xyongfeng.pojo.MeetingInform;
+import com.xyongfeng.pojo.MeetingApplication;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -9,8 +9,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * </p>
  *
  * @author xyongfeng
- * @since 2022-08-22
+ * @since 2022-09-12
  */
-public interface MeetingInformService extends IService<MeetingInform> {
+public interface MeetingApplicationService extends IService<MeetingApplication> {
 
 }

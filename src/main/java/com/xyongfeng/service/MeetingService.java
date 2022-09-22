@@ -11,25 +11,13 @@ import java.util.List;
 
 /**
  * <p>
- *  服务类
+ * 服务类
  * </p>
  *
  * @author xyongfeng
  * @since 2022-07-02
  */
 public interface MeetingService extends IService<Meeting> {
-
-    IPage<Meeting> listPage(PageParam pageParam, QueryWrapper<Meeting> wrapper);
-
-    IPage<Meeting> listPage(PageParam pageParam);
-
-    IPage<Meeting> listPageByUserid(PageParam pageParam, Integer userid);
-
-    int meetingAdd(MeetingAddParam meeting);
-
-    int meetingUpdateById(MeetingUpdateParam meeting);
-
-    Meeting meetingDelById(String id);
 
     JsonResult select(PageParam pageParam);
 
@@ -39,7 +27,7 @@ public interface MeetingService extends IService<Meeting> {
 
     JsonResult update(MeetingUpdateParam meeting);
 
-    JsonResult delete(LongIDParam id);
+    JsonResult delete(String mid);
 
     JsonResult selectByUser(PageParam pageParam);
 
@@ -47,7 +35,7 @@ public interface MeetingService extends IService<Meeting> {
 
     JsonResult updateByUser(MeetingUpdateParam meeting);
 
-    JsonResult deleteByUser(LongIDParam parm);
+    JsonResult deleteByUser(String mid);
 
     JsonResult setLicence(MeetSetLicenceParam param);
 
@@ -55,24 +43,80 @@ public interface MeetingService extends IService<Meeting> {
 
     /**
      * 分页查看自己加入的会议列表
+     *
      * @param pageParam
      * @return
      */
     JsonResult selectByUserJoined(PageParam pageParam);
 
-    JsonResult joinMeeting(LongIDParam parm);
 
-    JsonResult outMeeting(LongIDParam parm);
+    JsonResult joinMeeting(String mid);
 
-    JsonResult getMeetingById(Long id,Boolean isAdmin);
+    JsonResult outMeeting(String mid);
+
+    JsonResult getMeetingById(String id, Boolean isAdmin);
 
     /**
      * 分页查看自己会议的用户签到列表
+     *
      * @param mid
      * @param current
      * @param size
      * @return
      */
-    JsonResult selectHadSignInList(String mid,  Integer current,  Integer size);
+    JsonResult selectHadSignInList(String mid, Integer current, Integer size);
+
+    JsonResult selectMeetingApplications(Integer current, Integer size);
+
+    JsonResult replyMeetingApplication(String meetingid, Integer userid, Integer result);
+
+
+    /**
+     * 获得自己参加会议的通知列表(未读)
+     * @param current
+     * @param size
+     * @return
+     */
+    JsonResult selectMeetingNoticePush(Integer current, Integer size);
+
+    /**
+     * 对会议通知进行已读
+     *
+     * @param informId
+     * @return
+     */
+    JsonResult readMeetinInfrom(Integer informId);
+
+    /**
+     * 为会议加入公告
+     *
+     * @param meetingNotice
+     * @return
+     */
+    JsonResult addMeetingNotice(MeetingNotice meetingNotice);
+
+    /**
+     * 获取mid对应会议的公告列表
+     *
+     * @param mid
+     * @return
+     */
+    JsonResult getMeetingNoticeById(String mid, Integer current, Integer size);
+
+    /**
+     * 删除指定id的公告
+     *
+     * @param noticeId
+     * @return
+     */
+    JsonResult delMeetingNoticeById(String meeingId,Integer noticeId);
+
+    /**
+     * 编辑会议公告
+     * @return
+     */
+    JsonResult updateMeetingNotice(MeetingNotice meetingNotice);
+
+
 
 }
