@@ -11,7 +11,7 @@ import java.io.Serializable;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author xyongfeng
@@ -21,10 +21,10 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("t_role")
-@ApiModel(value="Role对象", description="")
+@ApiModel(value = "Role对象", description = "权限实体对象")
 public class Role implements Serializable {
 
-    private static final long serialVersionUID=1L;
+    private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "id")
     private Integer id;
@@ -38,5 +38,6 @@ public class Role implements Serializable {
     @ApiModelProperty(value = "备注")
     private String remark;
 
-
+//    @ApiModelProperty(value = "是否隐藏")
+//    private Boolean hidden;
 }

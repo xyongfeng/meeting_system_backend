@@ -1,14 +1,14 @@
 package com.xyongfeng.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.xyongfeng.mapper.MeetingUsersMapper;
 import com.xyongfeng.pojo.*;
 import com.xyongfeng.pojo.Param.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.xyongfeng.util.JwtTokenUtil;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import java.security.Principal;
 
 
 /**
@@ -18,48 +18,34 @@ import java.util.List;
 public interface UsersService extends IService<Users> {
 
     /**
-     * 登录管理页面
-     *
-     * @param username 账号
-     * @param password 密码
-     * @return 登录是否成功
+     * 登录
+     * @param users
+     * @param request
+     * @param jwtTokenUtil
+     * @param userDetailsService
+     * @param passwordEncoder
+     * @return
      */
-    Users adminLogin(String username, String password);
+    JsonResult login(UsersLoginParam users, HttpServletRequest request, JwtTokenUtil jwtTokenUtil, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder);
+
+    JsonResult register(UsersRegisterParam users, HttpServletRequest request, PasswordEncoder passwordEncoder);
 
     /**
-     * 增加新的管理员
-     *
-     * @param users 增加的对象
-     * @return 返回执行状态
+     * 获取当前登录的用户信息
+     * @param principal
+     * @return
      */
-    int userAdd(UsersAddParam users, PasswordEncoder passwordEncoder) throws Exception;
+    JsonResult getAdminInfo(Principal principal);
 
-    /**
-     * 分页获取管理员列表
-     *
-     * @param pageParam current(当前页码),size(页码大小)
-     * @return 管理员列表
-     */
-    IPage<Users> listPage(PageParam pageParam);
+    JsonResult select(Integer current, Integer size);
 
-    /**
-     * 根据id修改管理员
-     *
-     * @param users users
-     * @return 修改结果
-     */
-    int userUpdateById(UsersUpdateParam users);
+    JsonResult add(UsersAddParam users,PasswordEncoder passwordEncoder);
 
-    /**
-     * 根据id删除管理员
-     *
-     * @param id 删除的管理员id
-     * @return 删除结果
-     */
-    Users userDelById(Integer id);
+    JsonResult update(UsersUpdateParam users,Integer uid);
 
+    JsonResult delete( Integer uid);
     /**
-     * 通过username获取admin
+     * 通过username获取users
      *
      * @param username
      * @return
@@ -94,7 +80,7 @@ public interface UsersService extends IService<Users> {
      * @param meetingId
      * @return
      */
-    JsonResult signIn(UsersSignInParam param,String meetingId);
+    JsonResult signIn(ImgBase64Param param, String meetingId);
 
     /**
      * 是否已经签到
@@ -167,4 +153,18 @@ public interface UsersService extends IService<Users> {
     JsonResult getUserInfoById(Integer uid);
 
     JsonResult readFriChat(Integer userid);
+
+
+    JsonResult updateOwnerInfo(UsersUpdateWithOwnerParam users);
+
+    JsonResult updateOwnerPass(UsersUpdatePassParam users,PasswordEncoder passwordEncoder,HttpServletRequest request);
+
+    /**
+     * 接收base64,设置用户面部照片
+     * @param param
+     * @return
+     */
+    JsonResult setFaceImgWithBase64(ImgBase64Param param);
+
+
 }

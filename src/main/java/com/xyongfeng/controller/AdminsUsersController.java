@@ -1,8 +1,8 @@
 package com.xyongfeng.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.xyongfeng.pojo.*;
 import com.xyongfeng.pojo.Param.*;
+import com.xyongfeng.service.RoleService;
 import com.xyongfeng.service.UsersService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -16,9 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-
-import java.io.IOException;
-import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -31,73 +29,75 @@ import java.util.List;
 public class AdminsUsersController {
     @Autowired
     private UsersService usersService;
-
+    @Autowired
+    private RoleService roleService;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::user')")
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('user')")
     @ApiOperation("分页查看用户列表")
     @GetMapping("/users/{current}/{size}")
     public JsonResult select(@PathVariable Integer current, @PathVariable Integer size) {
-        log.info(String.format("get:/users 查看用户列表。%d,%d",current, size));
-        IPage<Users> list = usersService.listPage(new PageParam(current,size));
-        return JsonResult.success(list);
+        log.info(String.format("get:/users 查看用户列表。%d,%d", current, size));
+        return usersService.select(current, size);
     }
 
-    @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::user')")
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('user')")
     @ApiOperation("添加用户")
     @PostMapping("/users")
     public JsonResult add(@RequestBody @Validated UsersAddParam users) {
         log.info(String.format("post:/users 添加用户。%s", users));
-        try {
-            usersService.userAdd(users,passwordEncoder);
-        } catch (Exception e) {
-            log.info(e.getMessage());
-            return JsonResult.error(e.getMessage());
-        }
-        return JsonResult.success("添加成功", users);
+        return usersService.add(users, passwordEncoder);
     }
 
-    @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::user')")
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('user')")
     @ApiOperation("修改用户")
     @PutMapping("/users/{uid}")
     public JsonResult update(@RequestBody @Validated UsersUpdateParam users, @PathVariable Integer uid) {
-        users.setId(uid);
         log.info(String.format("put:/users 修改用户。%s", users));
-        if (usersService.userUpdateById(users) > 0) {
-            return JsonResult.success("修改成功", users);
-        } else {
-            return JsonResult.error("修改失败");
-        }
-
+        return usersService.update(users, uid);
     }
 
-    @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::user')")
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('user')")
     @ApiOperation("删除用户")
     @DeleteMapping("/users/{uid}")
     public JsonResult delete(@PathVariable Integer uid) {
         log.info(String.format("delete:/users 删除用户。%s", uid));
-        Users delAdmin = usersService.userDelById(uid);
-        if (delAdmin != null) {
-            return JsonResult.success("删除成功", delAdmin);
-        } else {
-            return JsonResult.error("删除失败");
-        }
+        return usersService.delete(uid);
     }
 
-    @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::user')")
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('user')")
     @ApiOperation("设置用户是否为管理员")
     @PutMapping("/users/{uid}/admin/{isAdmin}")
     public JsonResult setAdmin(@PathVariable Integer uid, @PathVariable Integer isAdmin) {
-        log.info(String.format("Put:/users/admin 设置用户为管理员。%d,%d", uid,isAdmin));
-        return usersService.setAdmin(new UsersSetAdminParam(uid,isAdmin == 1));
+        log.info(String.format("Put:/users/admin 设置用户为管理员。%d,%d", uid, isAdmin));
+        return usersService.setAdmin(new UsersSetAdminParam(uid, isAdmin == 1));
     }
-    @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::user')")
+
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('user')")
     @ApiOperation("设置用户头像")
     @PutMapping("/users/{uid}/headImg")
-    public JsonResult setHeadImg(@Validated UsersSetImgParam param, @PathVariable Integer uid) throws IOException {
+    public JsonResult setHeadImg(@Validated UsersSetImgParam param, @PathVariable Integer uid) {
         param.setId(uid);
-        log.info(String.format("Put:/users/headImg 设置用户头像。%s", param));
+        log.info(String.format("Put:/users/{uid}/headImg 设置用户头像。%s", param));
         return usersService.setHeadImg(param);
     }
+
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('role')")
+    @ApiOperation("查看管理员拥有的权限")
+    @GetMapping("/users/{uid}/role")
+    public JsonResult getRoleWithoutHidden(@PathVariable Integer uid) {
+        log.info(String.format("Get:/users/{uid}/role 查看管理员权限。%d", uid));
+        return roleService.selectRoleWithoutHidden(uid);
+    }
+
+
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('role')")
+    @ApiOperation("修改管理员权限")
+    @PutMapping("/users/{uid}/role")
+    public JsonResult setRole(@PathVariable Integer uid, @RequestBody Map<Integer, Boolean> roleParam) {
+        log.info(String.format("Get:/users/{uid}/authority 修改管理员权限。%d %s", uid, roleParam));
+        return roleService.updateRole(uid, roleParam);
+    }
+
 }

@@ -20,26 +20,4 @@ public class MyUtil {
         return (Users) authentication.getPrincipal();
     }
 
-    public static JSONObject getClassFields(Object obj) {
-        JSONObject jsonObject = new JSONObject();
-
-
-        Class<?> objClass = obj.getClass();
-        Field[] fields = objClass.getDeclaredFields();
-        for (Field f : fields) {
-            f.setAccessible(true);
-            try {
-                if(f.get(obj) == null){
-                    continue;
-                }
-                jsonObject.put(f.getName(), f.get(obj).toString());
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-        return jsonObject;
-
-    }
 }

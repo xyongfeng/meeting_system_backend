@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * <p>
- *  Mapper 接口
+ * Mapper 接口
  * </p>
  *
  * @author xyongfeng
@@ -18,7 +18,17 @@ import java.util.List;
 public interface RoleMapper extends BaseMapper<Role> {
     /**
      * 根据用户id获得Role列表
+     *
      * @return
      */
     List<Role> selectRoleWithUserid(Integer uid);
+
+    /**
+     * 不会输出隐藏role
+     * @param uid
+     * @return
+     */
+    List<Role> selectRoleWithoutHidden(Integer uid);
+
+
 }

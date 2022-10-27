@@ -30,7 +30,7 @@ public class AdminsMeetingController {
     private MeetingService meetingService;
 
 
-    @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::meeting')")
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('meeting')")
     @ApiOperation("分页查看会议列表")
     @GetMapping("/meeting/{current}/{size}")
     public JsonResult select(@PathVariable Integer current,@PathVariable Integer size) {
@@ -38,7 +38,7 @@ public class AdminsMeetingController {
         return meetingService.select(new PageParam(current,size));
     }
 
-    @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::meeting')")
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('meeting')")
     @ApiOperation("添加会议")
     @PostMapping("/meeting")
     public JsonResult add(@RequestBody @Validated MeetingAddParam meeting) {
@@ -46,7 +46,7 @@ public class AdminsMeetingController {
         return meetingService.add(meeting);
     }
 
-    @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::meeting')")
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('meeting')")
     @ApiOperation("修改会议")
     @PutMapping("/meeting/{mid}")
     public JsonResult update(@RequestBody @Validated MeetingUpdateParam meeting, @PathVariable String mid) {
@@ -55,7 +55,7 @@ public class AdminsMeetingController {
         return meetingService.update(meeting);
     }
 
-    @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::meeting')")
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('meeting')")
     @ApiOperation("删除会议")
     @DeleteMapping("/meeting/{mid}")
     public JsonResult delete(@PathVariable String mid) {
@@ -64,7 +64,7 @@ public class AdminsMeetingController {
     }
 
 
-    @PreAuthorize("@SGExpressionRoot.hasAuthority('sys::meeting')")
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('meeting')")
     @ApiOperation("会议是否需要创建者许可才能进入")
     @PutMapping("/meeting/{mid}/licence/{haveLicence}")
     public JsonResult setLicence(@PathVariable String mid, @PathVariable Integer haveLicence) {

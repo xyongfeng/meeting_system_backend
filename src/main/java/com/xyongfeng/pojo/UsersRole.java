@@ -1,5 +1,7 @@
 package com.xyongfeng.pojo;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -15,7 +17,7 @@ import java.io.Serializable;
  * </p>
  *
  * @author xyongfeng
- * @since 2022-06-25
+ * @since 2022-10-27
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -27,12 +29,11 @@ public class UsersRole implements Serializable {
     private static final long serialVersionUID=1L;
 
     @ApiModelProperty(value = "id")
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    @ApiModelProperty(value = "users_id")
-    private Integer usersId;
+    private Integer userId;
 
-    @ApiModelProperty(value = "role_id")
     private Integer roleId;
 
 

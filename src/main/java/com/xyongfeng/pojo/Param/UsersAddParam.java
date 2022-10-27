@@ -24,9 +24,9 @@ import javax.validation.constraints.Pattern;
 @ApiModel(description = "User添加实体类")
 public class UsersAddParam {
 
-    @ApiModelProperty(value = "姓名",required = true)
-    @NotBlank(message = "姓名不能为空")
-    @Length(max = 10, message = "姓名长度不能大于10")
+    @ApiModelProperty(value = "名称",required = true)
+    @NotBlank(message = "名称不能为空")
+    @Length(max = 10, message = "名称长度不能大于10")
     private String name;
 
 

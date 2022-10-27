@@ -18,7 +18,7 @@ import java.io.Serializable;
 @Data
 @EqualsAndHashCode
 @ApiModel(description = "管理员实体")
-public class AdminsLoginParam implements Serializable {
+public class UsersLoginParam implements Serializable {
     @ApiModelProperty(value = "用户名", required = true)
     @NotBlank(message = "用户名不能为空")
     @Length(max = 20, message = "用户名长度不能大于20")

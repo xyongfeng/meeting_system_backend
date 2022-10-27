@@ -13,18 +13,26 @@ import com.xyongfeng.pojo.config.ImgPathPro;
 import com.xyongfeng.service.RoleService;
 import com.xyongfeng.service.UsersService;
 import com.xyongfeng.util.FileUtil;
+import com.xyongfeng.util.JwtTokenUtil;
 import com.xyongfeng.util.MyUtil;
 import com.xyongfeng.util.UserParamConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import sun.misc.BASE64Decoder;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -53,54 +61,106 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     private UsersFriendMapper usersFriendMapper;
     @Autowired
     private SockerSender sockerSender;
+    @Autowired
+    private RoleMapper roleMapper;
 
     @Value("${flask.headerUrl}")
     private String headerUrl;
 
+    @Value("${jwt.tokenHead}")
+    private String tokenHead;
+
     @Override
-    public Users adminLogin(String username, String password) {
-        QueryWrapper<Users> wrapper = new QueryWrapper<>();
-        wrapper
-                .eq("username", username)
-                .eq("password", password);
-        return usersMapper.selectOne(wrapper);
+    public JsonResult select(Integer current, Integer size) {
+        IPage<Users> list = listPage(new PageParam(current, size));
+        return JsonResult.success(list);
     }
 
     @Override
-    public IPage<Users> listPage(PageParam pageParam) {
+    public JsonResult add(UsersAddParam users, PasswordEncoder passwordEncoder) {
+        try {
+            userAdd(UserParamConverter.getUsers(users), passwordEncoder);
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return JsonResult.error(e.getMessage());
+        }
+        return JsonResult.success("添加成功", users);
+    }
+
+    @Override
+    public JsonResult update(UsersUpdateParam users, Integer uid) {
+        users.setId(uid);
+        if (usersMapper.selectOne(new QueryWrapper<Users>().eq("username", users.getUsername())) != null) {
+            return JsonResult.error("修改失败，用户名重复");
+        }
+        if (usersMapper.selectOne(new QueryWrapper<Users>().eq("name", users.getName())) != null) {
+            return JsonResult.error("修改失败，名称重复");
+        }
+        if (usersMapper.updateById(UserParamConverter.getUsers(users)) > 0) {
+            return JsonResult.success("修改成功", users);
+        } else {
+            return JsonResult.error("修改失败");
+        }
+    }
+
+    @Override
+    public JsonResult delete(Integer uid) {
+        Users delAdmin = userDelById(uid);
+        if (delAdmin != null) {
+            return JsonResult.success("删除成功", delAdmin);
+        } else {
+            return JsonResult.error("删除失败");
+        }
+    }
+
+    /**
+     * 分页获取用户列表
+     *
+     * @param pageParam current(当前页码),size(页码大小)
+     * @return 管理员列表
+     */
+    private IPage<Users> listPage(PageParam pageParam) {
         Page<Users> page = new Page<>(pageParam.getCurrent(), pageParam.getSize());
         QueryWrapper<Users> wrapper = new QueryWrapper<>();
         // 输出字段不包括password
         wrapper.select(Users.class, e -> !"password".equals(e.getColumn()));
+        wrapper.ne("username", "root");
         usersMapper.selectPage(page, wrapper);
         return page;
     }
 
 
-    @Override
-    public int userUpdateById(UsersUpdateParam usersUpdateParam) {
+    /**
+     * 增加新的用户
+     *
+     * @param users 增加的对象
+     * @return 返回执行状态
+     */
+    private int userAdd(Users users, PasswordEncoder passwordEncoder) throws Exception {
 
-        return usersMapper.updateById(UserParamConverter.getUsers(usersUpdateParam));
-    }
-
-
-    @Override
-    public int userAdd(UsersAddParam users, PasswordEncoder passwordEncoder) throws Exception {
-        QueryWrapper<Users> wrapper = new QueryWrapper<>();
-        wrapper.eq("username", users.getUsername());
-        List<Map<String, Object>> list = usersMapper.selectMaps(wrapper);
-        if (list.size() > 0) {
+        if (usersMapper.selectOne(new QueryWrapper<Users>().eq("username", users.getUsername())) != null) {
             throw new Exception("用户名重复");
         }
+        if (usersMapper.selectOne(new QueryWrapper<Users>().eq("name", users.getName())) != null) {
+            throw new Exception("名称重复");
+        }
+
+        String encode = passwordEncoder.encode(users.getPassword());
+//        log.info(String.valueOf(passwordEncoder.matches(users.getPassword(),encode)));
         // 对密码加密
-        users.setPassword(passwordEncoder.encode(users.getPassword()));
+        users.setPassword(encode);
         // 默认头像
         users.setHeadImage("img\\head\\default.jpg");
-        return usersMapper.insert(UserParamConverter.getUsers(users));
+        return usersMapper.insert(users);
     }
 
-    @Override
-    public Users userDelById(Integer id) {
+    /**
+     * 根据id删除用户
+     *
+     * @param id 删除的用户id
+     * @return 删除结果
+     */
+    private Users userDelById(Integer id) {
         Users users = usersMapper.selectById(id);
         if (users != null && usersMapper.deleteById(id) > 0) {
             users.setPassword(null);
@@ -109,6 +169,12 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         return null;
     }
 
+    /**
+     * 通过username获取users
+     *
+     * @param username
+     * @return
+     */
     @Override
     public Users getUserByUserName(String username) {
         Users users = usersMapper.selectOne(new QueryWrapper<Users>().eq("username", username));
@@ -124,6 +190,71 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         return users;
     }
 
+    /**
+     * 比较验证码
+     *
+     * @param request
+     * @param receiverCaptcha
+     * @return
+     */
+    public boolean validCaptcha(HttpServletRequest request, String receiverCaptcha) {
+        // 判断验证码
+        String captcha = (String) request.getSession().getAttribute("captcha");
+        return captcha != null && captcha.equals(receiverCaptcha);
+    }
+
+    @Override
+    public JsonResult login(UsersLoginParam users, HttpServletRequest request, JwtTokenUtil jwtTokenUtil, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        if (!validCaptcha(request, users.getCode())) {
+            return JsonResult.error("验证码输入错误");
+        }
+        // 登录
+        UserDetails userDetails = userDetailsService.loadUserByUsername(users.getUsername());
+        if (null == userDetails || !passwordEncoder.matches(users.getPassword(), userDetails.getPassword())) {
+            return JsonResult.error("用户名或密码错误");
+        }
+        // 更新security登录用户对象
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        // 生成token
+        String token = jwtTokenUtil.generateToken(userDetails);
+        Map<String, String> tokenMap = new HashMap<>();
+        tokenMap.put("token", token);
+        tokenMap.put("tokenHead", tokenHead);
+        return JsonResult.success("登录成功", tokenMap);
+    }
+
+    @Override
+    public JsonResult register(UsersRegisterParam registerUsers, HttpServletRequest request, PasswordEncoder passwordEncoder) {
+        if (!validCaptcha(request, registerUsers.getCode())) {
+            return JsonResult.error("验证码输入错误");
+        }
+        Users users = new Users()
+                .setUsername(registerUsers.getUsername())
+                .setPassword(registerUsers.getPassword())
+                .setTelephone(registerUsers.getTelephone())
+                .setEmail(registerUsers.getEmail())
+                .setName(registerUsers.getName());
+        try {
+            userAdd(users, passwordEncoder);
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return JsonResult.error(e.getMessage());
+        }
+        return JsonResult.success("注册成功");
+    }
+
+    @Override
+    public JsonResult getAdminInfo(Principal principal) {
+        if (principal == null) {
+            return null;
+        }
+        String username = principal.getName();
+        Users users = getUserByUserName(username);
+        users.setPassword(null);
+        return JsonResult.success(users);
+    }
+
     @Override
     public JsonResult setAdmin(UsersSetAdminParam param) {
         int i = usersMapper.updateById(
@@ -136,37 +267,23 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         return JsonResult.error("修改失败");
     }
 
-    public static JsonResult uploadImg(MultipartFile file, String subPath) {
+    private static JsonResult uploadImg(MultipartFile file, String subPath) {
+
         try {
-            if (file.getBytes().length / 1024 / 1024 > 2) {
-                return JsonResult.error("文件大小不能超过2M");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        String originalFilename = file.getOriginalFilename();
-        assert originalFilename != null;
-        String end = ".jpg";
-        if (originalFilename.endsWith(".jpg")) {
-            end = ".jpg";
-        } else if (originalFilename.endsWith(".jpeg")) {
-            end = ".jpeg";
-        } else if (originalFilename.endsWith(".png")) {
-            end = ".png";
-        } else {
-            return JsonResult.error("文件格式只能是jpeg与png");
-        }
-        String filename = UUID.randomUUID().toString().concat(end);
-        if (FileUtil.uploadFile(file, subPath, filename)) {
             // 成功就返回图片相对路径
-            return JsonResult.success("上传成功", Paths.get(subPath).resolve(filename).toString());
-        } else {
-            return JsonResult.error("上传失败");
+            String filename = FileUtil.uploadImg(file, subPath);
+            if (filename != null) {
+                return JsonResult.success("上传成功", Paths.get(subPath).resolve(filename).toString());
+            }
+        } catch (Exception e) {
+            return JsonResult.error("上传失败，".concat(e.getMessage()));
         }
+        return JsonResult.error("上传失败");
     }
 
     @Override
     public JsonResult setHeadImg(UsersSetImgParam param) {
+//        param.setId(MyUtil.getUsers().getId());
         JsonResult jsonResult = uploadImg(param.getFile(), imgPathPro.getHead());
         if (jsonResult.getCode() == 200) {
             usersMapper.updateById(new Users().setId(param.getId()).setHeadImage((String) jsonResult.getData()));
@@ -177,11 +294,47 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 
     @Override
     public JsonResult setFaceImg(UsersSetImgParam param) {
-        return uploadImg(param.getFile(), imgPathPro.getFace());
+        param.setId(MyUtil.getUsers().getId());
+        JsonResult jsonResult = uploadImg(param.getFile(), imgPathPro.getFace());
+        if (jsonResult.getCode() == 200) {
+            usersMapper.updateById(new Users().setId(param.getId()).setFaceImage((String) jsonResult.getData()));
+            return JsonResult.success(jsonResult.getMessage());
+        }
+        return jsonResult;
     }
 
     @Override
-    public JsonResult signIn(UsersSignInParam param, String meetingId) {
+    public JsonResult setFaceImgWithBase64(ImgBase64Param param) {
+        param.setUserId(MyUtil.getUsers().getId());
+        BASE64Decoder decoder = new BASE64Decoder();
+        try {
+            // Base64解码
+            byte[] bytes = decoder.decodeBuffer(param.getImgBase64());
+            // 调整异常数据
+            for (int i = 0; i < bytes.length; ++i) {
+                if (bytes[i] < 0) {
+                    bytes[i] += 256;
+                }
+            }
+            String filename = UUID.randomUUID().toString().concat(".jpg");
+            if (FileUtil.uploadFile(bytes, imgPathPro.getFace(), filename)) {
+                String s = Paths.get(imgPathPro.getFace()).resolve(filename).toString();
+                usersMapper.updateById(new Users().setId(param.getUserId()).setFaceImage(s));
+                // 成功就返回图片相对路径
+                return JsonResult.success("上传成功");
+            } else {
+                return JsonResult.error("上传失败");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    @Override
+    public JsonResult signIn(ImgBase64Param param, String meetingId) {
 
         if (getHadSignIn(meetingId)) {
             return JsonResult.error("你已经签过到了");
@@ -193,29 +346,40 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         if (startDate.isAfter(now)) {
             return JsonResult.error("会议开始之后才能进行签到");
         }
-        String imgBase64 = param.getImgBase64();
+        Users users = MyUtil.getUsers();
+        assert users != null;
+        if (users.getFaceImage() == null || "".equals(users.getFaceImage())) {
+            return JsonResult.error("签到需要你的面部照片，请先去个人中心进行上传");
+        }
+        // 获取Base64
+        String sendImgBase64 = param.getImgBase64();
+        String localImgBase64 = FileUtil.getImgWithBase64(users.getFaceImage());
 
+        // 设置请求参数map
         Map<String, Object> map = new HashMap<>();
-        map.put("imgBase64", imgBase64);
-
+        map.put("sendImgBase64", sendImgBase64);
+        map.put("localImgBase64", localImgBase64);
+//        map.put("uid",users.getId());
+        // 发送信息给tensorflow进行预测
         String res = restTemplate.postForObject(headerUrl.concat("/predict"), map, String.class);
-
+        // 拿到res进行解析
         JSONObject jsonObject = JSONObject.parseObject(res);
 
         if (jsonObject.getInteger("code") != 200) {
             return JsonResult.error(jsonObject.getInteger("code"), jsonObject.getString("message"));
         }
 
-        String name = jsonObject.getJSONObject("data").getString("name");
+        String distance = jsonObject.getJSONObject("data").getString("distance");
 
-        if (!name.equals(Objects.requireNonNull(MyUtil.getUsers()).getName())) {
-            return JsonResult.error("签到失败，人脸检测非本人");
-        }
+
+//        if (!name.equals(users.getName())) {
+//            return JsonResult.error("签到失败，人脸检测非本人");
+//        }
 
         QueryWrapper<MeetingUsers> queryWrapper = new QueryWrapper<>();
         queryWrapper
                 .eq("meeting_id", meetingId)
-                .eq("users_id", MyUtil.getUsers().getId());
+                .eq("users_id", users.getId());
         meetingUsersMapper.update(
                 (new MeetingUsers())
                         .setHadSignIn(true)
@@ -433,7 +597,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     @Override
     public JsonResult sendFriChat(Integer userid, String conetent) {
         Integer ownerId = MyUtil.getUsers().getId();
-        if(!isFriend(userid,ownerId)){
+        if (!isFriend(userid, ownerId)) {
             return JsonResult.error("发送失败，该好友不存在");
         }
         LocalDateTime now = LocalDateTime.now();
@@ -463,4 +627,52 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         );
         return JsonResult.success();
     }
+
+    @Override
+    public JsonResult updateOwnerInfo(UsersUpdateWithOwnerParam users) {
+        if (!users.getId().equals(MyUtil.getUsers().getId())) {
+            return JsonResult.error("修改失败，无权限修改他人信息");
+        }
+        if (usersMapper.selectOne(new QueryWrapper<Users>().eq("name", users.getName())) != null) {
+            return JsonResult.error("修改失败，名称重复");
+        }
+        Users users1 = new Users()
+                .setId(users.getId())
+                .setName(users.getName())
+                .setEmail(users.getEmail())
+                .setTelephone(users.getTelephone());
+
+
+        int i = usersMapper.updateById(users1);
+
+
+        if (i > 0) {
+            return JsonResult.success("修改成功", users1);
+        }
+        return JsonResult.error("修改失败");
+    }
+
+    @Override
+    public JsonResult updateOwnerPass(UsersUpdatePassParam users, PasswordEncoder passwordEncoder, HttpServletRequest request) {
+        if (!validCaptcha(request, users.getCode())) {
+            return JsonResult.error("验证码输入错误");
+        }
+        if (!users.getId().equals(MyUtil.getUsers().getId())) {
+            return JsonResult.error("修改失败，无权限修改他人信息");
+        }
+        Users users1 = usersMapper.selectById(users.getId());
+
+        if (passwordEncoder.matches(users.getOldpass(), users1.getPassword())) {
+            if (passwordEncoder.matches(users.getNewpass(), users1.getPassword())) {
+                return JsonResult.error("修改失败，新密码与当前密码不能重复");
+            }
+            usersMapper.updateById(new Users()
+                    .setId(users.getId())
+                    .setPassword(passwordEncoder.encode(users.getNewpass())));
+            return JsonResult.success("修改成功");
+        }
+        return JsonResult.error("修改失败，当前密码错误");
+    }
+
+
 }

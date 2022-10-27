@@ -53,9 +53,9 @@ public class Users implements Serializable, UserDetails {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    @ApiModelProperty(value = "姓名")
-    @NotBlank(message = "姓名不能为空")
-    @Length(max = 10, message = "姓名长度不能大于10")
+    @ApiModelProperty(value = "名称")
+    @NotBlank(message = "名称不能为空")
+    @Length(max = 10, message = "名称长度不能大于10")
     @TableField("name")
     private String name;
 
@@ -86,6 +86,11 @@ public class Users implements Serializable, UserDetails {
     @ApiModelProperty(value = "头像路径")
     @TableField("headImage")
     private String headImage;
+
+
+    @ApiModelProperty(value = "面部照片路径")
+    @TableField("faceImage")
+    private String faceImage;
 
     @ApiModelProperty(value = "是否拥有后台权限")
     @TableField("isAdmin")

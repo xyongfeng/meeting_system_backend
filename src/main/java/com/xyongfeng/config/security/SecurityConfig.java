@@ -91,6 +91,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         web.ignoring().antMatchers(
                 "/users/login",
                 "/users/logout",
+                "/users/register",
                 "index.html",
                 "/doc.html",
                 "/webjars/**",
