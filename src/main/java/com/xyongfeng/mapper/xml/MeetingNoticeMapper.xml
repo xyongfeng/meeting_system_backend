@@ -13,6 +13,7 @@
         <result column="send_time" property="sendTime" />
         <result column="update_time" property="updateTime" />
         <result column="inform_id" property="informId" />
+        <result column="hidden" property="hidden" />
     </resultMap>
     <resultMap id="MeetingNoticeWithMeetUser" type="com.xyongfeng.pojo.MeetingNotice" extends="BaseResultMap">
         <association property="meeting" javaType="com.xyongfeng.pojo.Meeting">
@@ -33,7 +34,8 @@
     </resultMap>
     <select id="selectMeetingNoticePushWithUid" resultMap="MeetingNoticeWithMeetUser">
         SELECT
-            tmn.id, tmn.meeting_id, tmn.sender_id, tmn.title, tmn.content, tmn.type, tmn.send_time, tmn.update_time,tmnu.id inform_id,
+            tmn.*,
+            tmnu.id inform_id,
             tu.id uid, tu.name uname, tu.username,  tu.telephone, tu.email, tu.headImage,
             tm.id mid, tm.name mname, tm.user_id, tm.create_date, tm.start_date, tm.haveLicence
         FROM
@@ -50,7 +52,7 @@
     </select>
     <select id="selectMeetingNotice" resultMap="MeetingNoticeWithMeetUser">
         SELECT
-            tmn.id, tmn.meeting_id, tmn.sender_id, tmn.title, tmn.content, tmn.type, tmn.send_time, tmn.update_time,
+            tmn.*,
             tu.id uid, tu.name uname, tu.username,  tu.telephone, tu.email, tu.headImage,
             tm.id mid, tm.name mname, tm.user_id, tm.create_date, tm.start_date, tm.haveLicence
         FROM

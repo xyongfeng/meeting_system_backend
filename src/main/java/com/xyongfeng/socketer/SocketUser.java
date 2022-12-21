@@ -1,4 +1,4 @@
-package com.xyongfeng.Socketer;
+package com.xyongfeng.socketer;
 
 import com.corundumstudio.socketio.SocketIOClient;
 import com.xyongfeng.pojo.Users;

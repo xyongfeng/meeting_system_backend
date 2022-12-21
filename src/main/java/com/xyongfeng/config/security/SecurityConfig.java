@@ -90,6 +90,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) throws Exception {
         web.ignoring().antMatchers(
                 "/users/login",
+                "/users/loginWithFace",
                 "/users/logout",
                 "/users/register",
                 "index.html",

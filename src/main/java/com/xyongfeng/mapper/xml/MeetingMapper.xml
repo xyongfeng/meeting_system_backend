@@ -9,7 +9,10 @@
         <result column="user_id" property="userId" />
         <result column="create_date" property="createDate" />
         <result column="start_date" property="startDate" />
+        <result column="end_date" property="endDate" />
         <result column="haveLicence" property="haveLicence" />
+        <result column="end" property="end" />
+        <result column="to_owner_hidden" property="toOwnerHidden" />
     </resultMap>
 
     <resultMap id="OneToOneResultMap" type="com.xyongfeng.pojo.Meeting" extends="BaseResultMap">
@@ -24,6 +27,37 @@
         </association>
     </resultMap>
 
+    <select id="selectById" resultType="com.xyongfeng.pojo.Meeting">
+        select * from t_meeting where id = ${mid}
+
+    </select>
+    <update id="updateEndDate">
+         update t_meeting m set m.end_date='${endDate}'where m.id=${mid}
+    </update>
+    <update id="delHistoryMeeting">
+        update t_meeting m
+        set m.to_owner_hidden = 1
+        where m.id = ${mid} and
+            m.user_id = ${uid}
+    </update>
+    <select id="selectMeetingWithCreaterOne" resultType="com.xyongfeng.pojo.Meeting">
+        SELECT
+            m.*,
+            u.id as userId,
+            u.`name` as uName,
+            u.username,
+            u.telephone,
+            u.headImage,
+            u.email,
+            u.isAdmin
+        FROM
+            t_meeting as m,
+            t_users as u
+        where
+            m.user_id = u.id AND
+            m.id = ${meeting_id}
+
+    </select>
     <select id="selectMeetingWithCreater" resultMap="OneToOneResultMap">
         SELECT
         m.*,
@@ -61,6 +95,10 @@
             m.user_id = u.id
           and mu.meeting_id = m.id
           and mu.users_id = ${user_id}
+          and mu.is_founder = false
+        <if test="ew">
+            and ${ew.sqlSegment}
+        </if>
     </select>
     <select id="getExistMeetWithUser" resultType="com.xyongfeng.pojo.Meeting">
         SELECT
@@ -82,6 +120,7 @@
           and mu.users_id = ${user_id}
           and mu.meeting_id = ${meeting_id}
 
+
     </select>
     <select id="selectOneWithParticipantById" resultType="com.xyongfeng.pojo.Users">
         SELECT
@@ -96,10 +135,11 @@
             t_meeting_users mu
         WHERE
             mu.users_id=u.id AND
-            mu.meeting_id=${meeting_id}
-
+            mu.meeting_id=${meeting_id} AND
+            mu.is_founder = false
     </select>
-    <select id="selectMeetingWithCreaterOne" resultType="com.xyongfeng.pojo.Meeting">
+
+    <select id="selectMeetingByParticipantsWithEnd" resultMap="OneToOneResultMap">
         SELECT
         m.*,
         u.id as userId,
@@ -111,10 +151,15 @@
         u.isAdmin
         FROM
         t_meeting as m,
-        t_users as u
-        where
-        m.user_id = u.id AND
-        m.id = ${meeting_id}
+        t_users as u,
+        t_meeting_users as mu
+        WHERE
+        m.user_id = u.id
+        and mu.meeting_id = m.id
+        and mu.users_id = ${user_id}
+        and m.end = 1
+        and mu.to_user_hidden = 0
+        and mu.is_founder = false
     </select>
 
 </mapper>

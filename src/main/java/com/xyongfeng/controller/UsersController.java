@@ -43,6 +43,13 @@ public class UsersController {
         return usersService.login(users, request, jwtTokenUtil, userDetailsService, passwordEncoder);
     }
 
+    @ApiOperation("接收base64,人脸识别登录")
+    @PostMapping("/loginWithFace")
+    public JsonResult loginWithFace(@RequestBody @Validated ImgBase64Param param) {
+        log.info(String.format("post:/loginWithFace 接收base64,人脸识别登录。"));
+        return usersService.loginWithFace(param, jwtTokenUtil, userDetailsService);
+    }
+
     @ApiOperation("注册")
     @PostMapping("/register")
     public JsonResult register(@RequestBody @Validated UsersRegisterParam users, HttpServletRequest request
@@ -65,8 +72,8 @@ public class UsersController {
 
     @ApiOperation(value = "修改本人密码")
     @PutMapping("/info/password")
-    public JsonResult updateOwnerPass(@RequestBody @Validated UsersUpdatePassParam users,HttpServletRequest request) {
-        return usersService.updateOwnerPass(users,passwordEncoder,request);
+    public JsonResult updateOwnerPass(@RequestBody @Validated UsersUpdatePassParam users, HttpServletRequest request) {
+        return usersService.updateOwnerPass(users, passwordEncoder, request);
     }
 
     @ApiOperation("设置用户头像")

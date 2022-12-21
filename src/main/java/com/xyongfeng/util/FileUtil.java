@@ -61,8 +61,8 @@ public class FileUtil {
 
     public static String uploadImg(MultipartFile file, String subPath) throws Exception {
         try {
-            if (file.getBytes().length / 1024 / 1024 > 2) {
-                throw new Exception("文件大小不能超过2M");
+            if (file.getBytes().length / 1024 / 1024 > 5) {
+                throw new Exception("文件大小不能超过5M");
             }
         } catch (IOException e) {
             e.printStackTrace();

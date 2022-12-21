@@ -1,12 +1,15 @@
-package com.xyongfeng.Socketer;
+package com.xyongfeng.socketer;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.OnConnect;
 import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.corundumstudio.socketio.annotation.OnEvent;
 
+import com.xyongfeng.mapper.MeetingUsersMapper;
+import com.xyongfeng.pojo.MeetingUsers;
 import com.xyongfeng.pojo.Users;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,14 +17,18 @@ import org.springframework.stereotype.Component;
 
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 @Component
 @Slf4j
 public class SocketHandler {
+
+    @Autowired
+    private SockerSender sockerSender;
+    @Autowired
+    private MeetingUsersMapper meetingUsersMapper;
     @Autowired
     private SocketIOServer socketIoServer;
+
 
     /**
      * 连接上的用户公共房间
@@ -48,7 +55,7 @@ public class SocketHandler {
     public void onDisconnectEvent(SocketIOClient client) {
         // 更新房间的人数
         Users users = SocketState.CONNECT_USERS_MAP.get(client.getSessionId()).users;
-        SocketState.CONNECT_USERS_MAP.get(client.getSessionId()).meetings.forEach(mid -> sendMeetWithout(client, mid, "left_user", users.getId()));
+        SocketState.CONNECT_USERS_MAP.get(client.getSessionId()).meetings.forEach(mid -> sockerSender.sendMeetWithout(client, mid, "left_user", users.getId()));
 
         SocketState.CONNECT_USERS_MAP.remove(client.getSessionId());
         log.info(String.format("断开连接：%s", client.getSessionId()) + " " + SocketState.CONNECT_USERS_MAP.size());
@@ -62,6 +69,7 @@ public class SocketHandler {
      */
     @OnEvent("info")
     public void onInfoEvent(SocketIOClient client, Users users) {
+        SocketState.CONNECT_USERS_MAP.remove(client.getSessionId());
         // 加入连接用户列表
         SocketState.CONNECT_USERS_MAP.put(client.getSessionId(), new SocketUser(client, users, new ArrayList<>()));
         // 加入用户公共房间
@@ -70,22 +78,9 @@ public class SocketHandler {
         log.info("info：" + users);
     }
 
-    private void sendMeetchatBySys(String meetingId, String msg) {
-        Users user = new Users().setId(-1).setName("sys");
-        JSONObject data = new JSONObject();
-        data.put("msg", msg);
-        sendMeetchat(meetingId, user, data);
-
-    }
-
-    private void sendMeetchat(String meetingId, Users users, JSONObject data) {
-        data.put("user", users);
-        socketIoServer.getRoomOperations(meetingId).sendEvent("meetchat", data);
-    }
 
     /**
      * 房间消息
-     *
      * @param client
      * @param data
      */
@@ -93,7 +88,7 @@ public class SocketHandler {
     public void onMeetchatEvent(SocketIOClient client, JSONObject data) {
         String meetingId = data.getString("meetingId");
         Users users = SocketState.CONNECT_USERS_MAP.get(client.getSessionId()).users;
-        sendMeetchat(meetingId, users, data);
+        sockerSender.sendMeetchat(meetingId, users, data);
         log.info("meetchat：" + data);
     }
 
@@ -107,8 +102,8 @@ public class SocketHandler {
     public void onJoinRoomEvent(SocketIOClient client, JSONObject data) {
         String meetingId = data.getString("meetingId");
         // 如果存在
-        if (isExist(meetingId, client)) {
-            sendUserListByid(meetingId, getUserIdBySess(client.getSessionId()));
+        if (sockerSender.isExist(meetingId, client)) {
+            sockerSender.sendUserListByid(meetingId, sockerSender.getUserIdBySess(client.getSessionId()));
             return;
         }
         // 新加入的用户信息
@@ -120,42 +115,20 @@ public class SocketHandler {
         client.sendEvent("message", res);
         // 向房间里的人发送加入消息
         socketIoServer.getRoomOperations(meetingId).sendEvent("joined_user", joinedUser);
-        sendMeetchatBySys(meetingId, joinedUser.getName().concat("加入房间"));
+        sockerSender.sendMeetchatBySys(meetingId, joinedUser.getName().concat("加入房间"));
         // 记录此人加入的房间
         SocketState.CONNECT_USERS_MAP.get(client.getSessionId()).meetings.add(meetingId);
         client.joinRoom(meetingId);
-        sendUserListByid(meetingId, joinedUser.getId());
+        sockerSender.sendUserListByid(meetingId, joinedUser.getId());
         log.info(String.format("%s 加入房间 %d", joinedUser.getName(), socketIoServer.getRoomOperations(meetingId).getClients().size()));
     }
 
-    private Integer getUserIdBySess(UUID sessionId) {
-        return SocketState.CONNECT_USERS_MAP.get(sessionId).users.getId();
-    }
-
-    private List<Users> getUserListByMid(String meetingId) {
-        List<Users> usersList = new ArrayList<>();
-        // 把房间里的用户通过sessionid找到信息，并加入users列表
-        socketIoServer.getRoomOperations(meetingId).getClients().forEach(x -> usersList.add(SocketState.CONNECT_USERS_MAP.get(x.getSessionId()).users));
-        return usersList;
-    }
-
-    private void sendUserListByid(String meetingId, Integer userId) {
-        List<Users> usersList = getUserListByMid(meetingId);
-        // 将房间用户信息发送给刚加入的人
-        sendMeetById(userId, meetingId, "meeting_users", usersList);
-    }
-
-    private void sendUserListWithout(String meetingId, SocketIOClient client) {
-        List<Users> usersList = getUserListByMid(meetingId);
-        // 将房间用户信息发送给刚加入的人
-        sendMeetWithout(client, meetingId, "meeting_users", usersList);
-    }
 
     @OnEvent("leave")
     public void onLeaveRoomEvent(SocketIOClient client, JSONObject data) {
         String meetingId = data.getString("meetingId");
         client.leaveRoom(meetingId);
-        sendMeetWithout(client, meetingId, "left_user", getUserIdBySess(client.getSessionId()));
+        sockerSender.sendMeetWithout(client, meetingId, "left_user", sockerSender.getUserIdBySess(client.getSessionId()));
         log.info(String.format("%s 离开房间 %d", SocketState.CONNECT_USERS_MAP.get(client.getSessionId()).users.getName(), socketIoServer.getRoomOperations(meetingId).getClients().size()));
     }
 
@@ -170,59 +143,37 @@ public class SocketHandler {
         String meetingId = data.getString("meetingId");
         Integer toId = data.getInteger("toId");
         if (toId != null) {
-            sendMeetById(toId, meetingId, "message", data);
+            sockerSender.sendMeetById(toId, meetingId, "message", data);
         } else {
-            sendMeetWithout(client, meetingId, "message", data);
+            sockerSender.sendMeetWithout(client, meetingId, "message", data);
         }
         log.info(String.format("Messsage：%s", data));
     }
 
+
     /**
-     * 发送给该房间中该id的人
+     * 会议存在心跳，每发送一次，存在时长就加上1分钟
      *
-     * @param userId
-     * @param meetingId
-     * @param event
+     * @param client
      * @param data
      */
-    private void sendMeetById(Integer userId, String meetingId, String event, Object data) {
-        Collection<SocketIOClient> clients = socketIoServer.getRoomOperations(meetingId).getClients();
-        for (SocketIOClient c : clients) {
-            if (SocketState.CONNECT_USERS_MAP.get(c.getSessionId()).users.getId().equals(userId)) {
-                c.sendEvent(event, data);
-                return;
-            }
+    @OnEvent("exist_minute")
+    private void onExistMinuteEvent(SocketIOClient client, JSONObject data) {
+        log.info(String.format("exist_minute：%s", data));
+        String meetingId = data.getString("meetingId");
+        Integer userId = sockerSender.getUserIdBySess(client.getSessionId());
+//        meetingUsersMapper.addExistMinute(meetingId,userId);
+        MeetingUsers meetingUsers = meetingUsersMapper.selectOne(new QueryWrapper<MeetingUsers>()
+                .eq("meeting_id", meetingId)
+                .eq("users_id", userId));
+        if(meetingUsers == null){
+            return;
         }
-
+        Integer existMinute = meetingUsers.getExistMinute();
+        meetingUsersMapper.update(meetingUsers.setExistMinute(existMinute + 1)
+                , new QueryWrapper<MeetingUsers>()
+                .eq("meeting_id", meetingId)
+                .eq("users_id", userId));
     }
 
-    /**
-     * 发给房间里的其他人
-     */
-    private void sendMeetWithout(SocketIOClient client, String meetingId, String event, Object data) {
-        Collection<SocketIOClient> clients = socketIoServer.getRoomOperations(meetingId).getClients();
-
-        for (SocketIOClient c : clients) {
-            if (c.getSessionId() != client.getSessionId()) {
-                c.sendEvent(event, data);
-            }
-        }
-    }
-
-    /**
-     * 是否已经存在于会议
-     *
-     * @param meetingId
-     * @param client
-     * @return
-     */
-    private boolean isExist(String meetingId, SocketIOClient client) {
-        Collection<SocketIOClient> clients = socketIoServer.getRoomOperations(meetingId).getClients();
-        for (SocketIOClient c : clients) {
-            if (c.getSessionId() == client.getSessionId()) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

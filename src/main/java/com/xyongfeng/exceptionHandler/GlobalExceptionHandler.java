@@ -4,6 +4,7 @@ import com.xyongfeng.pojo.JsonResult;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -53,6 +54,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ConnectException.class)
     public JsonResult connectException(ConnectException e){
         return JsonResult.error("人脸识别服务未启动，请通知管理员");
+    }
+    @ExceptionHandler(FileSizeLimitExceededException.class)
+    public JsonResult fileSizeLimitExceededException(FileSizeLimitExceededException e){
+        return JsonResult.error("文件上传失败");
     }
 
 }

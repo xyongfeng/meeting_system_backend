@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.xyongfeng.Socketer.SockerSender;
+import com.xyongfeng.socketer.SockerSender;
 import com.xyongfeng.mapper.*;
 import com.xyongfeng.pojo.*;
 import com.xyongfeng.pojo.Param.*;
@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -62,7 +63,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     @Autowired
     private SockerSender sockerSender;
     @Autowired
-    private RoleMapper roleMapper;
+    private UsersFaceFeatureMapper usersFaceFeatureMapper;
 
     @Value("${flask.headerUrl}")
     private String headerUrl;
@@ -90,10 +91,12 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     @Override
     public JsonResult update(UsersUpdateParam users, Integer uid) {
         users.setId(uid);
-        if (usersMapper.selectOne(new QueryWrapper<Users>().eq("username", users.getUsername())) != null) {
+        Users one = usersMapper.selectOne(new QueryWrapper<Users>().eq("username", users.getUsername()));
+        if (one != null && !one.getId().equals(uid)) {
             return JsonResult.error("修改失败，用户名重复");
         }
-        if (usersMapper.selectOne(new QueryWrapper<Users>().eq("name", users.getName())) != null) {
+        one = usersMapper.selectOne(new QueryWrapper<Users>().eq("name", users.getName()));
+        if (one != null && !one.getId().equals(uid)) {
             return JsonResult.error("修改失败，名称重复");
         }
         if (usersMapper.updateById(UserParamConverter.getUsers(users)) > 0) {
@@ -105,6 +108,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 
     @Override
     public JsonResult delete(Integer uid) {
+
         Users delAdmin = userDelById(uid);
         if (delAdmin != null) {
             return JsonResult.success("删除成功", delAdmin);
@@ -203,6 +207,25 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         return captcha != null && captcha.equals(receiverCaptcha);
     }
 
+    /**
+     * 通过登录验证之后，保存登录信息
+     *
+     * @param jwtTokenUtil
+     * @param userDetails
+     * @return
+     */
+    private JsonResult saveLogin(JwtTokenUtil jwtTokenUtil, UserDetails userDetails) {
+        // 更新security登录用户对象
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        // 生成token
+        String token = jwtTokenUtil.generateToken(userDetails);
+        Map<String, String> tokenMap = new HashMap<>();
+        tokenMap.put("token", token);
+        tokenMap.put("tokenHead", tokenHead);
+        return JsonResult.success("登录成功", tokenMap);
+    }
+
     @Override
     public JsonResult login(UsersLoginParam users, HttpServletRequest request, JwtTokenUtil jwtTokenUtil, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         if (!validCaptcha(request, users.getCode())) {
@@ -213,15 +236,29 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         if (null == userDetails || !passwordEncoder.matches(users.getPassword(), userDetails.getPassword())) {
             return JsonResult.error("用户名或密码错误");
         }
-        // 更新security登录用户对象
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-        // 生成token
-        String token = jwtTokenUtil.generateToken(userDetails);
-        Map<String, String> tokenMap = new HashMap<>();
-        tokenMap.put("token", token);
-        tokenMap.put("tokenHead", tokenHead);
-        return JsonResult.success("登录成功", tokenMap);
+        return saveLogin(jwtTokenUtil, userDetails);
+    }
+
+    @Override
+    public JsonResult loginWithFace(ImgBase64Param param, JwtTokenUtil jwtTokenUtil, UserDetailsService userDetailsService) {
+        List<UsersFaceFeature> features = usersFaceFeatureMapper.selectAll();
+        Map<String, Object> map = new HashMap<>();
+        map.put("imgBase64", param.getImgBase64());
+        map.put("features", features);
+
+        JSONObject jsonObject = postToFlask(map, "login");
+        if (jsonObject.getInteger("code") != 200) {
+            return JsonResult.error(jsonObject.getInteger("code"), jsonObject.getString("message"));
+        }
+
+        // 得到与该图片差异最小且符合阈值的用户id，这就是登录者
+        Integer userId = jsonObject.getInteger("data");
+        if (userId == -1) {
+            return JsonResult.error("登录失败，没有找到符合账号！");
+        }
+        Users users = usersMapper.selectById(userId);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(users.getUsername());
+        return saveLogin(jwtTokenUtil, userDetails);
     }
 
     @Override
@@ -286,22 +323,60 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 //        param.setId(MyUtil.getUsers().getId());
         JsonResult jsonResult = uploadImg(param.getFile(), imgPathPro.getHead());
         if (jsonResult.getCode() == 200) {
-            usersMapper.updateById(new Users().setId(param.getId()).setHeadImage((String) jsonResult.getData()));
-            return JsonResult.success(jsonResult.getMessage());
+            Users users = new Users().setId(param.getId()).setHeadImage((String) jsonResult.getData());
+            usersMapper.updateById(users);
+            return JsonResult.success(jsonResult.getMessage(), users);
         }
         return jsonResult;
+    }
+
+    private void insertOrUpdateFaceFeature(Integer userId, String faceFeature) {
+
+
+        if (usersFaceFeatureMapper.update(
+                new UsersFaceFeature().setFaceFeature(faceFeature),
+                new QueryWrapper<UsersFaceFeature>().eq("user_id", userId)) == 0) {
+            usersFaceFeatureMapper.insert(new UsersFaceFeature()
+                    .setUserId(userId)
+                    .setFaceFeature(faceFeature));
+        }
     }
 
     @Override
     public JsonResult setFaceImg(UsersSetImgParam param) {
         param.setId(MyUtil.getUsers().getId());
+        // 设置请求参数map
+        Map<String, Object> map = new HashMap<>();
+        try {
+            BASE64Encoder encoder = new BASE64Encoder();
+            map.put("imgBase64", encoder.encode(param.getFile().getBytes()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // 发送信息给tensorflow进行预测，如果出现问题就返回错误
+        JSONObject jsonObject = postToFlask(map, "feature");
+        if (jsonObject.getInteger("code") != 200) {
+            return JsonResult.error(jsonObject.getString("message"));
+        }
+        // 上传图片
         JsonResult jsonResult = uploadImg(param.getFile(), imgPathPro.getFace());
         if (jsonResult.getCode() == 200) {
             usersMapper.updateById(new Users().setId(param.getId()).setFaceImage((String) jsonResult.getData()));
+
+            // 修改用户面部照片，如果该用户第一次上传面部照片则插入新数据
+            insertOrUpdateFaceFeature(param.getId(), jsonObject.getString("data"));
+
             return JsonResult.success(jsonResult.getMessage());
         }
         return jsonResult;
     }
+
+    private JSONObject postToFlask(Map<String, Object> requestMap, String subpath) {
+        String res = restTemplate.postForObject(headerUrl.concat("/").concat(subpath), requestMap, String.class);
+        // 拿到res进行解析
+        return JSONObject.parseObject(res);
+    }
+
 
     @Override
     public JsonResult setFaceImgWithBase64(ImgBase64Param param) {
@@ -318,8 +393,21 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
             }
             String filename = UUID.randomUUID().toString().concat(".jpg");
             if (FileUtil.uploadFile(bytes, imgPathPro.getFace(), filename)) {
+                // 向flask发送base64,flask将此面部的特征信息保存，为人脸识别登录做准备
+                // 设置请求参数map
+                Map<String, Object> map = new HashMap<>();
+                map.put("imgBase64", param.getImgBase64());
+                // 发送信息给tensorflow进行预测
+                JSONObject jsonObject = postToFlask(map, "feature");
+                if (jsonObject.getInteger("code") != 200) {
+                    return JsonResult.error(jsonObject.getString("message"));
+                }
+                // 上传
                 String s = Paths.get(imgPathPro.getFace()).resolve(filename).toString();
                 usersMapper.updateById(new Users().setId(param.getUserId()).setFaceImage(s));
+                // 修改用户面部照片，如果该用户第一次上传面部照片则插入新数据
+                insertOrUpdateFaceFeature(param.getUserId(), jsonObject.getString("data"));
+
                 // 成功就返回图片相对路径
                 return JsonResult.success("上传成功");
             } else {
@@ -333,13 +421,13 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         return null;
     }
 
+
     @Override
     public JsonResult signIn(ImgBase64Param param, String meetingId) {
 
         if (getHadSignIn(meetingId)) {
             return JsonResult.error("你已经签过到了");
         }
-        // todo 如果会议结束了，也不能进行签到
         // 判断签到时间，签到时间必须在会议开始之后
         LocalDateTime startDate = meetingMapper.selectById(meetingId).getStartDate();
         LocalDateTime now = LocalDateTime.now();
@@ -353,18 +441,21 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         }
         // 获取Base64
         String sendImgBase64 = param.getImgBase64();
-        String localImgBase64 = FileUtil.getImgWithBase64(users.getFaceImage());
+//        String localImgBase64 = FileUtil.getImgWithBase64(users.getFaceImage());
+        // 这里直接用数据库保存的特征
+        UsersFaceFeature faceFeature = usersFaceFeatureMapper.selectOne(new QueryWrapper<UsersFaceFeature>().eq("user_id", users.getId()));
+
+        String localFeature = faceFeature.getFaceFeature();
+
 
         // 设置请求参数map
         Map<String, Object> map = new HashMap<>();
         map.put("sendImgBase64", sendImgBase64);
-        map.put("localImgBase64", localImgBase64);
-//        map.put("uid",users.getId());
-        // 发送信息给tensorflow进行预测
-        String res = restTemplate.postForObject(headerUrl.concat("/predict"), map, String.class);
-        // 拿到res进行解析
-        JSONObject jsonObject = JSONObject.parseObject(res);
+        map.put("localFeature", localFeature);
+//        map.put("localImgBase64", localImgBase64);
 
+        // 发送信息给tensorflow进行预测
+        JSONObject jsonObject = postToFlask(map, "predict");
         if (jsonObject.getInteger("code") != 200) {
             return JsonResult.error(jsonObject.getInteger("code"), jsonObject.getString("message"));
         }
@@ -549,6 +640,13 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         if (userid > ownerId) {
             swapUserId(userid, ownerId);
         }
+        usersFriendInformMapper.delete((new QueryWrapper<UsersFriendInform>())
+                .eq("from_id", userid)
+                .eq("to_id", ownerId)
+                .or()
+                .eq("from_id", ownerId)
+                .eq("to_id", userid));
+
 
         int result = usersFriendMapper.delete(
                 (new QueryWrapper<UsersFriend>())
@@ -630,10 +728,12 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 
     @Override
     public JsonResult updateOwnerInfo(UsersUpdateWithOwnerParam users) {
-        if (!users.getId().equals(MyUtil.getUsers().getId())) {
+        Integer uid = MyUtil.getUsers().getId();
+        if (!users.getId().equals(uid)) {
             return JsonResult.error("修改失败，无权限修改他人信息");
         }
-        if (usersMapper.selectOne(new QueryWrapper<Users>().eq("name", users.getName())) != null) {
+        Users same_user = usersMapper.selectOne(new QueryWrapper<Users>().eq("name", users.getName()));
+        if (same_user != null && !same_user.getId().equals(uid)) {
             return JsonResult.error("修改失败，名称重复");
         }
         Users users1 = new Users()

@@ -64,6 +64,10 @@ public class MeetingNotice implements Serializable {
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private LocalDateTime updateTime;
 
+    @ApiModelProperty(value = "隐藏，不会出现在公告列表里面，通常用来发送私有通知")
+    private Boolean hidden;
+
+
     @TableField(exist = false)
     @ApiModelProperty(value = "通知id")
     private Integer informId;

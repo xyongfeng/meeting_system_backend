@@ -1,5 +1,6 @@
 package com.xyongfeng.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.xyongfeng.pojo.*;
@@ -40,6 +41,12 @@ public interface MeetingService extends IService<Meeting> {
     JsonResult setLicence(MeetSetLicenceParam param);
 
     JsonResult setLicenceByUser(MeetSetLicenceParam param);
+
+    /**
+     * 查看自己的历史会议列表
+     * @return
+     */
+    JsonResult selectByHistory();
 
     /**
      * 分页查看自己加入的会议列表
@@ -117,6 +124,60 @@ public interface MeetingService extends IService<Meeting> {
      */
     JsonResult updateMeetingNotice(MeetingNotice meetingNotice);
 
+    /**
+     * 分页查看自己会议的参会成员与其会议中状态的列表
+     * @param mid
+     * @param current
+     * @param size
+     * @return
+     */
+    JsonResult getMeetingUsersList(String mid, Integer current, Integer size);
+
+    /**
+     * 根据用户id将其踢出会议
+     * @param mid
+     * @param userId
+     * @return
+     */
+    JsonResult delMeetingUserById(String mid, Integer userId);
+
+    /**
+     * 根据id查看会议的已入会用户列表
+     * @param mid
+     * @return
+     */
+    JsonResult getExistUserList(String mid);
+
+    /**
+     * 删除历史会议
+     * @param mid
+     * @return
+     */
+    JsonResult delHistoryMeeting(String mid);
+
+    /**
+     * 根据id查看用户在会议的状态
+     * @param mid
+     * @param uid
+     * @return
+     */
+    JsonResult getMeetingUsersStateById(String mid, Integer uid);
 
 
+    /**
+     * 修改用户在指定会议的状态，可以禁止操作,批量修改
+     * @param mid
+     * @param jsonObject
+     * @return
+     */
+    JsonResult setMeetingUsersStateByIdMany(String mid, JSONObject jsonObject);
+
+    /**
+     * 根据id修改用户在会议的状态
+     * @param mid
+     * @param uid
+     * @param jsonObject
+     * @return
+     */
+    JsonResult setMeetingUsersStateByIdOne(String mid, Integer uid, JSONObject jsonObject);
 }

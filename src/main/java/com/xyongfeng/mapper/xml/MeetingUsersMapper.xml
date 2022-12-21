@@ -9,7 +9,35 @@
         <result column="users_id" property="usersId" />
         <result column="had_sign_in" property="hadSignIn" />
         <result column="had_sign_in_time" property="hadSignInTime" />
+        <result column="had_ban" property="hadBan" />
+        <result column="had_muted" property="hadMuted" />
+        <result column="had_banup" property="hadBanup" />
+        <result column="uping" property="uping" />
+        <result column="speeching" property="speeching" />
+        <result column="exist_minute" property="existMinute" />
+        <result column="to_user_hidden" property="toUserHidden" />
+        <result column="is_founder" property="isFounder" />
+
     </resultMap>
+    <resultMap id="OneToOneResultMap" type="com.xyongfeng.pojo.MeetingUsers" extends="BaseResultMap">
+        <association property="users" javaType="com.xyongfeng.pojo.Users">
+            <id column="userId" property="id"/>
+            <result column="uName" property="name"/>
+            <result column="username" property="username"/>
+            <result column="telephone" property="telephone"/>
+            <result column="email" property="email"/>
+            <result column="headImage" property="headImage"/>
+            <result column="isAdmin" property="isAdmin"/>
+        </association>
+    </resultMap>
+    <update id="delHistoryMeeting">
+        update t_meeting_users mu
+        set mu.to_user_hidden = 1
+        where mu.meeting_id = ${mid} and
+              mu.users_id = ${uid}
+    </update>
+
+
     <select id="selectHadSignInList" resultType="com.xyongfeng.pojo.Users">
         SELECT
             u.id,
@@ -25,8 +53,26 @@
         WHERE
             mu.had_sign_in = 1 AND
             u.id = mu.users_id AND
-            mu.meeting_id = ${mid}
+            mu.meeting_id = ${mid} AND
+            mu.is_founder = false
 
+    </select>
+    <select id="selectMeetingUsersList" resultMap="OneToOneResultMap">
+        SELECT
+            mu.*,
+            u.id as userId,
+            u.`name` as uName,
+            u.username,
+            u.telephone,
+            u.headImage,
+            u.email,
+            u.isAdmin
+        FROM
+            t_users u,
+            t_meeting_users mu
+        WHERE
+            u.id = mu.users_id AND
+            mu.meeting_id = ${mid}
     </select>
 
 

@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.security.Principal;
 
 
@@ -166,5 +167,10 @@ public interface UsersService extends IService<Users> {
      */
     JsonResult setFaceImgWithBase64(ImgBase64Param param);
 
-
+    /**
+     * 接收base64,人脸识别登录
+     * @param param
+     * @return
+     */
+    JsonResult loginWithFace(ImgBase64Param param, JwtTokenUtil jwtTokenUtil, UserDetailsService userDetailsService);
 }

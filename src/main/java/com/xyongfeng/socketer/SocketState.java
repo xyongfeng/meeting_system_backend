@@ -1,7 +1,4 @@
-package com.xyongfeng.Socketer;
-
-import lombok.Data;
-import org.springframework.stereotype.Component;
+package com.xyongfeng.socketer;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;

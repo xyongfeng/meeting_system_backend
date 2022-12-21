@@ -1,6 +1,7 @@
 package com.xyongfeng.controller;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.xyongfeng.pojo.*;
 import com.xyongfeng.pojo.Param.*;
 import com.xyongfeng.service.MeetingService;
@@ -13,6 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -30,6 +34,21 @@ import org.springframework.web.bind.annotation.*;
 public class MeetingController {
     @Autowired
     private MeetingService meetingService;
+
+    @ApiOperation("查看自己的历史会议列表")
+    @GetMapping("/meeting/history")
+    public JsonResult selectByHistory() {
+        log.info(String.format("post:/meeting/history 查看自己的历史会议列表。"));
+
+        return meetingService.selectByHistory();
+    }
+
+    @ApiOperation("删除历史会议")
+    @DeleteMapping("/meeting/history/{mid}")
+    public JsonResult delHistoryMeeting(@PathVariable String mid) {
+        log.info(String.format("delHistoryMeeting:/meeting/history 删除历史会议。%s", mid));
+        return meetingService.delHistoryMeeting(mid);
+    }
 
     @ApiOperation("分页查看自己创建的会议列表")
     @GetMapping("/meeting/{current}/{size}")
@@ -60,10 +79,10 @@ public class MeetingController {
         return meetingService.updateByUser(meeting);
     }
 
-    @ApiOperation("删除会议")
+    @ApiOperation("结束会议")
     @DeleteMapping("/meeting/{mid}")
     public JsonResult delete(@PathVariable String mid) {
-        log.info(String.format("delete:/meeting 删除会议。%s", mid));
+        log.info(String.format("delete:/meeting 结束会议。%s", mid));
         return meetingService.deleteByUser(mid);
     }
 
@@ -88,6 +107,7 @@ public class MeetingController {
         return meetingService.outMeeting(mid);
     }
 
+
     @ApiOperation("通过id查询自己参与的会议的信息")
     @GetMapping("/meeting/{mid}")
     public JsonResult getMeeting(@PathVariable String mid) {
@@ -100,6 +120,51 @@ public class MeetingController {
     public JsonResult getHadSignInList(@PathVariable Integer current, @PathVariable Integer size, @PathVariable String mid) {
         log.info(String.format("get:/getHadSignInList 分页查看自己会议的用户签到列表。%d , %d", current, size));
         return meetingService.selectHadSignInList(mid, current, size);
+    }
+
+    @ApiOperation("根据id查看会议的已入会用户列表")
+    @GetMapping("/meeting/{mid}/existUser")
+    public JsonResult getExistUserList(@PathVariable String mid) {
+        log.info("get:/getExistUserList 根据id查看会议的已入会用户列表。");
+        return meetingService.getExistUserList(mid);
+    }
+
+    @ApiOperation("根据id查看用户在会议的状态")
+    @GetMapping("/meeting/{mid}/userState/{uid}")
+    public JsonResult getMeetingUsersStateById(@PathVariable String mid, @PathVariable Integer uid) {
+        log.info(String.format("get:/getMeetingUsersStateById 根据id查看用户在会议的状态。%s , %d", mid, uid));
+        return meetingService.getMeetingUsersStateById(mid, uid);
+    }
+
+    @ApiOperation("修改用户在指定会议的状态，可以禁止操作,批量修改")
+    @PostMapping("/meeting/{mid}/userState")
+    public JsonResult setMeetingUsersStateById(@PathVariable String mid,  @RequestBody JSONObject jsonObject) {
+        log.info(String.format("get:/setMeetingUsersStateById 修改用户在指定会议的状态，可以禁止操作,批量修改。%s ", mid));
+        return meetingService.setMeetingUsersStateByIdMany(mid,jsonObject);
+
+    }
+
+    @ApiOperation("根据id修改用户在会议的状态")
+    @PostMapping("/meeting/{mid}/userState/{uid}")
+    public JsonResult setMeetingUsersStateByIdOne(@PathVariable String mid, @PathVariable Integer uid, @RequestBody JSONObject jsonObject) {
+        log.info(String.format("get:/setMeetingUsersStateById 根据id修改用户在会议的状态。%s , %d", mid, uid));
+        return meetingService.setMeetingUsersStateByIdOne(mid, uid,jsonObject);
+    }
+
+
+    @ApiOperation("分页查看自己会议的参会成员与其会议中状态的列表")
+    @GetMapping("/meeting/{mid}/userState/{current}/{size}")
+    public JsonResult getMeetingUsersList(@PathVariable Integer current, @PathVariable Integer size, @PathVariable String mid) {
+        log.info(String.format("get:/getMeetingUsersList 分页查看自己会议的参会成员与其会议中状态的列表。%d , %d", current, size));
+        return meetingService.getMeetingUsersList(mid, current, size);
+    }
+
+    @ApiOperation("根据用户id将其踢出会议")
+    @DeleteMapping("/meeting/{mid}/userState/{userId}")
+    public JsonResult delMeetingUserById(@PathVariable String mid, @PathVariable Integer userId) {
+
+        log.info(String.format("delete:/delMeetingUserById 根据用户id将其踢出会议。%s %d", mid, userId));
+        return meetingService.delMeetingUserById(mid, userId);
     }
 
     @ApiOperation("分页查看自己会议的申请通知（未读）")
@@ -156,7 +221,7 @@ public class MeetingController {
     @DeleteMapping("/meeting/{mid}/notice/{noticeId}")
     public JsonResult delMeetingNoticeById(@PathVariable String mid, @PathVariable Integer noticeId) {
         log.info(String.format("delete:/delMeetingNoticeById 获取mid对应会议的公告列表。%s %d", mid, noticeId));
-        return meetingService.delMeetingNoticeById(mid,noticeId);
+        return meetingService.delMeetingNoticeById(mid, noticeId);
     }
 
 
