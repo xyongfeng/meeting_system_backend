@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.xyongfeng.service.ChatFilterService;
 import com.xyongfeng.socketer.SockerSender;
 import com.xyongfeng.mapper.*;
 import com.xyongfeng.pojo.*;
@@ -64,6 +65,8 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     private SockerSender sockerSender;
     @Autowired
     private UsersFaceFeatureMapper usersFaceFeatureMapper;
+    @Autowired
+    private ChatFilterService chatFilterService;
 
     @Value("${flask.headerUrl}")
     private String headerUrl;
@@ -698,6 +701,8 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         if (!isFriend(userid, ownerId)) {
             return JsonResult.error("发送失败，该好友不存在");
         }
+        conetent = chatFilterService.filter(conetent);
+
         LocalDateTime now = LocalDateTime.now();
         UsersFriendInform usersFriendInform = new UsersFriendInform()
                 .setType(1)

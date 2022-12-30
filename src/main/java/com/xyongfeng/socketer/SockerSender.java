@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.xyongfeng.pojo.Users;
+import com.xyongfeng.service.ChatFilterService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,9 @@ public class SockerSender {
     //    private final int WAY_FRIENDAPPLY = 1, WAY_MEETAPPLY = 2, WAY_MEETINFORM = 3;
     @Autowired
     private SocketIOServer socketIoServer;
+
+    @Autowired
+    private ChatFilterService chatFilterService;
 
     /**
      * 发送执行指令给会议某用户执行
@@ -50,7 +54,7 @@ public class SockerSender {
         map.put("userId", userId);
         map.put("uping", uping);
         map.put("speeching", speeching);
-        sendMeetAll(meetId,"updateState", map);
+        sendMeetAll(meetId, "updateState", map);
     }
 
     /**
@@ -119,6 +123,8 @@ public class SockerSender {
      */
     public void sendMeetchat(String meetingId, Users users, JSONObject data) {
         data.put("user", users);
+        String msg = chatFilterService.filter(data.getString("msg"));
+        data.put("msg", msg);
         socketIoServer.getRoomOperations(meetingId).sendEvent("meetchat", data);
     }
 

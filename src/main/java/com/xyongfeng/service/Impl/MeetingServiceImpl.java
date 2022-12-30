@@ -589,7 +589,7 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
 
         // 之前的变为已读
         meetingNoticeUsersMapper.update(new MeetingNoticeUsers().setState(1),
-                new QueryWrapper<MeetingNoticeUsers>().eq("notice_id",meetingNotice.getId()));
+                new QueryWrapper<MeetingNoticeUsers>().eq("notice_id", meetingNotice.getId()));
 
         int i = meetingNoticeMapper.updateById(meetingNotice);
         // 开启推送
@@ -687,21 +687,36 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
 
     @Override
     public JsonResult setMeetingUsersStateByIdMany(String mid, JSONObject jsonObject) {
-
+        if (!isBelongUser(mid)) {
+            return JsonResult.error("修改失败，你没有权限");
+        }
         List<Map<String, Object>> list = (List<Map<String, Object>>) jsonObject.get("list");
 
 
         for (Map<String, Object> map : list) {
             QueryWrapper<MeetingUsers> wrapper = new QueryWrapper<MeetingUsers>()
                     .eq("meeting_id", mid).eq("users_id", map.get("userId"));
+            // 修改前
+            MeetingUsers meetingUsersBefore = meetingUsersMapper.selectOne(wrapper);
+            // 修改后
             MeetingUsers meetingUsers = new MeetingUsers()
                     .setHadMuted((Boolean) map.get("hadMuted")).setHadBanup((Boolean) map.get("hadBanup"));
-            if (meetingUsers.getHadMuted()) {
-                sockerSender.sendActionToMeetUser("stop_speech", mid, (Integer) map.get("userId"), "你已被禁止开麦", false);
+            
+            if (!meetingUsers.getHadMuted().equals(meetingUsersBefore.getHadMuted())) {
+                if (meetingUsers.getHadMuted()) {
+                    sockerSender.sendActionToMeetUser("stop_speech", mid, (Integer) map.get("userId"), "你已被禁止开麦", false);
+                } else {
+                    sockerSender.sendActionToMeetUser("open_speech", mid, (Integer) map.get("userId"), "success:你已被允许开麦", false);
+                }
             }
-            if (meetingUsers.getHadBanup()) {
-                sockerSender.sendActionToMeetUser("stop_up", mid, (Integer) map.get("userId"), "你已被禁止投屏", false);
+            if (!meetingUsers.getHadBanup().equals(meetingUsersBefore.getHadBanup())) {
+                if (meetingUsers.getHadBanup()) {
+                    sockerSender.sendActionToMeetUser("stop_up", mid, (Integer) map.get("userId"), "你已被禁止投屏", false);
+                }else{
+                    sockerSender.sendActionToMeetUser("open_up", mid, (Integer) map.get("userId"), "success:你已被允许投屏", false);
+                }
             }
+
             meetingUsersMapper.update(meetingUsers, wrapper);
         }
 

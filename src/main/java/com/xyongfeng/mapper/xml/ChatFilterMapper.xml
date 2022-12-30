@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xyongfeng.mapper.ChatFilterMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xyongfeng.pojo.ChatFilter">
+        <id column="id" property="id" />
+        <result column="filter_content" property="filterContent" />
+        <result column="filter_rule" property="filterRule" />
+        <result column="replace_content" property="replaceContent" />
+        <result column="appender_id" property="appenderId" />
+        <result column="append_time" property="appendTime" />
+        <result column="enable" property="enable" />
+    </resultMap>
+
+    <resultMap id="OneToOneResultMap" type="com.xyongfeng.pojo.ChatFilter" extends="BaseResultMap">
+        <association property="appender" javaType="com.xyongfeng.pojo.Users">
+            <id column="userId" property="id"/>
+            <result column="uName" property="name"/>
+            <result column="username" property="username"/>
+            <result column="telephone" property="telephone"/>
+            <result column="email" property="email"/>
+            <result column="headImage" property="headImage"/>
+            <result column="isAdmin" property="isAdmin"/>
+        </association>
+    </resultMap>
+    <select id="selectWithUser" resultMap="OneToOneResultMap">
+        SELECT
+            cf.*,
+            u.id as userId,
+            u.`name` as uName,
+            u.username,
+            u.telephone,
+            u.headImage,
+            u.email,
+            u.isAdmin
+        FROM
+            t_chat_filter as cf,
+            t_users as u
+        where
+            cf.appender_id = u.id
+    </select>
+    <select id="selectWithUserById" resultMap="OneToOneResultMap">
+        SELECT
+            cf.*,
+            u.id as userId,
+            u.`name` as uName,
+            u.username,
+            u.telephone,
+            u.headImage,
+            u.email,
+            u.isAdmin
+        FROM
+            t_chat_filter as cf,
+            t_users as u
+        where
+            cf.appender_id = u.id AND
+            cf.appender_id = ${userId}
+    </select>
+
+</mapper>
