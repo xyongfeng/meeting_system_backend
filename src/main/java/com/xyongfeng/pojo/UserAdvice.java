@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 
 import java.time.LocalDateTime;
 import java.io.Serializable;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
@@ -60,4 +61,8 @@ public class UserAdvice implements Serializable {
     @ApiModelProperty(value = "用户")
     @TableField(exist = false)
     private Users users;
+
+    @ApiModelProperty(value = "上传的图片")
+    @TableField(exist = false)
+    private List<String> imgs;
 }

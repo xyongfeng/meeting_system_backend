@@ -7,26 +7,31 @@ import com.xyongfeng.pojo.Param.MeetingUpdateParam;
 
 /**
  * Meeting字段转换器
+ *
  * @author xyongfeng
  */
 
 public class MeetingParamConverter {
 
-    public static Meeting getMeeting(MeetingAddParam meet){
+    public static Meeting getMeeting(MeetingAddParam meet) {
         return new Meeting()
                 .setStartDate(meet.getStartDate())
                 .setHaveLicence(meet.getHaveLicence())
-                .setName(meet.getName());
+                .setName(meet.getName())
+                .setMaxNumber(meet.getMaxNumber())
+                .setNeedFace(meet.getNeedFace());
 
     }
 
 
-    public static Meeting getMeeting(MeetingUpdateParam meet){
+    public static Meeting getMeeting(MeetingUpdateParam meet) {
         return new Meeting()
                 .setId(meet.getId())
                 .setStartDate(meet.getStartDate())
                 .setHaveLicence(meet.getHaveLicence())
-                .setName(meet.getName());
+                .setName(meet.getName())
+                .setMaxNumber(meet.getMaxNumber())
+                .setNeedFace(meet.getNeedFace());
 
     }
 

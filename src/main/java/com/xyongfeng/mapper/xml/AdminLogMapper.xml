@@ -4,15 +4,15 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.xyongfeng.pojo.AdminLog">
-        <id column="id" property="id" />
-        <result column="action_module" property="actionModule" />
-        <result column="action_user_id" property="actionUserId" />
-        <result column="action_url" property="actionUrl" />
-        <result column="action_content" property="actionContent" />
-        <result column="action_type" property="actionType" />
-        <result column="action_ip" property="actionIp" />
-        <result column="action_time" property="actionTime" />
-        <result column="action_success" property="actionSuccess" />
+        <id column="id" property="id"/>
+        <result column="action_module" property="actionModule"/>
+        <result column="action_user_id" property="actionUserId"/>
+        <result column="action_url" property="actionUrl"/>
+        <result column="action_content" property="actionContent"/>
+        <result column="action_type" property="actionType"/>
+        <result column="action_ip" property="actionIp"/>
+        <result column="action_time" property="actionTime"/>
+        <result column="action_success" property="actionSuccess"/>
 
     </resultMap>
     <resultMap id="OneToOneResultMap" type="com.xyongfeng.pojo.AdminLog" extends="BaseResultMap">
@@ -28,36 +28,37 @@
     </resultMap>
     <select id="selectWithUser" resultMap="OneToOneResultMap">
         SELECT
-            al.*,
-            u.id as userId,
-            u.`name` as uName,
-            u.username,
-            u.telephone,
-            u.headImage,
-            u.email,
-            u.isAdmin
+        al.*,
+        u.id as userId,
+        u.`name` as uName,
+        u.username,
+        u.telephone,
+        u.headImage,
+        u.email,
+        u.isAdmin
         FROM
-            t_admin_log as al,
-            t_users as u
+        t_admin_log as al,
+        t_users as u
         where
-            al.action_user_id = u.id
+        al.action_user_id = u.id
+          # 判断是否写了条件查询
+        <if test="ew.emptyOfWhere == false">
+            and ${ew.sqlSegment}
+        </if>
         order by al.action_time desc
     </select>
     <select id="selectWithUserById" resultMap="OneToOneResultMap">
-        SELECT
-            al.*,
-            u.id as userId,
-            u.`name` as uName,
-            u.username,
-            u.telephone,
-            u.headImage,
-            u.email,
-            u.isAdmin
-        FROM
-            t_admin_log as al,
-            t_users as u
-        where
-            al.action_user_id = u.id AND
-            al.action_user_id = ${userId}
+        SELECT al.*,
+               u.id     as userId,
+               u.`name` as uName,
+               u.username,
+               u.telephone,
+               u.headImage,
+               u.email,
+               u.isAdmin
+        FROM t_admin_log as al,
+             t_users as u
+        where al.action_user_id = u.id
+          AND al.action_user_id = ${userId}
     </select>
 </mapper>

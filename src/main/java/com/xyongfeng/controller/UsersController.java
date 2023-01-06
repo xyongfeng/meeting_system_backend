@@ -46,7 +46,7 @@ public class UsersController {
     @ApiOperation("接收base64,人脸识别登录")
     @PostMapping("/loginWithFace")
     public JsonResult loginWithFace(@RequestBody @Validated ImgBase64Param param) {
-        log.info(String.format("post:/loginWithFace 接收base64,人脸识别登录。"));
+        log.info("post:/loginWithFace 接收base64,人脸识别登录。");
         return usersService.loginWithFace(param, jwtTokenUtil, userDetailsService);
     }
 

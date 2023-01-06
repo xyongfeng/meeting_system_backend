@@ -384,44 +384,31 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     @Override
     public JsonResult setFaceImgWithBase64(ImgBase64Param param) {
         param.setUserId(MyUtil.getUsers().getId());
-        BASE64Decoder decoder = new BASE64Decoder();
-        try {
-            // Base64解码
-            byte[] bytes = decoder.decodeBuffer(param.getImgBase64());
-            // 调整异常数据
-            for (int i = 0; i < bytes.length; ++i) {
-                if (bytes[i] < 0) {
-                    bytes[i] += 256;
-                }
-            }
-            String filename = UUID.randomUUID().toString().concat(".jpg");
-            if (FileUtil.uploadFile(bytes, imgPathPro.getFace(), filename)) {
-                // 向flask发送base64,flask将此面部的特征信息保存，为人脸识别登录做准备
-                // 设置请求参数map
-                Map<String, Object> map = new HashMap<>();
-                map.put("imgBase64", param.getImgBase64());
-                // 发送信息给tensorflow进行预测
-                JSONObject jsonObject = postToFlask(map, "feature");
-                if (jsonObject.getInteger("code") != 200) {
-                    return JsonResult.error(jsonObject.getString("message"));
-                }
-                // 上传
-                String s = Paths.get(imgPathPro.getFace()).resolve(filename).toString();
-                usersMapper.updateById(new Users().setId(param.getUserId()).setFaceImage(s));
-                // 修改用户面部照片，如果该用户第一次上传面部照片则插入新数据
-                insertOrUpdateFaceFeature(param.getUserId(), jsonObject.getString("data"));
 
-                // 成功就返回图片相对路径
-                return JsonResult.success("上传成功");
-            } else {
-                return JsonResult.error("上传失败");
+        String filename = FileUtil.uploadImgWithBase64(param.getImgBase64(), imgPathPro.getFace());
+        if (filename != null) {
+            // 向flask发送base64,flask将此面部的特征信息保存，为人脸识别登录做准备
+            // 设置请求参数map
+            Map<String, Object> map = new HashMap<>();
+            map.put("imgBase64", param.getImgBase64());
+            // 发送信息给tensorflow进行预测
+            JSONObject jsonObject = postToFlask(map, "feature");
+            if (jsonObject.getInteger("code") != 200) {
+                return JsonResult.error(jsonObject.getString("message"));
             }
+            // 上传
+            String s = Paths.get(imgPathPro.getFace()).resolve(filename).toString();
+            usersMapper.updateById(new Users().setId(param.getUserId()).setFaceImage(s));
+            // 修改用户面部照片，如果该用户第一次上传面部照片则插入新数据
+            insertOrUpdateFaceFeature(param.getUserId(), jsonObject.getString("data"));
 
-        } catch (IOException e) {
-            e.printStackTrace();
+            // 成功就返回图片相对路径
+            return JsonResult.success("上传成功");
+        } else {
+            return JsonResult.error("上传失败");
         }
 
-        return null;
+
     }
 
 

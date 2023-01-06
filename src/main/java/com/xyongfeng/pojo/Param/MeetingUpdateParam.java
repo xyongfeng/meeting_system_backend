@@ -9,7 +9,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -40,4 +43,18 @@ public class MeetingUpdateParam {
     @TableField("haveLicence")
     private Boolean haveLicence;
 
+    @ApiModelProperty(value = "参会最大人数")
+    @Max(value = 100, message = "人数最多不能超过100")
+    @Min(value = 1, message = "人数不能少于1")
+    private Integer maxNumber;
+
+    @ApiModelProperty(value = "进入房间是否需要人脸验证")
+    private Boolean needFace;
+
+    @ApiModelProperty(value = "入会密码")
+    @Length(max = 20, message = "密码长度不能大于20")
+    private String password;
+
+    @ApiModelProperty(value = "密码验证开启")
+    private Boolean passEnabled;
 }

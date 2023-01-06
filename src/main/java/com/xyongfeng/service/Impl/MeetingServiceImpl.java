@@ -2,14 +2,19 @@ package com.xyongfeng.service.Impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xyongfeng.pojo.config.ImgPathPro;
+import com.xyongfeng.service.MeetingPasswordService;
+import com.xyongfeng.service.MeetingScreenshotService;
 import com.xyongfeng.socketer.SockerSender;
 import com.xyongfeng.mapper.*;
 import com.xyongfeng.pojo.*;
 import com.xyongfeng.pojo.Param.*;
 import com.xyongfeng.service.MeetingService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.xyongfeng.util.FileUtil;
 import com.xyongfeng.util.MeetingParamConverter;
 import com.xyongfeng.util.MyUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +41,8 @@ import java.util.Map;
 @Slf4j
 public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> implements MeetingService {
     @Autowired
+    private MeetingScreenshotService meetingScreenshotService;
+    @Autowired
     private MeetingMapper meetingMapper;
     @Autowired
     private UsersMapper usersMapper;
@@ -49,6 +56,10 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
     private MeetingNoticeMapper meetingNoticeMapper;
     @Autowired
     private MeetingNoticeUsersMapper meetingNoticeUsersMapper;
+    @Autowired
+    private ImgPathPro imgPathPro;
+    @Autowired
+    private MeetingPasswordService meetingPasswordService;
 
 
     private Meeting meetingAdd(MeetingAddParam meeting) {
@@ -59,10 +70,20 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
         // 获取现在时间
         meetingx.setCreateDate(LocalDateTime.now());
         meetingMapper.insert(meetingx);
+        // 添加密码
+        meetingPasswordService.insert(meetingx.getId(), meeting.getPassword(), meeting.getPassEnabled());
         return meetingx;
     }
 
     private int meetingUpdateById(MeetingUpdateParam meeting) {
+        boolean update = meetingPasswordService.update(new UpdateWrapper<MeetingPassword>()
+                .eq("meeting_id", meeting.getId())
+                .set("password", meeting.getPassword())
+                .set("enabled", meeting.getPassEnabled())
+        );
+        if (!update) {
+            meetingPasswordService.insert(meeting.getId(), meeting.getPassword(), meeting.getPassEnabled());
+        }
 
         return meetingMapper.updateById(MeetingParamConverter.getMeeting(meeting));
     }
@@ -136,6 +157,8 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
             log.info(e.getMessage());
             return JsonResult.error(e.getMessage());
         }
+
+
         return JsonResult.success("添加成功", meeting);
     }
 
@@ -216,9 +239,16 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
                 new Meeting()
                         .setId(param.getId())
                         .setHaveLicence(param.getHaveLicence()));
+        if (param.getHaveLicence()) {
+            meetingPasswordService.update(new UpdateWrapper<MeetingPassword>()
+                    .eq("meeting_id", param.getId()).set("enabled", false));
+        }
+
         if (i != 0) {
             return JsonResult.success("修改成功");
         }
+
+
         return JsonResult.error("修改失败");
     }
 
@@ -291,7 +321,7 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
      * @param isOut
      * @return
      */
-    private JsonResult joinMeeting(String mid, Boolean isOut) {
+    private JsonResult joinMeeting(String mid, Boolean isOut, String password) {
 
         Meeting meeting = meetingMapper.selectById(mid);
         if (meeting == null) {
@@ -318,6 +348,12 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
         if (meeting.getUserId().equals(users.getId()) || meetingUsersMapper.selectOne(wrapper) != null) {
             return JsonResult.error("你已经参加此会议了");
         }
+        // 判断会议人数是否超过限制 -1是除去主持人
+        if (meetingUsersMapper.selectCount(new QueryWrapper<MeetingUsers>()
+                .eq("meeting_id", mid)
+                .ne("users_id", meeting.getUserId())) >= meeting.getMaxNumber() - 1) {
+            return JsonResult.error("会议人数已到达最大限制");
+        }
 
         // 判断是否要申请入会
         if (meeting.getHaveLicence()) {
@@ -341,7 +377,18 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
             JSONObject jsonObject = (JSONObject) JSONObject.toJSON(meetingApplication);
             sockerSender.sendInform(jsonObject, 2, meeting.getUserId());
             return JsonResult.success("成功申请加入会议，请等待房主同意");
+        } else {
+            // 判断是否开启密码入会
+            MeetingPassword meetingPasswordOne = meetingPasswordService.getMeetingPasswordOne(mid);
+            if (meetingPasswordOne != null && meetingPasswordOne.getEnabled()) {
+                if (!meetingPasswordOne.getPassword().equals(password)) {
+                    return JsonResult.error("会议密码错误");
+                }
+                // 密码正确就继续往下
+            }
+
         }
+
         joinMeeting(meeting.getId(), users.getId());
         insertMeetingNoticePushToUser(meeting.getId(), users.getId());
         return JsonResult.success("参加成功");
@@ -354,8 +401,8 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
     }
 
     @Override
-    public JsonResult joinMeeting(String mid) {
-        return joinMeeting(mid, false);
+    public JsonResult joinMeeting(String mid, String password) {
+        return joinMeeting(mid, false, password);
     }
 
 
@@ -414,7 +461,7 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
 
     @Override
     public JsonResult outMeeting(String mid) {
-        return joinMeeting(mid, true);
+        return joinMeeting(mid, true, null);
     }
 
     @Override
@@ -701,7 +748,7 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
             // 修改后
             MeetingUsers meetingUsers = new MeetingUsers()
                     .setHadMuted((Boolean) map.get("hadMuted")).setHadBanup((Boolean) map.get("hadBanup"));
-            
+
             if (!meetingUsers.getHadMuted().equals(meetingUsersBefore.getHadMuted())) {
                 if (meetingUsers.getHadMuted()) {
                     sockerSender.sendActionToMeetUser("stop_speech", mid, (Integer) map.get("userId"), "你已被禁止开麦", false);
@@ -712,7 +759,7 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
             if (!meetingUsers.getHadBanup().equals(meetingUsersBefore.getHadBanup())) {
                 if (meetingUsers.getHadBanup()) {
                     sockerSender.sendActionToMeetUser("stop_up", mid, (Integer) map.get("userId"), "你已被禁止投屏", false);
-                }else{
+                } else {
                     sockerSender.sendActionToMeetUser("open_up", mid, (Integer) map.get("userId"), "success:你已被允许投屏", false);
                 }
             }
@@ -750,5 +797,32 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
         return JsonResult.success();
     }
 
+    @Override
+    public JsonResult selectAllStartDateTime() {
+        return JsonResult.success(meetingMapper.selectAllStartDateTime(false));
+    }
 
+    @Override
+    public JsonResult selectStartDateTime() {
+        return JsonResult.success(meetingMapper.selectAllStartDateTime(true));
+    }
+
+
+    private JsonResult getMeetingPasswordOne(String mid) {
+        return JsonResult.success(meetingPasswordService.getMeetingPasswordOne(mid));
+    }
+
+    @Override
+    public JsonResult getMeetingPasswordById(String mid) {
+        if (!isBelongUser(mid)) {
+            return JsonResult.error("没有权限");
+        }
+
+        return getMeetingPasswordOne(mid);
+    }
+
+    @Override
+    public JsonResult getMeetingPasswordByIdAdmin(String mid) {
+        return getMeetingPasswordOne(mid);
+    }
 }

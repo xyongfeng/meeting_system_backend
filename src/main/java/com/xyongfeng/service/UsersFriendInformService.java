@@ -3,6 +3,8 @@ package com.xyongfeng.service;
 import com.xyongfeng.pojo.UsersFriendInform;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * <p>
  *  服务类
@@ -13,4 +15,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface UsersFriendInformService extends IService<UsersFriendInform> {
 
+    List<Object> getAllContent();
 }

@@ -57,7 +57,7 @@ public interface MeetingService extends IService<Meeting> {
     JsonResult selectByUserJoined(PageParam pageParam);
 
 
-    JsonResult joinMeeting(String mid);
+    JsonResult joinMeeting(String mid,String password);
 
     JsonResult outMeeting(String mid);
 
@@ -180,4 +180,30 @@ public interface MeetingService extends IService<Meeting> {
      * @return
      */
     JsonResult setMeetingUsersStateByIdOne(String mid, Integer uid, JSONObject jsonObject);
+
+    /**
+     * 查看所有会议的开始时间
+     * @return
+     */
+    JsonResult selectAllStartDateTime();
+
+    /**
+     * 查看未结束会议的开始时间
+     * @return
+     */
+    JsonResult selectStartDateTime();
+
+    /**
+     * 获取mid对应会议的入会密码
+     * @param mid
+     * @return
+     */
+    JsonResult getMeetingPasswordById(String mid);
+
+    /**
+     * 管理员获取mid对应会议的入会密码
+     * @param mid
+     * @return
+     */
+    JsonResult getMeetingPasswordByIdAdmin(String mid);
 }

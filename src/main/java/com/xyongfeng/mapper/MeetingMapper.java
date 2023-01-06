@@ -103,4 +103,11 @@ public interface MeetingMapper extends BaseMapper<Meeting> {
      * @return
      */
     Integer delHistoryMeeting(@Param("mid") String mid, @Param("uid") Integer uid);
+
+    /**
+     * 获取所有会议开始时间
+     *
+     * @return
+     */
+    List<LocalDateTime> selectAllStartDateTime(@Param("withoutEnd") Boolean withoutEnd);
 }

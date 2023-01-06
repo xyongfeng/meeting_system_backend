@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.xyongfeng.pojo.*;
 import com.xyongfeng.pojo.Param.*;
 import com.xyongfeng.service.AdminLogService;
+import com.xyongfeng.service.MeetingChatService;
 import com.xyongfeng.service.MeetingService;
 import com.xyongfeng.util.IpUtil;
 import io.swagger.annotations.Api;
@@ -16,6 +17,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -35,6 +38,9 @@ public class AdminsMeetingController {
     private MeetingService meetingService;
     @Autowired
     private AdminLogService adminLogService;
+    @Autowired
+    private MeetingChatService meetingChatService;
+
 
     @PreAuthorize("@SGExpressionRoot.hasAuthority('meeting')")
     @ApiOperation("分页查看会议列表")
@@ -46,6 +52,7 @@ public class AdminsMeetingController {
         adminLogService.insert("meeting", "查看", "/admins/meeting", jsonResult.getCode().equals(200));
         return jsonResult;
     }
+
 
     @PreAuthorize("@SGExpressionRoot.hasAuthority('meeting')")
     @ApiOperation("添加会议")
@@ -87,5 +94,68 @@ public class AdminsMeetingController {
         return jsonResult;
     }
 
+
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('dataStatistics')")
+    @ApiOperation("查看所有会议的开始时间")
+    @GetMapping("/meeting/allStartDate")
+    public JsonResult selectAllStartDateTime() {
+        log.info("get:/meeting/allStartDate 查看所有会议的开始时间。");
+        JsonResult jsonResult = meetingService.selectAllStartDateTime();
+        adminLogService.insert("dataStatistics", "查看", "/admins/meeting/allStartDate", jsonResult.getCode().equals(200));
+        return jsonResult;
+    }
+
+
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('dataStatistics')")
+    @ApiOperation("查看未结束会议的开始时间")
+    @GetMapping("/meeting/startDate")
+    public JsonResult selectStartDateTime() {
+        log.info("get:/meeting/startDate/noEnd 查看未结束会议的开始时间。");
+        JsonResult jsonResult = meetingService.selectStartDateTime();
+        adminLogService.insert("dataStatistics", "查看", "/admins/meeting/startDate/noEnd", jsonResult.getCode().equals(200));
+        return jsonResult;
+    }
+
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('dataStatistics')")
+    @ApiOperation("查看所有聊天内容的分词结果")
+    @GetMapping("/meeting/chatJieba")
+    public JsonResult selectChatJieba() {
+        log.info("get:/meeting/chatJieba 查看所有聊天内容(包括好友聊天)的分词结果。");
+        JsonResult jsonResult = meetingChatService.selectChatJieba();
+        adminLogService.insert("dataStatistics", "查看", "/meeting/chatJieba", jsonResult.getCode().equals(200));
+        return jsonResult;
+    }
+
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('dataStatistics')")
+    @ApiOperation("查看分词的停用词")
+    @GetMapping("/meeting/chatJieba/stopword")
+    public JsonResult selectStopword() {
+        log.info("get:/meeting/chatJieba/stopword 查看分词的停用词");
+        JsonResult jsonResult = meetingChatService.selectStopword();
+        adminLogService.insert("dataStatistics", "查看", "/meeting/chatJieba/stopword", jsonResult.getCode().equals(200));
+        return jsonResult;
+    }
+
+
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('dataStatistics')")
+    @ApiOperation("修改分词的停用词")
+    @PutMapping("/meeting/chatJieba/stopword")
+    public JsonResult updateStopword(@RequestBody List<String> words) {
+        log.info("get:/meeting/chatJieba/stopword 修改分词的停用词");
+        JsonResult jsonResult = meetingChatService.updateStopword(words);
+        adminLogService.insert("dataStatistics", "编辑", "/meeting/chatJieba/stopword", jsonResult.getCode().equals(200));
+        return jsonResult;
+    }
+
+
+    @PreAuthorize("@SGExpressionRoot.hasAuthority('meeting')")
+    @ApiOperation("管理员获取mid对应会议的入会密码")
+    @GetMapping("/meeting/{mid}/password")
+    public JsonResult getMeetingPasswordById(@PathVariable String mid) {
+        log.info(String.format("get:/meeting/%s/password 管理员获取mid对应会议的入会密码。", mid));
+        JsonResult jsonResult = meetingService.getMeetingPasswordByIdAdmin(mid);
+        adminLogService.insert("meeting", "查看", String.format("/meeting/%s/password", mid), jsonResult.getCode().equals(200));
+        return jsonResult;
+    }
 }
 

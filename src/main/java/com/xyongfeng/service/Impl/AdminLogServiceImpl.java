@@ -1,13 +1,17 @@
 package com.xyongfeng.service.Impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xyongfeng.mapper.AdminLogMapper;
 import com.xyongfeng.pojo.AdminLog;
 import com.xyongfeng.pojo.JsonResult;
+import com.xyongfeng.pojo.Param.AdminLogSearchParam;
 import com.xyongfeng.service.AdminLogService;
 import com.xyongfeng.util.MyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -49,8 +54,26 @@ public class AdminLogServiceImpl extends ServiceImpl<AdminLogMapper, AdminLog> i
     }
 
     @Override
-    public JsonResult select(Integer current, Integer size) {
+    public JsonResult select(Integer current, Integer size, Map<String, String> params) {
+        QueryWrapper<AdminLog> query = new QueryWrapper<>();
+        String type = params.get("searchType");
+        String key = params.get("key");
 
-        return JsonResult.success(adminLogMapper.selectWithUser(new Page<>(current, size)));
+        if ("actionUserName".equals(type)) {
+            query.like("u.name", key);
+        } else if ("actionModule".equals(type)) {
+            query.eq("action_module", key);
+        } else if ("actionType".equals(type)) {
+            query.like("action_type", key);
+        } else if ("actionUrl".equals(type)) {
+            query.like("action_url", key);
+        } else if ("actionSuccess".equals(type)) {
+            query.eq("action_success", key);
+        } else if ("actionTime".equals(type)) {
+            query.ge("action_time", params.get("startDate"))
+                    .le("action_time", params.get("endDate"));
+        }
+
+        return JsonResult.success(adminLogMapper.selectWithUser(new Page<>(current, size), query));
     }
 }

@@ -27,7 +27,7 @@ import java.util.Map;
  * @since 2022-07-02
  */
 
-@Api(tags = "用户操作meeting接口")
+@Api(tags = "普通用户操作meeting接口")
 @RestController
 @Slf4j
 @RequestMapping("/users")
@@ -95,9 +95,11 @@ public class MeetingController {
 
     @ApiOperation("加入会议")
     @PostMapping("/meeting/joined/{mid}")
-    public JsonResult joinMeeting(@PathVariable String mid) {
+    public JsonResult joinMeeting(@PathVariable String mid, @RequestBody Map<String, Object> map) {
         log.info(String.format("delete:/meeting 加入会议。%s", mid));
-        return meetingService.joinMeeting(mid);
+        String password = (String) map.get("password");
+
+        return meetingService.joinMeeting(mid, password);
     }
 
     @ApiOperation("退出会议")
@@ -138,9 +140,9 @@ public class MeetingController {
 
     @ApiOperation("修改用户在指定会议的状态，可以禁止操作,批量修改")
     @PostMapping("/meeting/{mid}/userState")
-    public JsonResult setMeetingUsersStateById(@PathVariable String mid,  @RequestBody JSONObject jsonObject) {
+    public JsonResult setMeetingUsersStateById(@PathVariable String mid, @RequestBody JSONObject jsonObject) {
         log.info(String.format("get:/setMeetingUsersStateById 修改用户在指定会议的状态，可以禁止操作,批量修改。%s ", mid));
-        return meetingService.setMeetingUsersStateByIdMany(mid,jsonObject);
+        return meetingService.setMeetingUsersStateByIdMany(mid, jsonObject);
 
     }
 
@@ -148,7 +150,7 @@ public class MeetingController {
     @PostMapping("/meeting/{mid}/userState/{uid}")
     public JsonResult setMeetingUsersStateByIdOne(@PathVariable String mid, @PathVariable Integer uid, @RequestBody JSONObject jsonObject) {
         log.info(String.format("get:/setMeetingUsersStateById 根据id修改用户在会议的状态。%s , %d", mid, uid));
-        return meetingService.setMeetingUsersStateByIdOne(mid, uid,jsonObject);
+        return meetingService.setMeetingUsersStateByIdOne(mid, uid, jsonObject);
     }
 
 
@@ -222,6 +224,13 @@ public class MeetingController {
     public JsonResult delMeetingNoticeById(@PathVariable String mid, @PathVariable Integer noticeId) {
         log.info(String.format("delete:/delMeetingNoticeById 获取mid对应会议的公告列表。%s %d", mid, noticeId));
         return meetingService.delMeetingNoticeById(mid, noticeId);
+    }
+
+    @ApiOperation("获取mid对应会议的入会密码")
+    @GetMapping("/meeting/{mid}/password")
+    public JsonResult getMeetingPasswordById(@PathVariable String mid) {
+        log.info(String.format("get:/meeting/%s/password 获取mid对应会议的入会密码。", mid));
+        return meetingService.getMeetingPasswordById(mid);
     }
 
 

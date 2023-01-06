@@ -5,6 +5,7 @@ import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.xyongfeng.pojo.Users;
 import com.xyongfeng.service.ChatFilterService;
+import com.xyongfeng.service.MeetingChatService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,9 @@ public class SockerSender {
 
     @Autowired
     private ChatFilterService chatFilterService;
+
+    @Autowired
+    private MeetingChatService meetingChatService;
 
     /**
      * 发送执行指令给会议某用户执行
@@ -125,6 +129,9 @@ public class SockerSender {
         data.put("user", users);
         String msg = chatFilterService.filter(data.getString("msg"));
         data.put("msg", msg);
+        if(users.getId() > 0){
+            meetingChatService.insert(meetingId,users.getId(),msg);
+        }
         socketIoServer.getRoomOperations(meetingId).sendEvent("meetchat", data);
     }
 

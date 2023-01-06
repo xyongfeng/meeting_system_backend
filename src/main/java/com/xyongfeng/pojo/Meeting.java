@@ -15,7 +15,7 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author xyongfeng
@@ -25,10 +25,10 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("t_meeting")
-@ApiModel(value="Meeting对象", description="")
+@ApiModel(value = "Meeting对象", description = "")
 public class Meeting implements Serializable {
 
-    private static final long serialVersionUID=1L;
+    private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "id")
     @TableId(value = "id", type = IdType.ASSIGN_ID)
@@ -41,15 +41,15 @@ public class Meeting implements Serializable {
     private Integer userId;
 
     @ApiModelProperty(value = "创建会议的时间")
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime createDate;
 
     @ApiModelProperty(value = "会议开始时间")
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime startDate;
 
     @ApiModelProperty(value = "会议结束时间")
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime endDate;
 
     @ApiModelProperty(value = "进入会议是否需要创建者认可")
@@ -58,12 +58,21 @@ public class Meeting implements Serializable {
 
     @ApiModelProperty(value = "会议是否已经结束")
     @TableField("end")
-    @TableLogic(value = "0",delval = "1")
+    @TableLogic(value = "0", delval = "1")
     private Boolean end;
 
     @ApiModelProperty(value = "主持人删除了该会议的记录就对他隐藏")
     @TableField("to_owner_hidden")
     private Boolean toOwnerHidden;
+
+
+    @ApiModelProperty(value = "参会最大人数")
+    @TableField("max_number")
+    private Integer maxNumber;
+
+    @ApiModelProperty(value = "进入房间是否需要人脸验证")
+    @TableField("need_face")
+    private Boolean needFace;
 
     @ApiModelProperty(value = "创建用户")
     @TableField(exist = false)

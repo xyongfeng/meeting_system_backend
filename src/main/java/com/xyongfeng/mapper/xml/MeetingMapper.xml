@@ -13,6 +13,8 @@
         <result column="haveLicence" property="haveLicence" />
         <result column="end" property="end" />
         <result column="to_owner_hidden" property="toOwnerHidden" />
+        <result column="max_number" property="maxNumber" />
+        <result column="need_face" property="needFace" />
     </resultMap>
 
     <resultMap id="OneToOneResultMap" type="com.xyongfeng.pojo.Meeting" extends="BaseResultMap">
@@ -160,6 +162,12 @@
         and m.end = 1
         and mu.to_user_hidden = 0
         and mu.is_founder = false
+    </select>
+    <select id="selectAllStartDateTime" resultType="java.time.LocalDateTime">
+        select m.start_date from t_meeting as m
+        <if test="withoutEnd==true">
+            where m.end=0
+        </if>
     </select>
 
 </mapper>

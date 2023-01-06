@@ -3,6 +3,7 @@ package com.xyongfeng.controller;
 
 import com.xyongfeng.pojo.JsonResult;
 import com.xyongfeng.service.RoleService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/role")
+@Api(tags = "权限")
 @Slf4j
 public class RoleController {
     @Autowired

@@ -5,6 +5,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
+import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
 import java.io.*;
@@ -83,6 +84,12 @@ public class FileUtil {
         return uploadFile(file, subPath, filename) ? filename : null;
     }
 
+    /**
+     * 将本地图片变成Base64形式
+     *
+     * @param subpath
+     * @return
+     */
     public static String getImgWithBase64(String subpath) {
         InputStream in = null;
         byte[] data = null;
@@ -102,5 +109,29 @@ public class FileUtil {
         BASE64Encoder encoder = new BASE64Encoder();
         // 返回Base64编码过的字节数组字符串
         return encoder.encode(data);
+    }
+
+    /**
+     * 上传Base64格式的图片
+     *
+     * @return
+     */
+    public static String uploadImgWithBase64(String imgBase64, String savePath) {
+        BASE64Decoder decoder = new BASE64Decoder();
+        try {
+            // Base64解码
+            byte[] bytes = decoder.decodeBuffer(imgBase64);
+            // 调整异常数据
+            for (int i = 0; i < bytes.length; ++i) {
+                if (bytes[i] < 0) {
+                    bytes[i] += 256;
+                }
+            }
+            String filename = UUID.randomUUID().toString().concat(".jpg");
+            return uploadFile(bytes, savePath, filename) ? filename : null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

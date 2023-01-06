@@ -138,16 +138,4 @@ public class Users implements Serializable, UserDetails {
         return true;
     }
 
-//    public Users setHeadImage(String headImage) {
-//
-//        this.headImage = headImage;
-//        return this;
-//    }
-//
-//    public String getHeadImage() {
-//        String headpath = "img/head";
-//        Path path = Paths.get(FileUtil.getClassPathUrl())
-//                .resolve(headpath).resolve(headImage);
-//        return path.toString();
-//    }
 }

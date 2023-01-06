@@ -119,7 +119,12 @@
             <artifactId>netty-socketio</artifactId>
             <version>1.7.18</version>
         </dependency>
-
+        <!--    jieba分词    -->
+        <dependency>
+            <groupId>com.huaban</groupId>
+            <artifactId>jieba-analysis</artifactId>
+            <version>1.0.2</version>
+        </dependency>
     </dependencies>
 
     <build>

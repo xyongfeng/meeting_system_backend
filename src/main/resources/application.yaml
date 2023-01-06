@@ -53,6 +53,11 @@ img:
   head: img/head
   # 面部图片存储位置
   face: img/face
+  # 会议截屏位置
+  screenshot: img/screenshot
+  # 用户意见图片
+  adviceImg: img/adviceImg
+
 
 flask:
   headerUrl: http://127.0.0.1:5000/

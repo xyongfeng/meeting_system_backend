@@ -1,10 +1,7 @@
 package com.xyongfeng.controller;
 
 
-import com.alibaba.fastjson.JSONObject;
-import com.xyongfeng.pojo.ChatFilter;
 import com.xyongfeng.pojo.JsonResult;
-import com.xyongfeng.pojo.Param.ChatFilterParam;
 import com.xyongfeng.pojo.UserAdvice;
 import com.xyongfeng.service.AdminLogService;
 import com.xyongfeng.service.UserAdviceService;
@@ -13,8 +10,10 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * <p>
@@ -49,11 +48,13 @@ public class UserAdviceController {
 
     @ApiOperation("添加意见")
     @PostMapping()
-    public JsonResult insert(@RequestBody @Validated UserAdvice userAdvice) {
-        log.info(String.format("post:/userAdvice 添加意见。%s", userAdvice));
-        return userAdviceService.insert(userAdvice);
+    public JsonResult insert(@RequestParam String type, @RequestParam String title, @RequestParam String content, @RequestParam List<MultipartFile> files) {
+        log.info("post:/userAdvice 添加意见。");
 
+
+        return userAdviceService.insert(new UserAdvice().setType(type).setTitle(title).setContent(content),files);
     }
+
 
     @PreAuthorize("@SGExpressionRoot.hasAuthority('userAdvice')")
     @ApiOperation("删除意见")
@@ -65,5 +66,7 @@ public class UserAdviceController {
         adminLogService.insert("userAdvice", "删除", String.format("/userAdvice/%s", id), jsonResult.getCode().equals(200));
         return jsonResult;
     }
+
+
 }
 

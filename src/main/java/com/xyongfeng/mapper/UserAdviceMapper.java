@@ -18,7 +18,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public interface UserAdviceMapper extends BaseMapper<UserAdvice> {
-    IPage<UserAdvice> selectWithUser(Page<UserAdvice> page);
 
-    UserAdvice selectWithUserById(@Param("userId") Integer userId);
+    IPage<UserAdvice> selectWithUserAndImg(Page<UserAdvice> page);
+
+    UserAdvice selectWithUserAndImgById(@Param("userId") Integer userId);
 }

@@ -14,4 +14,6 @@ import org.springframework.stereotype.Component;
 public class ImgPathPro {
     private String head;
     private String face;
+    private String screenshot;
+    private String adviceImg;
 }
