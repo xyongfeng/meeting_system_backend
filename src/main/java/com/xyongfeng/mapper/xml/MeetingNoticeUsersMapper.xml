@@ -14,7 +14,7 @@
         SELECT ${uid} as `user_id`,`id` as `notice_id`,0 as `state`
         FROM t_meeting_notice
         WHERE
-            meeting_id=${mid} AND
+            meeting_id='${mid}' AND
             type=2;
     </insert>
 

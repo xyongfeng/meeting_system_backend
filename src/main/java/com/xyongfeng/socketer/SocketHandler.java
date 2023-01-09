@@ -55,8 +55,17 @@ public class SocketHandler {
     public void onDisconnectEvent(SocketIOClient client) {
         // 更新房间的人数
         Users users = SocketState.CONNECT_USERS_MAP.get(client.getSessionId()).users;
-        SocketState.CONNECT_USERS_MAP.get(client.getSessionId()).meetings.forEach(mid -> sockerSender.sendMeetWithout(client, mid, "left_user", users.getId()));
+        // 每个房间取消投屏，开麦
+        SocketState.CONNECT_USERS_MAP.get(client.getSessionId()).meetings.forEach(
+                mid -> meetingUsersMapper.update(new MeetingUsers().setSpeeching(false).setUping(false),
+                new QueryWrapper<MeetingUsers>()
+                        .eq("meeting_id", mid)
+                        .eq("users_id", users.getId()))
+                );
 
+        // 对进入的每个房间，告诉其他人，他走了
+        SocketState.CONNECT_USERS_MAP.get(client.getSessionId()).meetings.forEach(mid -> sockerSender.sendMeetWithout(client, mid, "left_user", users.getId()));
+        // 连接信息删除
         SocketState.CONNECT_USERS_MAP.remove(client.getSessionId());
         log.info(String.format("断开连接：%s", client.getSessionId()) + " " + SocketState.CONNECT_USERS_MAP.size());
     }

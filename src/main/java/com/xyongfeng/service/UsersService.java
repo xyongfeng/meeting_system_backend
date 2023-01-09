@@ -173,4 +173,11 @@ public interface UsersService extends IService<Users> {
      * @return
      */
     JsonResult loginWithFace(ImgBase64Param param, JwtTokenUtil jwtTokenUtil, UserDetailsService userDetailsService);
+
+    /**
+     * 接收base64,人脸识别验证
+     * @param param
+     * @return
+     */
+    JsonResult faceVerification(ImgBase64Param param);
 }

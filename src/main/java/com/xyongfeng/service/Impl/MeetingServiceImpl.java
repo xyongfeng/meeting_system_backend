@@ -410,11 +410,9 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
     public JsonResult getMeetingById(String mid, Boolean isAdmin) {
         Users users = MyUtil.getUsers();
         assert users != null;
-        Meeting meeting = null;
-        if (!isAdmin) {
-            // 如果不是管理则从用户参加的会议中查找，找到了则返回成功信息，如果没找到后面还要判断用户是否是房主
-            meeting = meetingMapper.getExistMeetWithUser(mid, users.getId());
-        }
+
+        // 如果没找到后面还要判断用户是否是房主
+        Meeting meeting = meetingMapper.getExistMeetWithUser(mid, users.getId());
 
         if (meeting == null) {
             meeting = meetingMapper.selectById(mid);

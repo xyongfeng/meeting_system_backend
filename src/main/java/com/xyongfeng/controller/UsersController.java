@@ -50,6 +50,13 @@ public class UsersController {
         return usersService.loginWithFace(param, jwtTokenUtil, userDetailsService);
     }
 
+    @ApiOperation("接收base64,人脸识别验证")
+    @PostMapping("/faceVerification")
+    public JsonResult faceVerification(@RequestBody @Validated ImgBase64Param param) {
+        log.info("post:/faceVerification 接收base64,人脸识别验证。");
+        return usersService.faceVerification(param);
+    }
+
     @ApiOperation("注册")
     @PostMapping("/register")
     public JsonResult register(@RequestBody @Validated UsersRegisterParam users, HttpServletRequest request
@@ -122,6 +129,8 @@ public class UsersController {
     public JsonResult signIn(@RequestBody @Validated ImgBase64Param param, @PathVariable String mid) {
         return usersService.signIn(param, mid);
     }
+
+
 
     @ApiOperation(value = "检查是否签到")
     @GetMapping("/signIn/{mid}")

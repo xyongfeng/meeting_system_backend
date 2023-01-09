@@ -60,7 +60,7 @@
             t_users tu,
             t_meeting tm
         WHERE
-            tmn.meeting_id = ${mid} AND
+            tmn.meeting_id = '${mid}' AND
             tmn.sender_id = tu.id AND
             tm.id = tmn.meeting_id
         ORDER BY tmn.update_time DESC

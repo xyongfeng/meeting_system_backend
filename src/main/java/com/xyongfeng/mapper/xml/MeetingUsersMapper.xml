@@ -33,7 +33,7 @@
     <update id="delHistoryMeeting">
         update t_meeting_users mu
         set mu.to_user_hidden = 1
-        where mu.meeting_id = ${mid} and
+        where mu.meeting_id = '${mid}' and
               mu.users_id = ${uid}
     </update>
 
@@ -53,7 +53,7 @@
         WHERE
             mu.had_sign_in = 1 AND
             u.id = mu.users_id AND
-            mu.meeting_id = ${mid} AND
+            mu.meeting_id = '${mid}' AND
             mu.is_founder = false
 
     </select>
@@ -72,7 +72,7 @@
             t_meeting_users mu
         WHERE
             u.id = mu.users_id AND
-            mu.meeting_id = ${mid}
+            mu.meeting_id = '${mid}'
     </select>
 
 

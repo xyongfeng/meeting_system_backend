@@ -264,6 +264,8 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         return saveLogin(jwtTokenUtil, userDetails);
     }
 
+
+
     @Override
     public JsonResult register(UsersRegisterParam registerUsers, HttpServletRequest request, PasswordEncoder passwordEncoder) {
         if (!validCaptcha(request, registerUsers.getCode())) {
@@ -411,6 +413,47 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 
     }
 
+    /**
+     * 计算sendImgBase64的面部特征，再与用户的特征进行比较，返回的是flask那边的结果
+     *
+     * @param sendImgBase64
+     * @return {code： xxx,message: xxx,userId: xxx}
+     */
+    private JSONObject compareFace(String sendImgBase64) throws Exception {
+        Users users = MyUtil.getUsers();
+        assert users != null;
+        if (users.getFaceImage() == null || "".equals(users.getFaceImage())) {
+            throw new Exception("签到需要你的面部照片，请先去个人中心进行上传");
+        }
+
+        // 这里直接用数据库保存的特征
+        UsersFaceFeature faceFeature = usersFaceFeatureMapper.selectOne(new QueryWrapper<UsersFaceFeature>().eq("user_id", users.getId()));
+
+        String localFeature = faceFeature.getFaceFeature();
+
+        // 设置请求参数map
+        Map<String, Object> map = new HashMap<>();
+        map.put("sendImgBase64", sendImgBase64);
+        map.put("localFeature", localFeature);
+        // 发送信息给tensorflow进行预测
+        JSONObject jsonObject = postToFlask(map, "predict");
+        jsonObject.put("userId",users.getId());
+        return jsonObject;
+    }
+    @Override
+    public JsonResult faceVerification(ImgBase64Param param) {
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = compareFace(param.getImgBase64());
+        } catch (Exception e) {
+            return JsonResult.error(e.getMessage());
+        }
+        if (jsonObject.getInteger("code") != 200) {
+            return JsonResult.error(jsonObject.getInteger("code"), jsonObject.getString("message"));
+        }
+
+        return JsonResult.success("验证成功");
+    }
 
     @Override
     public JsonResult signIn(ImgBase64Param param, String meetingId) {
@@ -424,43 +467,23 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         if (startDate.isAfter(now)) {
             return JsonResult.error("会议开始之后才能进行签到");
         }
-        Users users = MyUtil.getUsers();
-        assert users != null;
-        if (users.getFaceImage() == null || "".equals(users.getFaceImage())) {
-            return JsonResult.error("签到需要你的面部照片，请先去个人中心进行上传");
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = compareFace(param.getImgBase64());
+        } catch (Exception e) {
+            return JsonResult.error(e.getMessage());
         }
-        // 获取Base64
-        String sendImgBase64 = param.getImgBase64();
-//        String localImgBase64 = FileUtil.getImgWithBase64(users.getFaceImage());
-        // 这里直接用数据库保存的特征
-        UsersFaceFeature faceFeature = usersFaceFeatureMapper.selectOne(new QueryWrapper<UsersFaceFeature>().eq("user_id", users.getId()));
 
-        String localFeature = faceFeature.getFaceFeature();
-
-
-        // 设置请求参数map
-        Map<String, Object> map = new HashMap<>();
-        map.put("sendImgBase64", sendImgBase64);
-        map.put("localFeature", localFeature);
-//        map.put("localImgBase64", localImgBase64);
-
-        // 发送信息给tensorflow进行预测
-        JSONObject jsonObject = postToFlask(map, "predict");
         if (jsonObject.getInteger("code") != 200) {
             return JsonResult.error(jsonObject.getInteger("code"), jsonObject.getString("message"));
         }
-
+        // 已经判断完成了，这里返回了成功的差异值
         String distance = jsonObject.getJSONObject("data").getString("distance");
-
-
-//        if (!name.equals(users.getName())) {
-//            return JsonResult.error("签到失败，人脸检测非本人");
-//        }
 
         QueryWrapper<MeetingUsers> queryWrapper = new QueryWrapper<>();
         queryWrapper
                 .eq("meeting_id", meetingId)
-                .eq("users_id", users.getId());
+                .eq("users_id", jsonObject.getInteger("userId"));
         meetingUsersMapper.update(
                 (new MeetingUsers())
                         .setHadSignIn(true)
