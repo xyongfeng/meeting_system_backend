@@ -22,18 +22,21 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("t_meeting_screenshot")
+@TableName("t_meeting_screenshot_xq")
 @ApiModel(value="MeetingScreenshot对象", description="")
 public class MeetingScreenshot implements Serializable {
 
     private static final long serialVersionUID=1L;
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id_xq", type = IdType.AUTO)
     private Integer id;
 
+    @TableField("user_id_xq")
     private Integer userId;
 
+    @TableField("meeting_id_xq")
     private String meetingId;
 
+    @TableField("path_xq")
     private String path;
 
     @TableField(exist = false)

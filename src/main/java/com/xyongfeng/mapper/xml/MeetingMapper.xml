@@ -4,77 +4,62 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.xyongfeng.pojo.Meeting">
-        <id column="id" property="id" />
-        <result column="name" property="name" />
-        <result column="user_id" property="userId" />
-        <result column="create_date" property="createDate" />
-        <result column="start_date" property="startDate" />
-        <result column="end_date" property="endDate" />
-        <result column="haveLicence" property="haveLicence" />
-        <result column="end" property="end" />
-        <result column="to_owner_hidden" property="toOwnerHidden" />
-        <result column="max_number" property="maxNumber" />
-        <result column="need_face" property="needFace" />
+        <id column="id_xq" property="id" />
+        <result column="name_xq" property="name" />
+        <result column="user_id_xq" property="userId" />
+        <result column="create_date_xq" property="createDate" />
+        <result column="start_date_xq" property="startDate" />
+        <result column="end_date_xq" property="endDate" />
+        <result column="haveLicence_xq" property="haveLicence" />
+        <result column="end_xq" property="end" />
+        <result column="to_owner_hidden_xq" property="toOwnerHidden" />
+        <result column="max_number_xq" property="maxNumber" />
+        <result column="need_face_xq" property="needFace" />
     </resultMap>
 
     <resultMap id="OneToOneResultMap" type="com.xyongfeng.pojo.Meeting" extends="BaseResultMap">
         <association property="users" javaType="com.xyongfeng.pojo.Users">
             <id column="userId" property="id"/>
             <result column="uName" property="name"/>
-            <result column="username" property="username"/>
-            <result column="telephone" property="telephone"/>
-            <result column="email" property="email"/>
-            <result column="headImage" property="headImage"/>
-            <result column="isAdmin" property="isAdmin"/>
         </association>
     </resultMap>
 
-    <select id="selectById" resultType="com.xyongfeng.pojo.Meeting">
-        select * from t_meeting where id = '${mid}'
+    <select id="selectById" resultMap="BaseResultMap">
+        select * from t_meeting_xq where id_xq = '${mid}'
 
     </select>
     <update id="updateEndDate">
-         update t_meeting m set m.end_date='${endDate}'where m.id=${mid}
+         update t_meeting_xq m set m.end_date_xq='${endDate}'where m.id_xq=${mid}
     </update>
     <update id="delHistoryMeeting">
-        update t_meeting m
-        set m.to_owner_hidden = 1
-        where m.id = '${mid}' and
-            m.user_id = ${uid}
+        update t_meeting_xq m
+        set m.to_owner_hidden_xq = 1
+        where m.id_xq = '${mid}' and
+            m.user_id_xq = ${uid}
     </update>
-    <select id="selectMeetingWithCreaterOne" resultType="com.xyongfeng.pojo.Meeting">
+    <select id="selectMeetingWithCreaterOne" resultMap="BaseResultMap">
         SELECT
             m.*,
-            u.id as userId,
-            u.`name` as uName,
-            u.username,
-            u.telephone,
-            u.headImage,
-            u.email,
-            u.isAdmin
+            u.id_xq as userId,
+            u.name_xq as uName
         FROM
-            t_meeting as m,
-            t_users as u
+            t_meeting_xq as m,
+            t_users_xq as u
         where
-            m.user_id = u.id AND
-            m.id = '${meeting_id}'
+            m.user_id_xq = u.id_xq AND
+            m.id_xq = '${meeting_id}'
 
     </select>
     <select id="selectMeetingWithCreater" resultMap="OneToOneResultMap">
         SELECT
         m.*,
-        u.id as userId,
-        u.`name` as uName,
-        u.username,
-        u.telephone,
-        u.headImage,
-        u.email,
-        u.isAdmin
+        u.id_xq as userId,
+        u.`name_xq` as uName
         FROM
-            t_meeting as m,
-            t_users as u
+            t_meeting_xq as m,
+            t_users_xq as u
         where
-            m.user_id = u.id
+            m.user_id_xq = u.id_xq
             <if test="ew">
                 and ${ew.sqlSegment}
             </if>
@@ -82,91 +67,83 @@
     <select id="selectMeetingByParticipants" resultMap="OneToOneResultMap">
         SELECT
             m.*,
-            u.id as userId,
-            u.`name` as uName,
-            u.username,
-            u.telephone,
-            u.headImage,
-            u.email,
-            u.isAdmin
+            u.id_xq as userId,
+            u.`name_xq` as uName
         FROM
-            t_meeting as m,
-            t_users as u,
-            t_meeting_users as mu
+            t_meeting_xq as m,
+            t_users_xq as u,
+            t_meeting_users_xq as mu
         WHERE
-            m.user_id = u.id
-          and mu.meeting_id = m.id
-          and mu.users_id = ${user_id}
-          and mu.is_founder = false
+            m.user_id_xq = u.id_xq
+          and mu.meeting_id_xq = m.id_xq
+          and mu.users_id_xq = ${user_id}
+          and mu.is_founder_xq = false
         <if test="ew">
             and ${ew.sqlSegment}
         </if>
     </select>
-    <select id="getExistMeetWithUser" resultType="com.xyongfeng.pojo.Meeting">
+    <select id="getExistMeetWithUser" resultMap="BaseResultMap">
         SELECT
             m.*,
-            u.id as userId,
-            u.`name` as uName,
-            u.username,
-            u.telephone,
-            u.headImage,
-            u.email,
-            u.isAdmin
+            u.id_xq as userId,
+            u.`name_xq` as uName
         FROM
-            t_meeting as m,
-            t_users as u,
-            t_meeting_users as mu
+            t_meeting_xq as m,
+            t_users_xq as u,
+            t_meeting_users_xq as mu
         WHERE
-            m.user_id = u.id
-          and mu.meeting_id = m.id
-          and mu.users_id=${user_id}
-          and mu.meeting_id='${meeting_id}'
+            m.user_id_xq = u.id_xq
+          and mu.meeting_id_xq = m.id_xq
+          and mu.users_id_xq=${user_id}
+          and mu.meeting_id_xq='${meeting_id}'
 
 
     </select>
-    <select id="selectOneWithParticipantById" resultType="com.xyongfeng.pojo.Users">
+
+    <resultMap id="UsersResultMap" type="com.xyongfeng.pojo.Users">
+        <id column="id_xq" property="id"/>
+        <result column="name_xq" property="name"/>
+        <result column="telephone_xq" property="telephone"/>
+        <result column="email_xq" property="email"/>
+        <result column="headImage_xq" property="headImage"/>
+    </resultMap>
+    <select id="selectOneWithParticipantById" resultMap="UsersResultMap">
         SELECT
-            u.id,
-            u.headImage,
-            u.email,
-            u.`name`,
-            u.telephone,
-            u.username
+            u.id_xq,
+            u.headImage_xq,
+            u.email_xq,
+            u.`name_xq`,
+            u.telephone_xq
         FROM
-            t_users u,
-            t_meeting_users mu
+            t_users_xq u,
+            t_meeting_users_xq mu
         WHERE
-            mu.users_id=u.id AND
-            mu.meeting_id='${meeting_id}' AND
-            mu.is_founder = false
+            mu.users_id_xq=u.id_xq AND
+            mu.meeting_id_xq='${meeting_id}' AND
+            mu.is_founder_xq = false
     </select>
 
     <select id="selectMeetingByParticipantsWithEnd" resultMap="OneToOneResultMap">
         SELECT
         m.*,
-        u.id as userId,
-        u.`name` as uName,
-        u.username,
-        u.telephone,
-        u.headImage,
-        u.email,
-        u.isAdmin
+        u.id_xq as userId,
+        u.`name_xq` as uName
         FROM
-        t_meeting as m,
-        t_users as u,
-        t_meeting_users as mu
+        t_meeting_xq as m,
+        t_users_xq as u,
+        t_meeting_users_xq as mu
         WHERE
-        m.user_id = u.id
-        and mu.meeting_id = m.id
-        and mu.users_id = ${user_id}
-        and m.end = 1
-        and mu.to_user_hidden = 0
-        and mu.is_founder = false
+        m.user_id_xq = u.id_xq
+        and mu.meeting_id_xq = m.id_xq
+        and mu.users_id_xq = ${user_id}
+        and m.end_xq = 1
+        and mu.to_user_hidden_xq = 0
+        and mu.is_founder_xq = false
     </select>
     <select id="selectAllStartDateTime" resultType="java.time.LocalDateTime">
-        select m.start_date from t_meeting as m
+        select m.start_date_xq from t_meeting_xq as m
         <if test="withoutEnd==true">
-            where m.end=0
+            where m.end_xq=0
         </if>
     </select>
 

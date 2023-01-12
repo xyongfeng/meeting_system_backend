@@ -41,8 +41,6 @@ import java.util.Map;
 @Slf4j
 public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> implements MeetingService {
     @Autowired
-    private MeetingScreenshotService meetingScreenshotService;
-    @Autowired
     private MeetingMapper meetingMapper;
     @Autowired
     private UsersMapper usersMapper;
@@ -56,8 +54,6 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
     private MeetingNoticeMapper meetingNoticeMapper;
     @Autowired
     private MeetingNoticeUsersMapper meetingNoticeUsersMapper;
-    @Autowired
-    private ImgPathPro imgPathPro;
     @Autowired
     private MeetingPasswordService meetingPasswordService;
 
@@ -77,9 +73,9 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
 
     private int meetingUpdateById(MeetingUpdateParam meeting) {
         boolean update = meetingPasswordService.update(new UpdateWrapper<MeetingPassword>()
-                .eq("meeting_id", meeting.getId())
-                .set("password", meeting.getPassword())
-                .set("enabled", meeting.getPassEnabled())
+                .eq("meeting_id_xq", meeting.getId())
+                .set("password_xq", meeting.getPassword())
+                .set("enabled_xq", meeting.getPassEnabled())
         );
         if (!update) {
             meetingPasswordService.insert(meeting.getId(), meeting.getPassword(), meeting.getPassEnabled());
@@ -189,7 +185,7 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
         if (users == null) {
             return JsonResult.error("获取用户信息失败，请重新登录");
         }
-        return select(pageParam, new QueryWrapper<Meeting>().eq("user_id", users.getId()));
+        return select(pageParam, new QueryWrapper<Meeting>().eq("user_id_xq", users.getId()));
     }
 
     /**
@@ -204,8 +200,8 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
         if (users == null) {
             return false;
         }
-        wrapper.eq("id", meetingId);
-        wrapper.eq("user_id", users.getId());
+        wrapper.eq("id_xq", meetingId);
+        wrapper.eq("user_id_xq", users.getId());
         Meeting meeting = meetingMapper.selectOne(wrapper);
         return meeting != null;
     }
@@ -241,7 +237,7 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
                         .setHaveLicence(param.getHaveLicence()));
         if (param.getHaveLicence()) {
             meetingPasswordService.update(new UpdateWrapper<MeetingPassword>()
-                    .eq("meeting_id", param.getId()).set("enabled", false));
+                    .eq("meeting_id_xq", param.getId()).set("enabled_xq", false));
         }
 
         if (i != 0) {
@@ -271,9 +267,9 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
         Users users = MyUtil.getUsers();
         IPage<Meeting> myMeetings = meetingMapper.selectMeetingWithCreater(new Page<>(0, -1),
                 new QueryWrapper<Meeting>()
-                        .eq("user_id", users.getId())
-                        .eq("to_owner_hidden", 0)
-                        .eq("end", 1)
+                        .eq("user_id_xq", users.getId())
+                        .eq("to_owner_hidden_xq", 0)
+                        .eq("end_xq", 1)
         );
         IPage<Meeting> joinedMeetings = meetingMapper.selectMeetingByParticipantsWithEnd(new Page<>(0, -1), users.getId());
 
@@ -336,8 +332,8 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
         }
 
         QueryWrapper<MeetingUsers> wrapper = (new QueryWrapper<MeetingUsers>())
-                .eq("users_id", users.getId())
-                .eq("meeting_id", meeting.getId());
+                .eq("users_id_xq", users.getId())
+                .eq("meeting_id_xq", meeting.getId());
 
         // 判断是否退出
         if (isOut) {
@@ -350,15 +346,15 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
         }
         // 判断会议人数是否超过限制 -1是除去主持人
         if (meetingUsersMapper.selectCount(new QueryWrapper<MeetingUsers>()
-                .eq("meeting_id", mid)
-                .ne("users_id", meeting.getUserId())) >= meeting.getMaxNumber() - 1) {
+                .eq("meeting_id_xq", mid)
+                .ne("users_id_xq", meeting.getUserId())) >= meeting.getMaxNumber() - 1) {
             return JsonResult.error("会议人数已到达最大限制");
         }
 
         // 判断是否要申请入会
         if (meeting.getHaveLicence()) {
             MeetingApplication one = meetingApplicationMapper.selectOne(new QueryWrapper<MeetingApplication>()
-                    .eq("applicant_id", users.getId()).eq("meeting_id", mid).eq("state", 0));
+                    .eq("applicant_id_xq", users.getId()).eq("meeting_id_xq", mid).eq("state_xq", 0));
             if (one != null) {
 
                 return JsonResult.error("申请失败，你已经申请过该会议了");
@@ -475,9 +471,9 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
         int update = meetingApplicationMapper.update(
                 new MeetingApplication().setState(1),
                 new QueryWrapper<MeetingApplication>()
-                        .eq("meeting_id", meetingid)
-                        .eq("applicant_id", userid)
-                        .eq("state", 0)
+                        .eq("meeting_id_xq", meetingid)
+                        .eq("applicant_id_xq", userid)
+                        .eq("state_xq", 0)
         );
         if (update == 0) {
             return JsonResult.error("会议查找错误，请检查相关参数");
@@ -487,7 +483,7 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
             // 将会议推送的公告加入到对方的会议通知中
             insertMeetingNoticePushToUser(meetingid, userid);
             // 使用socket发送通知列表
-            IPage<MeetingNotice> meetingNoticeIPage = meetingNoticeMapper.selectMeetingNoticePushWithUid(userid, new Page<>(0, 5));
+            IPage<MeetingNotice> meetingNoticeIPage = meetingNoticeMapper.selectMeetingNoticePushWithUid(userid, new Page<>(0, -1));
             JSONObject jsonObject = (JSONObject) JSONObject.toJSON(meetingNoticeIPage);
             sockerSender.sendInform(jsonObject, 3, userid);
             return JsonResult.success("同意成功");
@@ -532,8 +528,8 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
     private List<Integer> insertMeetingNoticePushToUserList(Integer noticeId, List<Users> usersList) {
         // 如果该公告已经存在，就把该公告已读的删除
         meetingNoticeUsersMapper.delete(new QueryWrapper<MeetingNoticeUsers>()
-                .eq("notice_id", noticeId)
-                .eq("state", 1)
+                .eq("notice_id_xq", noticeId)
+                .eq("state_xq", 1)
         );
         List<Integer> informIds = new ArrayList<>();
         for (Users u : usersList) {
@@ -634,7 +630,7 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
 
         // 之前的变为已读
         meetingNoticeUsersMapper.update(new MeetingNoticeUsers().setState(1),
-                new QueryWrapper<MeetingNoticeUsers>().eq("notice_id", meetingNotice.getId()));
+                new QueryWrapper<MeetingNoticeUsers>().eq("notice_id_xq", meetingNotice.getId()));
 
         int i = meetingNoticeMapper.updateById(meetingNotice);
         // 开启推送
@@ -706,8 +702,8 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
         // 删除用户与会议的关系
         meetingUsersMapper.delete(
                 new QueryWrapper<MeetingUsers>()
-                        .eq("users_id", userId)
-                        .eq("meeting_id", mid)
+                        .eq("users_id_xq", userId)
+                        .eq("meeting_id_xq", mid)
         );
         Meeting meeting = meetingMapper.selectById(mid);
         // 发送踢人通知单独给该用户
@@ -723,8 +719,8 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
     public JsonResult getMeetingUsersStateById(String mid, Integer uid) {
         MeetingUsers meetingUsers = meetingUsersMapper.selectOne(
                 new QueryWrapper<MeetingUsers>()
-                        .eq("meeting_id", mid)
-                        .eq("users_id", uid)
+                        .eq("meeting_id_xq", mid)
+                        .eq("users_id_xq", uid)
         );
 
         return JsonResult.success(meetingUsers);
@@ -776,7 +772,7 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
         Boolean uping = jsonObject.getBoolean("uping");
         Boolean speeching = jsonObject.getBoolean("speeching");
 
-        QueryWrapper<MeetingUsers> wrapper = new QueryWrapper<MeetingUsers>().eq("meeting_id", mid).eq("users_id", uid);
+        QueryWrapper<MeetingUsers> wrapper = new QueryWrapper<MeetingUsers>().eq("meeting_id_xq", mid).eq("users_id_xq", uid);
 
         // 没有找到该数据，再检测是否是支持人是的话，就插入一条
         if (meetingUsersMapper.selectOne(wrapper) == null && meetingMapper.selectById(mid).getUserId().equals(uid)) {

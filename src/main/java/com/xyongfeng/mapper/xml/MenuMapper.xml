@@ -4,15 +4,15 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.xyongfeng.pojo.Menu">
-        <id column="id" property="id"/>
-        <result column="url" property="url"/>
-        <result column="path" property="path"/>
-        <result column="component" property="component"/>
-        <result column="name" property="name"/>
-        <result column="iconCls" property="iconCls"/>
-        <result column="requireAuth" property="requireAuth"/>
-        <result column="parentid" property="parentid"/>
-        <result column="enabled" property="enabled"/>
+        <id column="id_xq" property="id"/>
+        <result column="url_xq" property="url"/>
+        <result column="path_xq" property="path"/>
+        <result column="component_xq" property="component"/>
+        <result column="name_xq" property="name"/>
+        <result column="iconCls_xq" property="iconCls"/>
+        <result column="requireAuth_xq" property="requireAuth"/>
+        <result column="parentid_xq" property="parentid"/>
+        <result column="enabled_xq" property="enabled"/>
     </resultMap>
 
     <resultMap id="Menus" type="com.xyongfeng.pojo.Menu" extends="BaseResultMap">
@@ -33,22 +33,22 @@
     <!--  根据id查找列表  -->
     <select id="getMenusByUserId" resultMap="Menus">
         SELECT DISTINCT m1.*,
-                        m2.id        AS id2,
-                        m2.url       AS url2,
-                        m2.path      AS path2,
-                        m2.component AS component2,
-                        m2.`name`    AS name2,
-                        m2.iconCls   AS iconCls2,
-                        m2.enabled   AS enabled2
-        FROM t_menu m1,
-             t_menu m2,
-             t_users_role ar,
-             t_menu_role mr
-        WHERE m1.id = m2.parentid
-          AND m2.id = mr.menu_id
-          AND mr.role_id = ar.role_id
-          AND m2.enabled = TRUE
-          AND ar.user_id = #{id}
+                        m2.id_xq        AS id2,
+                        m2.url_xq       AS url2,
+                        m2.path_xq      AS path2,
+                        m2.component_xq AS component2,
+                        m2.`name_xq`    AS name2,
+                        m2.iconCls_xq   AS iconCls2,
+                        m2.enabled_xq   AS enabled2
+        FROM t_menu_xq m1,
+             t_menu_xq m2,
+             t_users_role_xq ar,
+             t_menu_role_xq mr
+        WHERE m1.id_xq = m2.parentid_xq
+          AND m2.id_xq = mr.menu_id_xq
+          AND mr.role_id_xq = ar.role_id_xq
+          AND m2.enabled_xq = TRUE
+          AND ar.user_id_xq = #{id}
     </select>
 
 </mapper>

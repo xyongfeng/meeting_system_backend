@@ -48,7 +48,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
 
     @Override
     public JsonResult selectAllRole() {
-        return JsonResult.success(roleMapper.selectList(new QueryWrapper<Role>().eq("hidden", 0)));
+        return JsonResult.success(roleMapper.selectList(new QueryWrapper<Role>().eq("hidden_xq", 0)));
     }
 
     @Override
@@ -58,8 +58,8 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
 //            System.out.println(k == 1);
 //            System.out.println(v.equals(true));
             usersRoleMapper.delete(new QueryWrapper<UsersRole>()
-                    .eq("user_id", uid)
-                    .eq("role_id", k));
+                    .eq("user_id_xq", uid)
+                    .eq("role_id_xq", k));
             if (v) {
                 UsersRole usersRole = new UsersRole().setUserId(uid).setRoleId(k);
                 usersRoleMapper.insert(usersRole);

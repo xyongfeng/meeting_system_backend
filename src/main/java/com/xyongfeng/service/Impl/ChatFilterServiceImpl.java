@@ -77,7 +77,7 @@ public class ChatFilterServiceImpl extends ServiceImpl<ChatFilterMapper, ChatFil
 
     @Override
     public String filter(String msg) {
-        List<ChatFilter> filterItems = chatFilterMapper.selectList(new QueryWrapper<ChatFilter>().eq("enable", 1));
+        List<ChatFilter> filterItems = chatFilterMapper.selectList(new QueryWrapper<ChatFilter>().eq("enable_xq", 1));
         for (ChatFilter filterItem : filterItems) {
             if (filterItem.getFilterRule() == 1) {
                 msg = msg.replace(filterItem.getFilterContent(), filterItem.getReplaceContent());

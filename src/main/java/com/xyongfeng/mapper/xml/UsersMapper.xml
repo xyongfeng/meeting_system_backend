@@ -4,53 +4,53 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.xyongfeng.pojo.Users">
-        <id column="id" property="id"/>
-        <result column="name" property="name"/>
-        <result column="username" property="username"/>
-        <result column="password" property="password"/>
-        <result column="telephone" property="telephone"/>
-        <result column="email" property="email"/>
-        <result column="headImage" property="headImage"/>
-        <result column="isAdmin" property="isAdmin"/>
+        <id column="id_xq" property="id"/>
+        <result column="name_xq" property="name"/>
+        <result column="username_xq" property="username"/>
+        <result column="password_xq" property="password"/>
+        <result column="telephone_xq" property="telephone"/>
+        <result column="email_xq" property="email"/>
+        <result column="headImage_xq" property="headImage"/>
+        <result column="isAdmin_xq" property="isAdmin"/>
     </resultMap>
     <resultMap id="FriendsAndChat" type="com.xyongfeng.pojo.FriendsAndChat">
-        <id column="id" property="uid"/>
-        <result column="name" property="name"/>
-        <result column="headImage" property="headImage"/>
+        <id column="id_xq" property="uid"/>
+        <result column="name_xq" property="name"/>
+        <result column="headImage_xq" property="headImage"/>
         <collection property="chatMessage" ofType="com.xyongfeng.pojo.UsersFriendInform">
-            <result column="type" property="type"/>
-            <result column="from_id" property="fromId"/>
-            <result column="to_id" property="toId"/>
-            <result column="content" property="content"/>
-            <result column="state" property="state"/>
-            <result column="send_time" property="sendTime"/>
+            <result column="type_xq" property="type"/>
+            <result column="from_id_xq" property="fromId"/>
+            <result column="to_id_xq" property="toId"/>
+            <result column="content_xq" property="content"/>
+            <result column="state_xq" property="state"/>
+            <result column="send_time_xq" property="sendTime"/>
         </collection>
 
     </resultMap>
 
     <select id="selectFriendsAndChatPage" resultMap="FriendsAndChat">
-        SELECT u.id,
-               u.name,
-               u.headImage,
-               ufi.type,
-               ufi.from_id,
-               ufi.to_id,
-               ufi.content,
-               ufi.state,
-               ufi.send_time
-        FROM t_users_friend uf,
-             t_users u,
-             t_users_friend_inform ufi
-        WHERE (u.id = uf.user_id2
+        SELECT u.id_xq,
+               u.name_xq,
+               u.headImage_xq,
+               ufi.type_xq,
+               ufi.from_id_xq,
+               ufi.to_id_xq,
+               ufi.content_xq,
+               ufi.state_xq,
+               ufi.send_time_xq
+        FROM t_users_friend_xq uf,
+             t_users_xq u,
+             t_users_friend_inform_xq ufi
+        WHERE (u.id_xq = uf.user_id2_xq
                    AND
-               uf.user_id1 = ${ownerId}
+               uf.user_id1_xq = ${ownerId}
             OR
-               u.id = uf.user_id1
+               u.id_xq = uf.user_id1_xq
                     AND
-               uf.user_id2 = ${ownerId})
-          AND ufi.type = 1
-          AND (ufi.from_id = ${ownerId} AND ufi.to_id = u.id OR ufi.to_id = ${ownerId} AND ufi.from_id = u.id)
-        order by ufi.send_time
+               uf.user_id2_xq = ${ownerId})
+          AND ufi.type_xq = 1
+          AND (ufi.from_id_xq = ${ownerId} AND ufi.to_id_xq = u.id_xq OR ufi.to_id_xq = ${ownerId} AND ufi.from_id_xq = u.id_xq)
+        order by ufi.send_time_xq
     </select>
 
 </mapper>

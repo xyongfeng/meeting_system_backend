@@ -64,7 +64,7 @@ public class MeetingChatServiceImpl extends ServiceImpl<MeetingChatMapper, Meeti
         // 获取所有好友消息
         List<Object> allContent = usersFriendInformService.getAllContent();
         // 获取所有会议消息
-        List<Object> msg = meetingChatMapper.selectObjs(new QueryWrapper<MeetingChat>().select("msg"));
+        List<Object> msg = meetingChatMapper.selectObjs(new QueryWrapper<MeetingChat>().select("msg_xq"));
         allContent.addAll(msg);
         Map<String, Integer> map = new HashMap<>();
 

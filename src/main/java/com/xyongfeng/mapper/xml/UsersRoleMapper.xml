@@ -4,9 +4,9 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.xyongfeng.pojo.UsersRole">
-        <id column="id" property="id" />
-        <result column="user_id" property="userId" />
-        <result column="role_id" property="roleId" />
+        <id column="id_xq" property="id" />
+        <result column="user_id_xq" property="userId" />
+        <result column="role_id_xq" property="roleId" />
     </resultMap>
 
 </mapper>

@@ -4,25 +4,25 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.xyongfeng.pojo.MeetingApplication">
-        <id column="id" property="id" />
-        <result column="applicant_id" property="applicantId" />
-        <result column="meeting_id" property="meetingId" />
-        <result column="state" property="state" />
-        <result column="send_time" property="sendTime" />
+        <id column="id_xq" property="id" />
+        <result column="applicant_id_xq" property="applicantId" />
+        <result column="meeting_id_xq" property="meetingId" />
+        <result column="state_xq" property="state" />
+        <result column="send_time_xq" property="sendTime" />
         <association property="meeting" javaType="com.xyongfeng.pojo.Meeting">
             <id column="mid" property="id"/>
             <result column="mname" property="name" />
-            <result column="user_id" property="userId" />
-            <result column="create_date" property="createDate" />
-            <result column="start_date" property="startDate" />
-            <result column="haveLicence" property="haveLicence" />
+            <result column="user_id_xq" property="userId" />
+            <result column="create_date_xq" property="createDate" />
+            <result column="start_date_xq" property="startDate" />
+            <result column="haveLicence_xq" property="haveLicence" />
         </association>
         <association property="users" javaType="com.xyongfeng.pojo.Users">
             <id column="uid" property="id"/>
             <result column="uname" property="name"/>
-            <result column="telephone" property="telephone"/>
-            <result column="email" property="email"/>
-            <result column="headImage" property="headImage"/>
+            <result column="telephone_xq" property="telephone"/>
+            <result column="email_xq" property="email"/>
+            <result column="headImage_xq" property="headImage"/>
         </association>
     </resultMap>
 
@@ -30,27 +30,27 @@
     <select id="selectMeetingApplications" resultMap="BaseResultMap">
         SELECT
             tma.*,
-            tm.id mid,
-            tm.create_date,
-            tm.haveLicence,
-            tm.`name` mname,
-            tm.start_date,
-            tm.user_id,
-            tu.id uid,
-            tu.`name` uname,
-            tu.email,
-            tu.headImage,
-            tu.telephone
+            tm.id_xq mid,
+            tm.create_date_xq,
+            tm.haveLicence_xq,
+            tm.name_xq mname,
+            tm.start_date_xq,
+            tm.user_id_xq,
+            tu.id_xq uid,
+            tu.name_xq uname,
+            tu.email_xq,
+            tu.headImage_xq,
+            tu.telephone_xq
         FROM
-            t_users tu,
-            t_meeting tm,
-            t_meeting_application tma
+            t_users_xq tu,
+            t_meeting_xq tm,
+            t_meeting_application_xq tma
         WHERE
-            tma.applicant_id = tu.id AND
-            tma.meeting_id = tm.id AND
-            tma.state = 0 AND
-            tm.user_id =${uid}
-        order by tma.send_time desc
+            tma.applicant_id_xq = tu.id_xq AND
+            tma.meeting_id_xq = tm.id_xq AND
+            tma.state_xq = 0 AND
+            tm.user_id_xq =${uid}
+        order by tma.send_time_xq desc
     </select>
 
 </mapper>

@@ -4,32 +4,32 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.xyongfeng.pojo.MeetingScreenshot">
-        <id column="id" property="id"/>
-        <result column="user_id" property="userId"/>
-        <result column="meeting_id" property="meetingId"/>
-        <result column="path" property="path"/>
+        <id column="id_xq" property="id"/>
+        <result column="user_id_xq" property="userId"/>
+        <result column="meeting_id_xq" property="meetingId"/>
+        <result column="path_xq" property="path"/>
         <association property="meeting" javaType="com.xyongfeng.pojo.Meeting">
             <id column="mid" property="id"/>
             <result column="mname" property="name"/>
-            <result column="user_id" property="userId"/>
-            <result column="create_date" property="createDate"/>
-            <result column="start_date" property="startDate"/>
-            <result column="haveLicence" property="haveLicence"/>
+            <result column="user_id_xq" property="userId"/>
+            <result column="create_date_xq" property="createDate"/>
+            <result column="start_date_xq" property="startDate"/>
+            <result column="haveLicence_xq" property="haveLicence"/>
         </association>
     </resultMap>
     <select id="selectAll" resultMap="BaseResultMap">
         SELECT tms.*,
-               tm.id mid,
-               tm.create_date,
-               tm.haveLicence,
-               tm.`name` mname,
-               tm.start_date,
-               tm.user_id
-        FROM t_meeting tm,
-             t_meeting_screenshot tms
+               tm.id_xq mid,
+               tm.create_date_xq,
+               tm.haveLicence_xq,
+               tm.`name_xq` mname,
+               tm.start_date_xq,
+               tm.user_id_xq
+        FROM t_meeting_xq tm,
+             t_meeting_screenshot_xq tms
         WHERE
-            tms.user_id=${uid} AND
-            tms.meeting_id=tm.id
+            tms.user_id_xq=${uid} AND
+            tms.meeting_id_xq=tm.id_xq
 
     </select>
 

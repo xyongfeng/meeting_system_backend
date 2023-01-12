@@ -26,6 +26,6 @@ public class UsersFriendInformServiceImpl extends ServiceImpl<UsersFriendInformM
     @Override
     public List<Object> getAllContent() {
         return usersFriendInformMapper.selectObjs(new QueryWrapper<UsersFriendInform>()
-                .select("content").eq("type", 1));
+                .select("content_xq").eq("type_xq", 1));
     }
 }

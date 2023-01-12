@@ -1,6 +1,7 @@
 package com.xyongfeng.pojo;
 
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.experimental.Accessors;

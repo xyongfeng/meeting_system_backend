@@ -1,5 +1,8 @@
 package com.xyongfeng.pojo;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -20,21 +23,25 @@ import java.io.Serializable;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("t_role")
+@TableName("t_role_xq")
 @ApiModel(value = "Role对象", description = "权限实体对象")
 public class Role implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @TableId(value = "id_xq", type = IdType.AUTO)
     @ApiModelProperty(value = "id")
     private Integer id;
 
+    @TableField("perms_xq")
     @ApiModelProperty(value = "权限识别")
     private String perms;
 
+    @TableField("name_xq")
     @ApiModelProperty(value = "权限名")
     private String name;
 
+    @TableField("remark_xq")
     @ApiModelProperty(value = "备注")
     private String remark;
 

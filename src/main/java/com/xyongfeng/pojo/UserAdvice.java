@@ -29,31 +29,35 @@ import javax.validation.constraints.NotBlank;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("t_user_advice")
+@TableName("t_user_advice_xq")
 @ApiModel(value = "UserAdvice对象", description = "")
 public class UserAdvice implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id_xq", type = IdType.AUTO)
     private Integer id;
 
+    @TableField("user_id_xq")
     @ApiModelProperty(value = "用户id")
     private Integer userId;
 
+    @TableField("type_xq")
     @ApiModelProperty(value = "意见种类",required = true)
     @NotBlank(message = "意见种类不能为空")
     private String type;
 
+    @TableField("title_xq")
     @ApiModelProperty(value = "描述标题",required = true)
     @NotBlank(message = "描述标题不能为空")
     private String title;
 
+    @TableField("content_xq")
     @ApiModelProperty(value = "描述内容",required = true)
     @NotBlank(message = "描述内容不能为空")
     private String content;
 
-
+    @TableField("time_xq")
     @ApiModelProperty(value = "发起时间")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime time;

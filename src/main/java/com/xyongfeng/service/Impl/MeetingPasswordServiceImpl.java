@@ -30,6 +30,6 @@ public class MeetingPasswordServiceImpl extends ServiceImpl<MeetingPasswordMappe
     @Override
     public MeetingPassword getMeetingPasswordOne(String mid) {
 
-        return meetingPasswordMapper.selectOne(new QueryWrapper<MeetingPassword>().eq("meeting_id", mid));
+        return meetingPasswordMapper.selectOne(new QueryWrapper<MeetingPassword>().eq("meeting_id_xq", mid));
     }
 }

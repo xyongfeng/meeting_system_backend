@@ -4,75 +4,77 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.xyongfeng.pojo.MeetingUsers">
-        <id column="id" property="id" />
-        <result column="meeting_id" property="meetingId" />
-        <result column="users_id" property="usersId" />
-        <result column="had_sign_in" property="hadSignIn" />
-        <result column="had_sign_in_time" property="hadSignInTime" />
-        <result column="had_ban" property="hadBan" />
-        <result column="had_muted" property="hadMuted" />
-        <result column="had_banup" property="hadBanup" />
-        <result column="uping" property="uping" />
-        <result column="speeching" property="speeching" />
-        <result column="exist_minute" property="existMinute" />
-        <result column="to_user_hidden" property="toUserHidden" />
-        <result column="is_founder" property="isFounder" />
+        <id column="id_xq" property="id" />
+        <result column="meeting_id_xq" property="meetingId" />
+        <result column="users_id_xq" property="usersId" />
+        <result column="had_sign_in_xq" property="hadSignIn" />
+        <result column="had_sign_in_time_xq" property="hadSignInTime" />
+        <result column="had_ban_xq" property="hadBan" />
+        <result column="had_muted_xq" property="hadMuted" />
+        <result column="had_banup_xq" property="hadBanup" />
+        <result column="uping_xq" property="uping" />
+        <result column="speeching_xq" property="speeching" />
+        <result column="exist_minute_xq" property="existMinute" />
+        <result column="to_user_hidden_xq" property="toUserHidden" />
+        <result column="is_founder_xq" property="isFounder" />
 
     </resultMap>
     <resultMap id="OneToOneResultMap" type="com.xyongfeng.pojo.MeetingUsers" extends="BaseResultMap">
         <association property="users" javaType="com.xyongfeng.pojo.Users">
             <id column="userId" property="id"/>
             <result column="uName" property="name"/>
-            <result column="username" property="username"/>
-            <result column="telephone" property="telephone"/>
-            <result column="email" property="email"/>
-            <result column="headImage" property="headImage"/>
-            <result column="isAdmin" property="isAdmin"/>
+            <result column="telephone_xq" property="telephone"/>
+            <result column="email_xq" property="email"/>
+            <result column="headImage_xq" property="headImage"/>
         </association>
     </resultMap>
     <update id="delHistoryMeeting">
-        update t_meeting_users mu
-        set mu.to_user_hidden = 1
-        where mu.meeting_id = '${mid}' and
-              mu.users_id = ${uid}
+        update t_meeting_users_xq mu
+        set mu.to_user_hidden_xq = 1
+        where mu.meeting_id_xq = '${mid}' and
+              mu.users_id_xq = ${uid}
     </update>
 
-
-    <select id="selectHadSignInList" resultType="com.xyongfeng.pojo.Users">
+    <resultMap id="UsersResultMap" type="com.xyongfeng.pojo.Users">
+        <id column="id_xq" property="id"/>
+        <result column="name_xq" property="name"/>
+        <result column="telephone_xq" property="telephone"/>
+        <result column="email_xq" property="email"/>
+        <result column="headImage_xq" property="headImage"/>
+        <result column="had_sign_in_time_xq" property="hadSignInTime"/>
+    </resultMap>
+    <select id="selectHadSignInList" resultMap="UsersResultMap">
         SELECT
-            u.id,
-            u.username,
-            u.`name`,
-            u.headImage,
-            u.email,
-            u.telephone,
-            mu.had_sign_in_time
+            u.id_xq,
+            u.`name_xq`,
+            u.headImage_xq,
+            u.email_xq,
+            u.telephone_xq,
+            mu.had_sign_in_time_xq
         FROM
-            t_users u,
-            t_meeting_users mu
+            t_users_xq u,
+            t_meeting_users_xq mu
         WHERE
-            mu.had_sign_in = 1 AND
-            u.id = mu.users_id AND
-            mu.meeting_id = '${mid}' AND
-            mu.is_founder = false
+            mu.had_sign_in_xq = 1 AND
+            u.id_xq = mu.users_id_xq AND
+            mu.meeting_id_xq = '${mid}' AND
+            mu.is_founder_xq = false
 
     </select>
     <select id="selectMeetingUsersList" resultMap="OneToOneResultMap">
         SELECT
             mu.*,
-            u.id as userId,
-            u.`name` as uName,
-            u.username,
-            u.telephone,
-            u.headImage,
-            u.email,
-            u.isAdmin
+            u.id_xq as userId,
+            u.`name_xq` as uName,
+            u.telephone_xq,
+            u.headImage_xq,
+            u.email_xq
         FROM
-            t_users u,
-            t_meeting_users mu
+            t_users_xq u,
+            t_meeting_users_xq mu
         WHERE
-            u.id = mu.users_id AND
-            mu.meeting_id = '${mid}'
+            u.id_xq = mu.users_id_xq AND
+            mu.meeting_id_xq = '${mid}'
     </select>
 
 

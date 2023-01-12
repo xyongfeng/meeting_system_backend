@@ -60,18 +60,18 @@ public class AdminLogServiceImpl extends ServiceImpl<AdminLogMapper, AdminLog> i
         String key = params.get("key");
 
         if ("actionUserName".equals(type)) {
-            query.like("u.name", key);
+            query.like("u.name_xq", key);
         } else if ("actionModule".equals(type)) {
-            query.eq("action_module", key);
+            query.eq("action_module_xq", key);
         } else if ("actionType".equals(type)) {
-            query.like("action_type", key);
+            query.like("action_type_xq", key);
         } else if ("actionUrl".equals(type)) {
-            query.like("action_url", key);
+            query.like("action_url_xq", key);
         } else if ("actionSuccess".equals(type)) {
-            query.eq("action_success", key);
+            query.eq("action_success_xq", key);
         } else if ("actionTime".equals(type)) {
-            query.ge("action_time", params.get("startDate"))
-                    .le("action_time", params.get("endDate"));
+            query.ge("action_time_xq", params.get("startDate"))
+                    .le("action_time_xq", params.get("endDate"));
         }
 
         return JsonResult.success(adminLogMapper.selectWithUser(new Page<>(current, size), query));

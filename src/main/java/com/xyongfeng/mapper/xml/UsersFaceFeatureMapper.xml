@@ -4,13 +4,13 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.xyongfeng.pojo.UsersFaceFeature">
-        <id column="id" property="id"/>
-        <result column="user_id" property="userId"/>
-        <result column="face_feature" property="faceFeature"/>
+        <id column="id_xq" property="id"/>
+        <result column="user_id_xq" property="userId"/>
+        <result column="face_feature_xq" property="faceFeature"/>
     </resultMap>
-    <select id="selectAll" resultType="com.xyongfeng.pojo.UsersFaceFeature">
+    <select id="selectAll" resultMap="BaseResultMap">
         select *
-        from t_users_face_feature;
+        from t_users_face_feature_xq;
 
     </select>
 

@@ -4,51 +4,45 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.xyongfeng.pojo.UserAdvice">
-        <id column="id" property="id"/>
-        <result column="user_id" property="userId"/>
-        <result column="type" property="type"/>
-        <result column="title" property="title"/>
-        <result column="content" property="content"/>
-        <result column="time" property="time"/>
+        <id column="id_xq" property="id"/>
+        <result column="user_id_xq" property="userId"/>
+        <result column="type_xq" property="type"/>
+        <result column="title_xq" property="title"/>
+        <result column="content_xq" property="content"/>
+        <result column="time_xq" property="time"/>
     </resultMap>
     <resultMap id="OneToOneResultMap" type="com.xyongfeng.pojo.UserAdvice" extends="BaseResultMap">
         <association property="users" javaType="com.xyongfeng.pojo.Users">
-            <id column="userId" property="id"/>
-            <result column="uName" property="name"/>
-            <result column="username" property="username"/>
-            <result column="telephone" property="telephone"/>
-            <result column="email" property="email"/>
-            <result column="headImage" property="headImage"/>
-            <result column="isAdmin" property="isAdmin"/>
+            <id column="userId_xq" property="id"/>
+            <result column="uName_xq" property="name"/>
+            <result column="telephone_xq" property="telephone"/>
+            <result column="email_xq" property="email"/>
+            <result column="headImage_xq" property="headImage"/>
         </association>
     </resultMap>
     <select id="selectWithUserAndImg" resultMap="OneToOneResultMap">
         SELECT ua.*,
-               u.id     as userId,
-               u.`name` as uName,
-               u.username,
-               u.telephone,
-               u.headImage,
-               u.email,
-               u.isAdmin
-        FROM t_user_advice as ua,
-             t_users as u
-        where ua.user_id = u.id
+               u.id_xq    as userId,
+               u.`name_xq` as uName,
+               u.telephone_xq,
+               u.headImage_xq,
+               u.email_xq
+        FROM t_user_advice_xq as ua,
+             t_users_xq as u
+        where ua.user_id_xq = u.id_xq
 
     </select>
     <select id="selectWithUserAndImgById" resultMap="OneToOneResultMap">
         SELECT ua.*,
-               u.id     as userId,
-               u.`name` as uName,
-               u.username,
-               u.telephone,
-               u.headImage,
-               u.email,
-               u.isAdmin
-        FROM t_user_advice as ua,
-             t_users as u
-        where ua.user_id = u.id
-          and ua.user_id = ${userId}
+               u.id_xq     as userId,
+               u.`name_xq` as uName,
+               u.telephone_xq,
+               u.headImage_xq,
+               u.email_xq
+        FROM t_user_advice_xq as ua,
+             t_users_xq as u
+        where ua.user_id_xq = u.id_xq
+          and ua.user_id_xq = ${userId}
     </select>
 
 </mapper>

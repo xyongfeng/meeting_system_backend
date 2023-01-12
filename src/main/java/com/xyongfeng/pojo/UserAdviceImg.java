@@ -1,6 +1,7 @@
 package com.xyongfeng.pojo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
@@ -22,18 +23,20 @@ import java.io.Serializable;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("t_user_advice_img")
+@TableName("t_user_advice_img_xq")
 @ApiModel(value="UserAdviceImg对象", description="")
 public class UserAdviceImg implements Serializable {
 
     private static final long serialVersionUID=1L;
 
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id_xq", type = IdType.AUTO)
     private Integer id;
 
+    @TableField("advice_id_xq")
     @ApiModelProperty(value = "意见id")
     private Integer adviceId;
 
+    @TableField("img_path_xq")
     @ApiModelProperty(value = "图片路径")
     private String imgPath;
 

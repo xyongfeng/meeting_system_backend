@@ -4,11 +4,11 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.xyongfeng.pojo.MeetingChat">
-        <id column="id" property="id" />
-        <result column="meeting_id" property="meetingId" />
-        <result column="user_id" property="userId" />
-        <result column="msg" property="msg" />
-        <result column="send_time" property="sendTime" />
+        <id column="id_xq" property="id" />
+        <result column="meeting_id_xq" property="meetingId" />
+        <result column="user_id_xq" property="userId" />
+        <result column="msg_xq" property="msg" />
+        <result column="send_time_xq" property="sendTime" />
     </resultMap>
 
 </mapper>

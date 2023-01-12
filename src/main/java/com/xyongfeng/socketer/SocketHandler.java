@@ -53,18 +53,23 @@ public class SocketHandler {
      */
     @OnDisconnect
     public void onDisconnectEvent(SocketIOClient client) {
+
+        SocketUser socketUser = SocketState.CONNECT_USERS_MAP.get(client.getSessionId());
+        if(socketUser == null){
+            return;
+        }
         // 更新房间的人数
-        Users users = SocketState.CONNECT_USERS_MAP.get(client.getSessionId()).users;
+        Users users = socketUser.users;
         // 每个房间取消投屏，开麦
-        SocketState.CONNECT_USERS_MAP.get(client.getSessionId()).meetings.forEach(
+        socketUser.meetings.forEach(
                 mid -> meetingUsersMapper.update(new MeetingUsers().setSpeeching(false).setUping(false),
                 new QueryWrapper<MeetingUsers>()
-                        .eq("meeting_id", mid)
-                        .eq("users_id", users.getId()))
+                        .eq("meeting_id_xq", mid)
+                        .eq("users_id_xq", users.getId()))
                 );
 
         // 对进入的每个房间，告诉其他人，他走了
-        SocketState.CONNECT_USERS_MAP.get(client.getSessionId()).meetings.forEach(mid -> sockerSender.sendMeetWithout(client, mid, "left_user", users.getId()));
+        socketUser.meetings.forEach(mid -> sockerSender.sendMeetWithout(client, mid, "left_user", users.getId()));
         // 连接信息删除
         SocketState.CONNECT_USERS_MAP.remove(client.getSessionId());
         log.info(String.format("断开连接：%s", client.getSessionId()) + " " + SocketState.CONNECT_USERS_MAP.size());
@@ -173,16 +178,16 @@ public class SocketHandler {
         Integer userId = sockerSender.getUserIdBySess(client.getSessionId());
 //        meetingUsersMapper.addExistMinute(meetingId,userId);
         MeetingUsers meetingUsers = meetingUsersMapper.selectOne(new QueryWrapper<MeetingUsers>()
-                .eq("meeting_id", meetingId)
-                .eq("users_id", userId));
+                .eq("meeting_id_xq", meetingId)
+                .eq("users_id_xq", userId));
         if(meetingUsers == null){
             return;
         }
         Integer existMinute = meetingUsers.getExistMinute();
         meetingUsersMapper.update(meetingUsers.setExistMinute(existMinute + 1)
                 , new QueryWrapper<MeetingUsers>()
-                .eq("meeting_id", meetingId)
-                .eq("users_id", userId));
+                .eq("meeting_id_xq", meetingId)
+                .eq("users_id_xq", userId));
     }
 
 }

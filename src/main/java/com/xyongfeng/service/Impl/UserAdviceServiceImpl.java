@@ -42,7 +42,7 @@ public class UserAdviceServiceImpl extends ServiceImpl<UserAdviceMapper, UserAdv
 
     private List<String> getAdviceImgs(UserAdvice userAdvice) {
         List<Object> objects = userAdviceImgMapper.selectObjs(new QueryWrapper<UserAdviceImg>()
-                .eq("advice_id", userAdvice.getId()).select("img_path"));
+                .eq("advice_id_xq", userAdvice.getId()).select("img_path_xq"));
         List<String> strings = new ArrayList<>();
         objects.forEach(x -> strings.add(x.toString()));
 

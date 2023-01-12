@@ -4,58 +4,58 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.xyongfeng.pojo.ChatFilter">
-        <id column="id" property="id" />
-        <result column="filter_content" property="filterContent" />
-        <result column="filter_rule" property="filterRule" />
-        <result column="replace_content" property="replaceContent" />
-        <result column="appender_id" property="appenderId" />
-        <result column="append_time" property="appendTime" />
-        <result column="enable" property="enable" />
+        <id column="id_xq" property="id" />
+        <result column="filter_content_xq" property="filterContent" />
+        <result column="filter_rule_xq" property="filterRule" />
+        <result column="replace_content_xq" property="replaceContent" />
+        <result column="appender_id_xq" property="appenderId" />
+        <result column="append_time_xq" property="appendTime" />
+        <result column="enable_xq" property="enable" />
     </resultMap>
 
     <resultMap id="OneToOneResultMap" type="com.xyongfeng.pojo.ChatFilter" extends="BaseResultMap">
         <association property="appender" javaType="com.xyongfeng.pojo.Users">
             <id column="userId" property="id"/>
             <result column="uName" property="name"/>
-            <result column="username" property="username"/>
-            <result column="telephone" property="telephone"/>
-            <result column="email" property="email"/>
-            <result column="headImage" property="headImage"/>
-            <result column="isAdmin" property="isAdmin"/>
+            <result column="username_xq" property="username"/>
+            <result column="telephone_xq" property="telephone"/>
+            <result column="email_xq" property="email"/>
+            <result column="headImage_xq" property="headImage"/>
+            <result column="isAdmin_xq" property="isAdmin"/>
         </association>
     </resultMap>
     <select id="selectWithUser" resultMap="OneToOneResultMap">
         SELECT
             cf.*,
-            u.id as userId,
-            u.`name` as uName,
-            u.username,
-            u.telephone,
-            u.headImage,
-            u.email,
-            u.isAdmin
+            u.id_xq as userId,
+            u.name_xq as uName,
+            u.username_xq,
+            u.telephone_xq,
+            u.headImage_xq,
+            u.email_xq,
+            u.isAdmin_xq
         FROM
-            t_chat_filter as cf,
-            t_users as u
+            t_chat_filter_xq as cf,
+            t_users_xq as u
         where
-            cf.appender_id = u.id
+            cf.appender_id_xq = u.id_xq
     </select>
     <select id="selectWithUserById" resultMap="OneToOneResultMap">
         SELECT
             cf.*,
-            u.id as userId,
-            u.`name` as uName,
-            u.username,
-            u.telephone,
-            u.headImage,
-            u.email,
-            u.isAdmin
+            u.id_xq as userId,
+            u.name_xq as uName,
+            u.username_xq,
+            u.telephone_xq,
+            u.headImage_xq,
+            u.email_xq,
+            u.isAdmin_xq
         FROM
-            t_chat_filter as cf,
-            t_users as u
+            t_chat_filter_xq as cf,
+            t_users_xq as u
         where
-            cf.appender_id = u.id AND
-            cf.appender_id = ${userId}
+            cf.appender_id_xq = u.id_xq AND
+            cf.appender_id_xq = ${userId}
     </select>
 
 </mapper>

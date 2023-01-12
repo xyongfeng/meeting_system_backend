@@ -94,11 +94,11 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     @Override
     public JsonResult update(UsersUpdateParam users, Integer uid) {
         users.setId(uid);
-        Users one = usersMapper.selectOne(new QueryWrapper<Users>().eq("username", users.getUsername()));
+        Users one = usersMapper.selectOne(new QueryWrapper<Users>().eq("username_xq", users.getUsername()));
         if (one != null && !one.getId().equals(uid)) {
             return JsonResult.error("修改失败，用户名重复");
         }
-        one = usersMapper.selectOne(new QueryWrapper<Users>().eq("name", users.getName()));
+        one = usersMapper.selectOne(new QueryWrapper<Users>().eq("name_xq", users.getName()));
         if (one != null && !one.getId().equals(uid)) {
             return JsonResult.error("修改失败，名称重复");
         }
@@ -124,14 +124,14 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
      * 分页获取用户列表
      *
      * @param pageParam current(当前页码),size(页码大小)
-     * @return 管理员列表
+     * @return 用户列表
      */
     private IPage<Users> listPage(PageParam pageParam) {
         Page<Users> page = new Page<>(pageParam.getCurrent(), pageParam.getSize());
         QueryWrapper<Users> wrapper = new QueryWrapper<>();
         // 输出字段不包括password
-        wrapper.select(Users.class, e -> !"password".equals(e.getColumn()));
-        wrapper.ne("username", "root");
+        wrapper.select(Users.class, e -> !"password_xq".equals(e.getColumn()));
+        wrapper.ne("username_xq", "root");
         usersMapper.selectPage(page, wrapper);
         return page;
     }
@@ -145,10 +145,10 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
      */
     private int userAdd(Users users, PasswordEncoder passwordEncoder) throws Exception {
 
-        if (usersMapper.selectOne(new QueryWrapper<Users>().eq("username", users.getUsername())) != null) {
+        if (usersMapper.selectOne(new QueryWrapper<Users>().eq("username_xq", users.getUsername())) != null) {
             throw new Exception("用户名重复");
         }
-        if (usersMapper.selectOne(new QueryWrapper<Users>().eq("name", users.getName())) != null) {
+        if (usersMapper.selectOne(new QueryWrapper<Users>().eq("name_xq", users.getName())) != null) {
             throw new Exception("名称重复");
         }
 
@@ -184,7 +184,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
      */
     @Override
     public Users getUserByUserName(String username) {
-        Users users = usersMapper.selectOne(new QueryWrapper<Users>().eq("username", username));
+        Users users = usersMapper.selectOne(new QueryWrapper<Users>().eq("username_xq", username));
         if (users == null) {
             return null;
         }
@@ -340,7 +340,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 
         if (usersFaceFeatureMapper.update(
                 new UsersFaceFeature().setFaceFeature(faceFeature),
-                new QueryWrapper<UsersFaceFeature>().eq("user_id", userId)) == 0) {
+                new QueryWrapper<UsersFaceFeature>().eq("user_id_xq", userId)) == 0) {
             usersFaceFeatureMapper.insert(new UsersFaceFeature()
                     .setUserId(userId)
                     .setFaceFeature(faceFeature));
@@ -427,7 +427,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         }
 
         // 这里直接用数据库保存的特征
-        UsersFaceFeature faceFeature = usersFaceFeatureMapper.selectOne(new QueryWrapper<UsersFaceFeature>().eq("user_id", users.getId()));
+        UsersFaceFeature faceFeature = usersFaceFeatureMapper.selectOne(new QueryWrapper<UsersFaceFeature>().eq("user_id_xq", users.getId()));
 
         String localFeature = faceFeature.getFaceFeature();
 
@@ -482,8 +482,8 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 
         QueryWrapper<MeetingUsers> queryWrapper = new QueryWrapper<>();
         queryWrapper
-                .eq("meeting_id", meetingId)
-                .eq("users_id", jsonObject.getInteger("userId"));
+                .eq("meeting_id_xq", meetingId)
+                .eq("users_id_xq", jsonObject.getInteger("userId"));
         meetingUsersMapper.update(
                 (new MeetingUsers())
                         .setHadSignIn(true)
@@ -494,8 +494,8 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     private Boolean getHadSignIn(String meetingId) {
         QueryWrapper<MeetingUsers> queryWrapper = new QueryWrapper<>();
         queryWrapper
-                .eq("meeting_id", meetingId)
-                .eq("users_id", MyUtil.getUsers().getId());
+                .eq("meeting_id_xq", meetingId)
+                .eq("users_id_xq", MyUtil.getUsers().getId());
         MeetingUsers meetingUsers = meetingUsersMapper.selectOne(queryWrapper);
         if (meetingUsers == null) {
             return false;
@@ -526,12 +526,12 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 
     @Override
     public JsonResult getUserInfoById(Integer uid) {
-        return getUserInfo("id", uid.toString());
+        return getUserInfo("id_xq", uid.toString());
     }
 
     @Override
     public JsonResult getUserInfoByName(String userName) {
-        return getUserInfo("name", userName);
+        return getUserInfo("name_xq", userName);
     }
 
 
@@ -547,10 +547,10 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 
         if (usersFriendInformMapper.selectCount(
                 (new QueryWrapper<UsersFriendInform>())
-                        .eq("type", 0)
-                        .eq("from_id", ownerId)
-                        .eq("to_id", userid)
-                        .eq("state", 0)
+                        .eq("type_xq", 0)
+                        .eq("from_id_xq", ownerId)
+                        .eq("to_id_xq", userid)
+                        .eq("state_xq", 0)
         ) > 0) {
             return JsonResult.error("申请失败，你已经对该用户发过申请了");
         }
@@ -582,11 +582,11 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         }
         return usersFriendMapper.selectCount(
                 (new QueryWrapper<UsersFriend>())
-                        .eq("user_id1", userId1)
-                        .eq("user_id2", userId2)
+                        .eq("user_id1_xq", userId1)
+                        .eq("user_id2_xq", userId2)
                         .or()
-                        .eq("user_id2", userId1)
-                        .eq("user_id1", userId2)
+                        .eq("user_id2_xq", userId1)
+                        .eq("user_id1_xq", userId2)
         ) > 0;
     }
 
@@ -601,10 +601,10 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         Integer ownerId = MyUtil.getUsers().getId();
         UsersFriendInform usersFriendInform = usersFriendInformMapper.selectOne(
                 (new QueryWrapper<UsersFriendInform>())
-                        .eq("type", 0)
-                        .eq("from_id", userid)
-                        .eq("to_id", ownerId)
-                        .eq("state", 0)
+                        .eq("type_xq", 0)
+                        .eq("from_id_xq", userid)
+                        .eq("to_id_xq", ownerId)
+                        .eq("state_xq", 0)
         );
         if (usersFriendInform == null) {
             return JsonResult.error("处理失败，找不到该处理对象");
@@ -638,10 +638,10 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         Page<UsersFriendInform> page = new Page<>(current, size);
         IPage<UsersFriendInform> usersFriendInformPage = usersFriendInformMapper.selectPageWithFromerInfo(page,
                 (new QueryWrapper<UsersFriendInform>())
-                        .eq("type", 0)
-                        .eq("to_id", ownerId)
-                        .eq("state", 0)
-                        .orderByDesc("send_time")
+                        .eq("type_xq", 0)
+                        .eq("to_id_xq", ownerId)
+                        .eq("state_xq", 0)
+                        .orderByDesc("send_time_xq")
         );
         return JsonResult.success(usersFriendInformPage);
     }
@@ -654,20 +654,20 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
             swapUserId(userid, ownerId);
         }
         usersFriendInformMapper.delete((new QueryWrapper<UsersFriendInform>())
-                .eq("from_id", userid)
-                .eq("to_id", ownerId)
+                .eq("from_id_xq", userid)
+                .eq("to_id_xq", ownerId)
                 .or()
-                .eq("from_id", ownerId)
-                .eq("to_id", userid));
+                .eq("from_id_xq", ownerId)
+                .eq("to_id_xq", userid));
 
 
         int result = usersFriendMapper.delete(
                 (new QueryWrapper<UsersFriend>())
-                        .eq("user_id1", userid)
-                        .eq("user_id2", ownerId)
+                        .eq("user_id1_xq", userid)
+                        .eq("user_id2_xq", ownerId)
                         .or()
-                        .eq("user_id1", ownerId)
-                        .eq("user_id2", userid)
+                        .eq("user_id1_xq", ownerId)
+                        .eq("user_id2_xq", userid)
         );
         if (result == 0) {
             return JsonResult.error("删除失败");
@@ -693,13 +693,13 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         Page<UsersFriendInform> page = new Page<>(current, size);
         IPage<UsersFriendInform> usersFriendInformPage = usersFriendInformMapper.selectPage(page,
                 (new QueryWrapper<UsersFriendInform>())
-                        .eq("type", 1)
+                        .eq("type_xq", 1)
                         .and(
-                                qw -> qw.eq("from_id", ownerId).eq("to_id", userid)
+                                qw -> qw.eq("from_id_xq", ownerId).eq("to_id_xq", userid)
                                         .or()
-                                        .eq("to_id", ownerId).eq("from_id", userid)
+                                        .eq("to_id_xq", ownerId).eq("from_id_xq", userid)
                         )
-                        .orderByAsc("send_time")
+                        .orderByAsc("send_time_xq")
         );
         return JsonResult.success(usersFriendInformPage);
     }
@@ -734,9 +734,9 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     public JsonResult readFriChat(Integer userid) {
         usersFriendInformMapper.update(new UsersFriendInform().setState(1),
                 new QueryWrapper<UsersFriendInform>()
-                        .eq("from_id", userid)
-                        .eq("type", 1)
-                        .eq("state", 0)
+                        .eq("from_id_xq", userid)
+                        .eq("type_xq", 1)
+                        .eq("state_xq", 0)
         );
         return JsonResult.success();
     }
@@ -747,7 +747,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         if (!users.getId().equals(uid)) {
             return JsonResult.error("修改失败，无权限修改他人信息");
         }
-        Users same_user = usersMapper.selectOne(new QueryWrapper<Users>().eq("name", users.getName()));
+        Users same_user = usersMapper.selectOne(new QueryWrapper<Users>().eq("name_xq", users.getName()));
         if (same_user != null && !same_user.getId().equals(uid)) {
             return JsonResult.error("修改失败，名称重复");
         }

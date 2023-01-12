@@ -49,7 +49,7 @@ public class MeetingScreenshotServiceImpl extends ServiceImpl<MeetingScreenshotM
 
     @Override
     public JsonResult selectPath(String mid) {
-        List<Object> objects = meetingScreenshotMapper.selectObjs(new QueryWrapper<MeetingScreenshot>().select("path").eq("meeting_id", mid).eq("user_id", MyUtil.getUsers().getId()));
+        List<Object> objects = meetingScreenshotMapper.selectObjs(new QueryWrapper<MeetingScreenshot>().select("path_xq").eq("meeting_id_xq", mid).eq("user_id_xq", MyUtil.getUsers().getId()));
         return JsonResult.success(objects);
     }
 

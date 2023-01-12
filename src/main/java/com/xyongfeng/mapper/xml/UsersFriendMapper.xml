@@ -4,9 +4,9 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.xyongfeng.pojo.UsersFriend">
-        <id column="id" property="id" />
-        <result column="user_id1" property="userId1" />
-        <result column="user_id2" property="userId2" />
+        <id column="id_xq" property="id" />
+        <result column="user_id1_xq" property="userId1" />
+        <result column="user_id2_xq" property="userId2" />
     </resultMap>
 
 

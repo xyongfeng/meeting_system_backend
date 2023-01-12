@@ -29,33 +29,39 @@ import javax.validation.constraints.NotNull;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("t_chat_filter")
+@TableName("t_chat_filter_xq")
 @ApiModel(value = "ChatFilter对象", description = "")
 public class ChatFilter implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id_xq", type = IdType.AUTO)
     private Integer id;
 
     @ApiModelProperty(value = "过滤内容", required = true)
     @NotBlank(message = "过滤内容不能为空")
+    @TableField("filter_content_xq")
     private String filterContent;
 
+    @TableField("filter_rule_xq")
     @ApiModelProperty(value = "过滤规则 1 直接替换，2 正则表达式替换", required = true)
     @NotNull(message = "过滤规则不能为空")
     private Integer filterRule;
 
+    @TableField("replace_content_xq")
     @ApiModelProperty(value = "替换内容")
     private String replaceContent;
 
+    @TableField("appender_id_xq")
     @ApiModelProperty(value = "添加人的id")
     private Integer appenderId;
 
+    @TableField("append_time_xq")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @ApiModelProperty(value = "添加时间")
     private LocalDateTime appendTime;
 
+    @TableField("enable_xq")
     @ApiModelProperty(value = "是否启用")
     private Boolean enable;
 

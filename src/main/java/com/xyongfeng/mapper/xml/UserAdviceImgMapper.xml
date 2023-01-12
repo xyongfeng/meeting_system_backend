@@ -4,9 +4,9 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.xyongfeng.pojo.UserAdviceImg">
-        <id column="id" property="id" />
-        <result column="advice_id" property="adviceId" />
-        <result column="img_path" property="imgPath" />
+        <id column="id_xq" property="id" />
+        <result column="advice_id_xq" property="adviceId" />
+        <result column="img_path_xq" property="imgPath" />
     </resultMap>
 
 </mapper>

@@ -24,29 +24,34 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("t_meeting_application")
+@TableName("t_meeting_application_xq")
 @ApiModel(value="MeetingApplication对象", description="")
 public class MeetingApplication implements Serializable {
 
     private static final long serialVersionUID=1L;
 
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id_xq", type = IdType.AUTO)
     private Integer id;
 
+    @TableField("applicant_id_xq")
     @ApiModelProperty(value = "申请人id")
     private Integer applicantId;
 
+    @TableField("meeting_id_xq")
     @ApiModelProperty(value = "会议id")
     private String meetingId;
 
+    @TableField("state_xq")
     @ApiModelProperty(value = "0 未读 1 已读")
     private Integer state;
 
+    @TableField("send_time_xq")
     @ApiModelProperty(value = "发送时间")
     private LocalDateTime sendTime;
 
     @TableField(exist = false)
     private Meeting meeting;
+
     @TableField(exist = false)
     private Users users;
 }

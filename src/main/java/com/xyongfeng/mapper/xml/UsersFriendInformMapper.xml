@@ -4,42 +4,40 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.xyongfeng.pojo.UsersFriendInform">
-        <id column="id" property="id" />
-        <result column="type" property="type" />
-        <result column="from_id" property="fromId" />
-        <result column="to_id" property="toId" />
-        <result column="content" property="content" />
-        <result column="state" property="state" />
-        <result column="send_time" property="sendTime" />
+        <id column="id_xq" property="id" />
+        <result column="type_xq" property="type" />
+        <result column="from_id_xq" property="fromId" />
+        <result column="to_id_xq" property="toId" />
+        <result column="content_xq" property="content" />
+        <result column="state_xq" property="state" />
+        <result column="send_time_xq" property="sendTime" />
     </resultMap>
 
     <resultMap id="WithFromer" type="com.xyongfeng.pojo.UsersFriendInform" extends="BaseResultMap">
         <association property="fromer" javaType="com.xyongfeng.pojo.Users">
-            <id column="userId" property="id"/>
-            <result column="uName" property="name"/>
-            <result column="username" property="username"/>
-            <result column="telephone" property="telephone"/>
-            <result column="email" property="email"/>
-            <result column="headImage" property="headImage"/>
-            <result column="isAdmin" property="isAdmin"/>
+            <id column="userId_xq" property="id"/>
+            <result column="uName_xq" property="name"/>
+            <result column="telephone_xq" property="telephone"/>
+            <result column="email_xq" property="email"/>
+            <result column="headImage_xq" property="headImage"/>
         </association>
     </resultMap>
 
     <select id="selectPageWithFromerInfo" resultMap="WithFromer">
         SELECT
         ufi.*,
-        u.id as userId,
-        u.`name` as uName,
-        u.username,
-        u.telephone,
-        u.headImage,
-        u.email,
-        u.isAdmin
+        u.id_xq as userId,
+        u.`name_xq` as uName,
+        u.username_xq,
+        u.telephone_xq,
+        u.headImage_xq,
+        u.email_xq,
+        u.isAdmin_xq
         FROM
-        t_users u,
-        t_users_friend_inform ufi
+        t_users_xq u,
+        t_users_friend_inform_xq ufi
         where
-        ufi.from_id = u.id
+        ufi.from_id_xq = u.id_xq
         <if test="ew">
             and ${ew.sqlSegment}
         </if>
