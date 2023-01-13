@@ -12,7 +12,7 @@
         <result column="type_xq" property="type" />
         <result column="send_time_xq" property="sendTime" />
         <result column="update_time_xq" property="updateTime" />
-        <result column="inform_id_xq" property="informId" />
+        <result column="inform_id" property="informId" />
         <result column="hidden_xq" property="hidden" />
     </resultMap>
     <resultMap id="MeetingNoticeWithMeetUser" type="com.xyongfeng.pojo.MeetingNotice" extends="BaseResultMap">
