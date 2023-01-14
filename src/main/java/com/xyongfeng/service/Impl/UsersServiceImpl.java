@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.xyongfeng.exceptionHandler.exception.NormalException;
 import com.xyongfeng.service.ChatFilterService;
 import com.xyongfeng.socketer.SockerSender;
 import com.xyongfeng.mapper.*;
@@ -33,6 +34,7 @@ import sun.misc.BASE64Encoder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.nio.file.Paths;
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -419,11 +421,11 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
      * @param sendImgBase64
      * @return {code： xxx,message: xxx,userId: xxx}
      */
-    private JSONObject compareFace(String sendImgBase64) throws Exception {
+    private JSONObject compareFace(String sendImgBase64) throws NormalException {
         Users users = MyUtil.getUsers();
         assert users != null;
         if (users.getFaceImage() == null || "".equals(users.getFaceImage())) {
-            throw new Exception("签到需要你的面部照片，请先去个人中心进行上传");
+            throw new NormalException("签到需要你的面部照片，请先去个人中心进行上传");
         }
 
         // 这里直接用数据库保存的特征
@@ -445,7 +447,8 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         JSONObject jsonObject = null;
         try {
             jsonObject = compareFace(param.getImgBase64());
-        } catch (Exception e) {
+        }
+        catch (NormalException e) {
             return JsonResult.error(e.getMessage());
         }
         if (jsonObject.getInteger("code") != 200) {
