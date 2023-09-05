@@ -35,7 +35,7 @@ public class UsersUpdateWithOwnerParam {
 
 
     @ApiModelProperty(value = "手机号码")
-    @Pattern(regexp = "^[1][3,4,5,6,7,8,9][0-9]{9}$", message = "手机号格式有误")
+    @Pattern(regexp = "^$|^[1][3,4,5,6,7,8,9][0-9]{9}$", message = "手机号格式有误")
     private String telephone;
 
     @ApiModelProperty(value = "邮箱地址")

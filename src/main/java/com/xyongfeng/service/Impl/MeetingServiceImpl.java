@@ -736,7 +736,7 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
 
         for (Map<String, Object> map : list) {
             QueryWrapper<MeetingUsers> wrapper = new QueryWrapper<MeetingUsers>()
-                    .eq("meeting_id", mid).eq("users_id", map.get("userId"));
+                    .eq("meeting_id_xq", mid).eq("users_id_xq", map.get("userId"));
             // 修改前
             MeetingUsers meetingUsersBefore = meetingUsersMapper.selectOne(wrapper);
             // 修改后

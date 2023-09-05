@@ -22,8 +22,8 @@
     </resultMap>
     <select id="selectWithUserAndImg" resultMap="OneToOneResultMap">
         SELECT ua.*,
-               u.id_xq    as userId,
-               u.`name_xq` as uName,
+               u.id_xq    as userId_xq,
+               u.`name_xq` as uName_xq,
                u.telephone_xq,
                u.headImage_xq,
                u.email_xq
@@ -34,8 +34,8 @@
     </select>
     <select id="selectWithUserAndImgById" resultMap="OneToOneResultMap">
         SELECT ua.*,
-               u.id_xq     as userId,
-               u.`name_xq` as uName,
+               u.id_xq     as userId_xq,
+               u.`name_xq` as uName_xq,
                u.telephone_xq,
                u.headImage_xq,
                u.email_xq

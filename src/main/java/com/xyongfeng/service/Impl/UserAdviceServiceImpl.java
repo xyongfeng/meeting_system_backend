@@ -67,6 +67,10 @@ public class UserAdviceServiceImpl extends ServiceImpl<UserAdviceMapper, UserAdv
 
         for (MultipartFile file : files) {
             try {
+                // 判断文件大小是否为0，则表示该文件为占用空文件，不能上传
+                if(file.getSize() == 0){
+                    continue;
+                }
                 // 上传图片
                 String filename = FileUtil.uploadImg(file, imgPathPro.getAdviceImg());
 

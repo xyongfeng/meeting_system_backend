@@ -51,7 +51,6 @@ public class UserAdviceController {
     public JsonResult insert(@RequestParam String type, @RequestParam String title, @RequestParam String content, @RequestParam List<MultipartFile> files) {
         log.info("post:/userAdvice 添加意见。");
 
-
         return userAdviceService.insert(new UserAdvice().setType(type).setTitle(title).setContent(content),files);
     }
 

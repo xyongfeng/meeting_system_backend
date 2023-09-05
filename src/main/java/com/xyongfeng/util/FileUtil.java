@@ -5,13 +5,13 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
+
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -106,9 +106,9 @@ public class FileUtil {
             e.printStackTrace();
         }
         // 对字节数组Base64编码
-        BASE64Encoder encoder = new BASE64Encoder();
+        Base64.Encoder encoder = Base64.getEncoder();
         // 返回Base64编码过的字节数组字符串
-        return encoder.encode(data);
+        return new String(encoder.encode(data));
     }
 
     /**
@@ -117,21 +117,16 @@ public class FileUtil {
      * @return
      */
     public static String uploadImgWithBase64(String imgBase64, String savePath) {
-        BASE64Decoder decoder = new BASE64Decoder();
-        try {
-            // Base64解码
-            byte[] bytes = decoder.decodeBuffer(imgBase64);
-            // 调整异常数据
-            for (int i = 0; i < bytes.length; ++i) {
-                if (bytes[i] < 0) {
-                    bytes[i] += 256;
-                }
+        Base64.Decoder decoder = Base64.getDecoder();
+        // Base64解码
+        byte[] bytes = decoder.decode(imgBase64);
+        // 调整异常数据
+        for (int i = 0; i < bytes.length; ++i) {
+            if (bytes[i] < 0) {
+                bytes[i] += 256;
             }
-            String filename = UUID.randomUUID().toString().concat(".jpg");
-            return uploadFile(bytes, savePath, filename) ? filename : null;
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-        return null;
+        String filename = UUID.randomUUID().toString().concat(".jpg");
+        return uploadFile(bytes, savePath, filename) ? filename : null;
     }
 }

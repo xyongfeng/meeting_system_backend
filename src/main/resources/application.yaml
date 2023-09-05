@@ -1,15 +1,16 @@
+server:
+  port: 8080
 spring:
-  profiles:
-    active: '@environment@'  #注意YAML配置文件需要加单引号，否则会报错
   datasource:
     url: jdbc:mysql://localhost:3306/meeting
     username: root
-    password: 123456
+    password:
     driver-class-name: com.mysql.cj.jdbc.Driver
   mvc:
     format:
       date-time: yyyy-MM-dd HH:mm:ss
-
+    pathmatch:
+      matching-strategy: ant_path_matcher
   servlet:
     multipart:
       max-file-size: 5MB
@@ -18,6 +19,10 @@ spring:
 
 mybatis-plus:
   mapper-locations: classpath:com/xyongfeng/mapper/xml/*.xml
+  # 开启控制台输出语句
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
 # host在本地测试可以设置为localhost或者本机IP，在Linux服务器跑可换成服务器IP
 socketio:
   host: 127.0.0.1	#监听的ip
@@ -61,4 +66,6 @@ img:
 
 flask:
   headerUrl: http://127.0.0.1:5000/
+
+
 

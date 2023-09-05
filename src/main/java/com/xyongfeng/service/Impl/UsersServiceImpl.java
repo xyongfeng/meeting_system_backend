@@ -29,12 +29,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
+
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.net.SocketTimeoutException;
 import java.nio.file.Paths;
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -267,7 +265,6 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     }
 
 
-
     @Override
     public JsonResult register(UsersRegisterParam registerUsers, HttpServletRequest request, PasswordEncoder passwordEncoder) {
         if (!validCaptcha(request, registerUsers.getCode())) {
@@ -355,7 +352,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         // 设置请求参数map
         Map<String, Object> map = new HashMap<>();
         try {
-            BASE64Encoder encoder = new BASE64Encoder();
+            Base64.Encoder encoder = Base64.getEncoder();
             map.put("imgBase64", encoder.encode(param.getFile().getBytes()));
         } catch (IOException e) {
             e.printStackTrace();
@@ -439,16 +436,16 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         map.put("localFeature", localFeature);
         // 发送信息给tensorflow进行预测
         JSONObject jsonObject = postToFlask(map, "predict");
-        jsonObject.put("userId",users.getId());
+        jsonObject.put("userId", users.getId());
         return jsonObject;
     }
+
     @Override
     public JsonResult faceVerification(ImgBase64Param param) {
         JSONObject jsonObject = null;
         try {
             jsonObject = compareFace(param.getImgBase64());
-        }
-        catch (NormalException e) {
+        } catch (NormalException e) {
             return JsonResult.error(e.getMessage());
         }
         if (jsonObject.getInteger("code") != 200) {
