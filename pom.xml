@@ -16,28 +16,7 @@
     <properties>
         <java.version>11</java.version>
     </properties>
-<!--    <profiles>-->
-<!--&lt;!&ndash;         开发环境 &ndash;&gt;-->
-<!--        <profile>-->
-<!--            <id>dev</id>-->
-<!--            <activation>-->
-<!--                <activeByDefault>true</activeByDefault>-->
-<!--            </activation>-->
-<!--            <properties>-->
-<!--                <environment>dev</environment>-->
-<!--            </properties>-->
-<!--        </profile>-->
-<!--&lt;!&ndash;         生产环境 &ndash;&gt;-->
-<!--        <profile>-->
-<!--            <id>prod</id>-->
-<!--            <activation>-->
-<!--                <activeByDefault>false</activeByDefault>-->
-<!--            </activation>-->
-<!--            <properties>-->
-<!--                <environment>prod</environment>-->
-<!--            </properties>-->
-<!--        </profile>-->
-<!--    </profiles>-->
+
     <dependencies>
         <!--    核心    -->
         <dependency>
@@ -156,29 +135,6 @@
 
     <build>
         <resources>
-<!--            &lt;!&ndash;排除配置文件&ndash;&gt;-->
-<!--            <resource>-->
-<!--                <directory>src/main/resources</directory>-->
-<!--                &lt;!&ndash;先排除所有的配置文件&ndash;&gt;-->
-<!--                <excludes>-->
-<!--                    &lt;!&ndash;使用通配符，当然可以定义多个exclude标签进行排除&ndash;&gt;-->
-<!--                    <exclude>application*.yaml</exclude>-->
-<!--                </excludes>-->
-<!--            </resource>-->
-
-<!--&lt;!&ndash;            根据激活条件引入打包所需的配置和文件&ndash;&gt;-->
-<!--            <resource>-->
-<!--                <directory>src/main/resources</directory>-->
-<!--                &lt;!&ndash;引入所需环境的配置文件&ndash;&gt;-->
-<!--                <filtering>true</filtering>-->
-<!--                <includes>-->
-<!--                    <include>application.yaml</include>-->
-<!--                    &lt;!&ndash;根据maven选择环境导入配置文件&ndash;&gt;-->
-<!--&lt;!&ndash;                    <include>application-dev.yaml</include>&ndash;&gt;-->
-<!--                </includes>-->
-<!--            </resource>-->
-
-
             <!--  将mapper.xml打包   -->
             <resource>
                 <directory>src/main/java</directory>
