@@ -29,3 +29,7 @@ http://localhost:8080/doc.html
 ### 配置文件
 
 **application.yaml**	设置静态文件位置、AI端flask请求地址等
+
+### 数据库文件
+
+sql/meeting.sql   
