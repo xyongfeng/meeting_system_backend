@@ -135,6 +135,25 @@
 
     <build>
         <resources>
+            <!--  加载资源   -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.*</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.*</include>
+                </includes>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+                <filtering>false</filtering>
+            </resource>
+
             <!--  将mapper.xml打包   -->
             <resource>
                 <directory>src/main/java</directory>
