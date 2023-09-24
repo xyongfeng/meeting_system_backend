@@ -23,9 +23,9 @@ mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
-# host在本地测试可以设置为localhost或者本机IP，在Linux服务器跑可换成服务器IP
+# host表示允许接收请求的客户端IP,"0.0.0.0" 表示该服务端将接受来自任何网络接口的连接。
 socketio:
-  host: 127.0.0.1	#监听的ip
+  host: 0.0.0.0	#监听的ip
   port: 9092		#监听端口
   # 设置最大每帧处理数据的长度，防止他人利用大数据来攻击服务器
   maxFramePayloadLength: 1048576
