@@ -26,7 +26,7 @@ mybatis-plus:
 # host在本地测试可以设置为localhost或者本机IP，在Linux服务器跑可换成服务器IP
 socketio:
   host: 127.0.0.1	#监听的ip
-  port: 10246		#监听端口
+  port: 9092		#监听端口
   # 设置最大每帧处理数据的长度，防止他人利用大数据来攻击服务器
   maxFramePayloadLength: 1048576
   # 设置http交互最大内容长度
