@@ -1,8 +1,13 @@
 package com.xyongfeng.util;
 
-import com.xyongfeng.pojo.JsonResult;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
+import com.xyongfeng.MeetingApplication;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.system.ApplicationHome;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,20 +20,37 @@ import java.util.Base64;
 import java.util.Objects;
 import java.util.UUID;
 
+@Slf4j
+@Component
 public class FileUtil {
 
-    public static Path getStaticResPathUrl() {
+
+    @Autowired
+    private Environment environment;
+
+    public Path getStaticResPathUrl() {
         try {
+            // 获取classpath
             String classpath = ResourceUtils.getURL("classpath:").getPath().substring(1);
+            // 获取运行环境
+            String[] activeProfiles = environment.getActiveProfiles();
+            // 如果运行环境是prod，则代表是jar运行方式，则classpath为jar运行的根目录
+            if (activeProfiles.length > 0 && "prod".equals(activeProfiles[0])) {
+                ApplicationHome home = new ApplicationHome(MeetingApplication.class);
+
+                classpath = home.getSource().getParentFile().toString();
+            }
+//            String path = System.getProperty("user.dir")+"/static/images/upload/";
+            log.info(String.format("classpath: %s", classpath));
             return Paths.get(classpath).resolve("static");
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
 
-    public static boolean uploadFile(MultipartFile file, String subPath, String fileName) {
+    public boolean uploadFile(MultipartFile file, String subPath, String fileName) {
         try {
             Path path = Objects.requireNonNull(getStaticResPathUrl()).resolve(subPath);
             // 创建文件夹
@@ -43,7 +65,7 @@ public class FileUtil {
     }
 
 
-    public static boolean uploadFile(byte[] bytes, String subPath, String fileName) {
+    public boolean uploadFile(byte[] bytes, String subPath, String fileName) {
         try {
             Path path = Objects.requireNonNull(getStaticResPathUrl()).resolve(subPath);
             // 创建文件夹
@@ -60,7 +82,7 @@ public class FileUtil {
         return true;
     }
 
-    public static String uploadImg(MultipartFile file, String subPath) throws Exception {
+    public String uploadImg(MultipartFile file, String subPath) throws Exception {
         try {
             if (file.getBytes().length / 1024 / 1024 > 5) {
                 throw new Exception("文件大小不能超过5M");
@@ -90,7 +112,7 @@ public class FileUtil {
      * @param subpath
      * @return
      */
-    public static String getImgWithBase64(String subpath) {
+    public String getImgWithBase64(String subpath) {
         InputStream in = null;
         byte[] data = null;
         // 读取图片字节数组
@@ -116,7 +138,7 @@ public class FileUtil {
      *
      * @return
      */
-    public static String uploadImgWithBase64(String imgBase64, String savePath) {
+    public String uploadImgWithBase64(String imgBase64, String savePath) {
         Base64.Decoder decoder = Base64.getDecoder();
         // Base64解码
         byte[] bytes = decoder.decode(imgBase64);

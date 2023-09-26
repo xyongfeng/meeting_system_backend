@@ -40,6 +40,8 @@ public class MeetingChatServiceImpl extends ServiceImpl<MeetingChatMapper, Meeti
     private MeetingChatMapper meetingChatMapper;
     @Autowired
     private UsersFriendInformService usersFriendInformService;
+    @Autowired
+    private FileUtil fileUtil;
 
     @Override
     public void insert(String meetingId, Integer userId, String msg) {
@@ -51,7 +53,7 @@ public class MeetingChatServiceImpl extends ServiceImpl<MeetingChatMapper, Meeti
     public JsonResult selectChatJieba() {
 
         // 获取停用词文件
-        Path stopwordPath = Objects.requireNonNull(FileUtil.getStaticResPathUrl()).resolve("stopwords.txt");
+        Path stopwordPath = Objects.requireNonNull(fileUtil.getStaticResPathUrl()).resolve("stopwords.txt");
         List<String> stopwords = null;
         try {
             // 获取每一行
@@ -103,7 +105,7 @@ public class MeetingChatServiceImpl extends ServiceImpl<MeetingChatMapper, Meeti
 
     @Override
     public JsonResult selectStopword() {
-        Path stopwordPath = Objects.requireNonNull(FileUtil.getStaticResPathUrl()).resolve("stopwords.txt");
+        Path stopwordPath = Objects.requireNonNull(fileUtil.getStaticResPathUrl()).resolve("stopwords.txt");
         List<String> strings = null;
         try {
             strings = Files.readAllLines(stopwordPath);
@@ -116,7 +118,7 @@ public class MeetingChatServiceImpl extends ServiceImpl<MeetingChatMapper, Meeti
 
     @Override
     public JsonResult updateStopword(List<String> words) {
-        Path stopwordPath = Objects.requireNonNull(FileUtil.getStaticResPathUrl()).resolve("stopwords.txt");
+        Path stopwordPath = Objects.requireNonNull(fileUtil.getStaticResPathUrl()).resolve("stopwords.txt");
 
         byte[] bytes = String.join("\n", words).getBytes();
         try {

@@ -29,7 +29,8 @@ public class MeetingScreenshotServiceImpl extends ServiceImpl<MeetingScreenshotM
     private MeetingScreenshotMapper meetingScreenshotMapper;
     @Autowired
     private ImgPathPro imgPathPro;
-
+    @Autowired
+    private FileUtil fileUtil;
 
     private int insert(String mid, Integer uid, String filename) {
         return meetingScreenshotMapper.insert(new MeetingScreenshot().setUserId(uid).setMeetingId(mid).setPath(imgPathPro.getScreenshot().concat("/").concat(filename)));
@@ -37,7 +38,7 @@ public class MeetingScreenshotServiceImpl extends ServiceImpl<MeetingScreenshotM
 
     @Override
     public JsonResult setScreenshotWithBase64(String mid, ImgBase64Param param) {
-        String filename = FileUtil.uploadImgWithBase64(param.getImgBase64(), imgPathPro.getScreenshot());
+        String filename = fileUtil.uploadImgWithBase64(param.getImgBase64(), imgPathPro.getScreenshot());
         if (filename != null) {
             int insert = insert(mid, MyUtil.getUsers().getId(), filename);
             if (insert > 0) {

@@ -67,6 +67,8 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     private UsersFaceFeatureMapper usersFaceFeatureMapper;
     @Autowired
     private ChatFilterService chatFilterService;
+    @Autowired
+    private FileUtil fileUtil;
 
     @Value("${flask.headerUrl}")
     private String headerUrl;
@@ -77,6 +79,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     @Override
     public JsonResult select(Integer current, Integer size) {
         IPage<Users> list = listPage(new PageParam(current, size));
+
         return JsonResult.success(list);
     }
 
@@ -308,11 +311,11 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         return JsonResult.error("修改失败");
     }
 
-    private static JsonResult uploadImg(MultipartFile file, String subPath) {
+    private JsonResult uploadImg(MultipartFile file, String subPath) {
 
         try {
             // 成功就返回图片相对路径
-            String filename = FileUtil.uploadImg(file, subPath);
+            String filename = fileUtil.uploadImg(file, subPath);
             if (filename != null) {
                 return JsonResult.success("上传成功", Paths.get(subPath).resolve(filename).toString());
             }
@@ -386,7 +389,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     public JsonResult setFaceImgWithBase64(ImgBase64Param param) {
         param.setUserId(MyUtil.getUsers().getId());
 
-        String filename = FileUtil.uploadImgWithBase64(param.getImgBase64(), imgPathPro.getFace());
+        String filename = fileUtil.uploadImgWithBase64(param.getImgBase64(), imgPathPro.getFace());
         if (filename != null) {
             // 向flask发送base64,flask将此面部的特征信息保存，为人脸识别登录做准备
             // 设置请求参数map

@@ -3,7 +3,9 @@ package com.xyongfeng.aop;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xyongfeng.pojo.JsonResult;
+import com.xyongfeng.pojo.Param.UsersSetImgParam;
 import com.xyongfeng.service.AdminLogService;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -29,6 +31,7 @@ import java.lang.reflect.Method;
 
 @Aspect
 @Component
+@Slf4j
 public class OperationLogAspect {
 
     /**
@@ -62,7 +65,7 @@ public class OperationLogAspect {
             //获取参数值
             Object[] parameterArgs = joinPoint.getArgs();
             //获取参数值类型
-            // Class<?>[] parameterTypes = method.getParameterTypes();
+//            Class<?>[] parameterTypes = method.getParameterTypes();
             //获取参数名
             String[] parameterNames = new DefaultParameterNameDiscoverer().getParameterNames(method);
 
@@ -70,14 +73,15 @@ public class OperationLogAspect {
             //建立上下文字典，储存参数信息
             StandardEvaluationContext context = new StandardEvaluationContext();
             for (int i = 0; i < parameterArgs.length; i++) {
-                if (parameterNames[i] != null){
+                if (parameterNames[i] != null) {
                     // JSONObject.toJSONString  可以将对象转换为json字符串
-                    context.setVariable(parameterNames[i], JSONObject.toJSONString(parameterArgs[i]));
+                    try {
+                        context.setVariable(parameterNames[i], JSONObject.toJSONString(parameterArgs[i]));
+                    } catch (Exception e) {
+                        log.warn(String.format("%s(): %s 参数转换json失败", method.getName(), parameterNames[i]));
+                    }
                 }
-
             }
-
-
             // 使用SpEL表达式替换文本
             SpelExpressionParser parser = new SpelExpressionParser();
             // 替换url

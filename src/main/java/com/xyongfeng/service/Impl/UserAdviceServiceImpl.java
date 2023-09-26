@@ -40,6 +40,9 @@ public class UserAdviceServiceImpl extends ServiceImpl<UserAdviceMapper, UserAdv
     @Autowired
     private ImgPathPro imgPathPro;
 
+    @Autowired
+    private FileUtil fileUtil;
+
     private List<String> getAdviceImgs(UserAdvice userAdvice) {
         List<Object> objects = userAdviceImgMapper.selectObjs(new QueryWrapper<UserAdviceImg>()
                 .eq("advice_id_xq", userAdvice.getId()).select("img_path_xq"));
@@ -72,7 +75,7 @@ public class UserAdviceServiceImpl extends ServiceImpl<UserAdviceMapper, UserAdv
                     continue;
                 }
                 // 上传图片
-                String filename = FileUtil.uploadImg(file, imgPathPro.getAdviceImg());
+                String filename = fileUtil.uploadImg(file, imgPathPro.getAdviceImg());
 
                 assert filename != null;
                 String filePath = Paths.get(imgPathPro.getAdviceImg()).resolve(filename).toString();
