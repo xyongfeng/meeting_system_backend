@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.xyongfeng.pojo.*;
 import com.xyongfeng.pojo.Param.*;
 import com.xyongfeng.util.JwtTokenUtil;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -20,6 +21,7 @@ public interface UsersService extends IService<Users> {
 
     /**
      * 登录
+     *
      * @param users
      * @param request
      * @param jwtTokenUtil
@@ -33,25 +35,19 @@ public interface UsersService extends IService<Users> {
 
     /**
      * 获取当前登录的用户信息
+     *
      * @param principal
      * @return
      */
-    JsonResult getAdminInfo(Principal principal);
+    JsonResult getAdminInfo(Principal principal, HttpServletRequest servletRequest);
 
     JsonResult select(Integer current, Integer size);
 
-    JsonResult add(UsersAddParam users,PasswordEncoder passwordEncoder);
+    JsonResult add(UsersAddParam users, PasswordEncoder passwordEncoder);
 
-    JsonResult update(UsersUpdateParam users,Integer uid);
+    JsonResult update(UsersUpdateParam users, Integer uid, PasswordEncoder passwordEncoder);
 
-    JsonResult delete( Integer uid);
-    /**
-     * 通过username获取users
-     *
-     * @param username
-     * @return
-     */
-    Users getUserByUserName(String username);
+    JsonResult delete(Integer uid);
 
     /**
      * 设置管理员
@@ -63,6 +59,7 @@ public interface UsersService extends IService<Users> {
 
     /**
      * 设置头像
+     *
      * @param param
      * @return
      */
@@ -70,13 +67,16 @@ public interface UsersService extends IService<Users> {
 
     /**
      * 设置面部照片
+     *
      * @param param
      * @return
      */
     JsonResult setFaceImg(UsersSetImgParam param);
 
+
     /**
      * 会议签到
+     *
      * @param param
      * @param meetingId
      * @return
@@ -85,6 +85,7 @@ public interface UsersService extends IService<Users> {
 
     /**
      * 是否已经签到
+     *
      * @param meetingId
      * @return
      */
@@ -92,6 +93,7 @@ public interface UsersService extends IService<Users> {
 
     /**
      * 通过姓名获取该用户的信息
+     *
      * @param userName
      * @return
      */
@@ -99,6 +101,7 @@ public interface UsersService extends IService<Users> {
 
     /**
      * 发送好友申请
+     *
      * @param userid
      * @return
      */
@@ -106,6 +109,7 @@ public interface UsersService extends IService<Users> {
 
     /**
      * 回应好友申请
+     *
      * @param userid
      * @param result 0 忽略 1 同意
      * @return
@@ -114,12 +118,14 @@ public interface UsersService extends IService<Users> {
 
     /**
      * 查看好友申请列表(未读)
+     *
      * @return
      */
-    JsonResult getFriApplications(Integer current,Integer size);
+    JsonResult getFriApplications(Integer current, Integer size);
 
     /**
      * 根据userid删除好友
+     *
      * @param userid
      * @return
      */
@@ -127,12 +133,14 @@ public interface UsersService extends IService<Users> {
 
     /**
      * 查看好友列表
+     *
      * @return
      */
-    JsonResult getFriendsAndChat(Integer current,Integer size);
+    JsonResult getFriendsAndChat(Integer current, Integer size);
 
     /**
      * 查看与好友聊天记录
+     *
      * @param userid
      * @return
      */
@@ -140,6 +148,7 @@ public interface UsersService extends IService<Users> {
 
     /**
      * 向好友发送消息
+     *
      * @param userid
      * @param conetent
      * @return
@@ -148,6 +157,7 @@ public interface UsersService extends IService<Users> {
 
     /**
      * 通过uid获取该用户的信息
+     *
      * @param uid
      * @return
      */
@@ -158,10 +168,11 @@ public interface UsersService extends IService<Users> {
 
     JsonResult updateOwnerInfo(UsersUpdateWithOwnerParam users);
 
-    JsonResult updateOwnerPass(UsersUpdatePassParam users,PasswordEncoder passwordEncoder,HttpServletRequest request);
+    JsonResult updateOwnerPass(UsersUpdatePassParam users, PasswordEncoder passwordEncoder, HttpServletRequest request);
 
     /**
      * 接收base64,设置用户面部照片
+     *
      * @param param
      * @return
      */
@@ -169,6 +180,7 @@ public interface UsersService extends IService<Users> {
 
     /**
      * 接收base64,人脸识别登录
+     *
      * @param param
      * @return
      */
@@ -176,8 +188,23 @@ public interface UsersService extends IService<Users> {
 
     /**
      * 接收base64,人脸识别验证
+     *
      * @param param
      * @return
      */
     JsonResult faceVerification(ImgBase64Param param);
+
+
+    /**
+     * 根据用户名获取用户信息，用于jwt验证
+     * @param username
+     * @return
+     */
+    UserDetails getUserByUserName(String username);
+
+    /**
+     * 退出登录
+     * @return
+     */
+    JsonResult logout();
 }

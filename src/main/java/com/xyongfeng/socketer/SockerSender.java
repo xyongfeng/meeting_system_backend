@@ -25,6 +25,9 @@ public class SockerSender {
     @Autowired
     private MeetingChatService meetingChatService;
 
+    @Autowired
+    private SocketMapDao socketMapDao;
+
     /**
      * 发送执行指令给会议某用户执行
      *
@@ -94,14 +97,18 @@ public class SockerSender {
      */
     public void sendMessage(String event, JSONObject data) {
         Integer toId = data.getInteger("toId");
+        SocketUser socketUser = socketMapDao.getSocketUserByUserId(toId);
 
-        for (SocketUser socketUser : SocketState.CONNECT_USERS_MAP.values()) {
-            if (socketUser.users.getId().equals(toId)) {
-                log.info(String.format("socket:事件: %s,sessionId:%s,对象：%s，data：%s", event, socketUser.client.getSessionId(), socketUser.users, data));
-                socketUser.client.sendEvent(event, data);
+        log.info(String.format("socket:事件: %s,sessionId:%s,对象：%s，data：%s", event, socketUser.client.getSessionId(), socketUser.users, data));
+        socketUser.client.sendEvent(event, data);
 
-            }
-        }
+//        for (SocketUser socketUser : SocketState.CONNECT_USERS_MAP.values()) {
+//            if (socketUser.users.getId().equals(toId)) {
+//                log.info(String.format("socket:事件: %s,sessionId:%s,对象：%s，data：%s", event, socketUser.client.getSessionId(), socketUser.users, data));
+//                socketUser.client.sendEvent(event, data);
+//
+//            }
+//        }
     }
 
     /**
@@ -129,8 +136,8 @@ public class SockerSender {
         data.put("user", users);
         String msg = chatFilterService.filter(data.getString("msg"));
         data.put("msg", msg);
-        if(users.getId() > 0){
-            meetingChatService.insert(meetingId,users.getId(),msg);
+        if (users.getId() > 0) {
+            meetingChatService.insert(meetingId, users.getId(), msg);
         }
         socketIoServer.getRoomOperations(meetingId).sendEvent("meetchat", data);
     }
@@ -142,7 +149,9 @@ public class SockerSender {
      * @return
      */
     public Integer getUserIdBySess(UUID sessionId) {
-        return SocketState.CONNECT_USERS_MAP.get(sessionId).users.getId();
+
+//        return SocketState.CONNECT_USERS_MAP.get(sessionId).users.getId();
+        return socketMapDao.getSocketUserByUUID(sessionId).users.getId();
     }
 
     /**
@@ -154,7 +163,10 @@ public class SockerSender {
     public List<Users> getUserListByMid(String meetingId) {
         List<Users> usersList = new ArrayList<>();
         // 把房间里的用户通过sessionid找到信息，并加入users列表
-        socketIoServer.getRoomOperations(meetingId).getClients().forEach(x -> usersList.add(SocketState.CONNECT_USERS_MAP.get(x.getSessionId()).users));
+//        socketIoServer.getRoomOperations(meetingId).getClients().forEach(x -> usersList.add(
+//                SocketState.CONNECT_USERS_MAP.get(x.getSessionId()).users));
+        socketIoServer.getRoomOperations(meetingId).getClients().forEach(x -> usersList.add(
+                socketMapDao.getSocketUserByUUID(x.getSessionId()).users));
         return usersList;
     }
 
@@ -209,7 +221,7 @@ public class SockerSender {
     public void sendMeetById(Integer userId, String meetingId, String event, Object data) {
         Collection<SocketIOClient> clients = socketIoServer.getRoomOperations(meetingId).getClients();
         for (SocketIOClient c : clients) {
-            if (SocketState.CONNECT_USERS_MAP.get(c.getSessionId()).users.getId().equals(userId)) {
+            if (socketMapDao.getSocketUserByUUID(c.getSessionId()).users.getId().equals(userId)) {
                 c.sendEvent(event, data);
                 return;
             }
@@ -227,7 +239,7 @@ public class SockerSender {
     public void sendMeetWithoutId(Integer userId, String meetingId, String event, Object data) {
         Collection<SocketIOClient> clients = socketIoServer.getRoomOperations(meetingId).getClients();
         for (SocketIOClient c : clients) {
-            if (!SocketState.CONNECT_USERS_MAP.get(c.getSessionId()).users.getId().equals(userId)) {
+            if (!socketMapDao.getSocketUserByUUID(c.getSessionId()).users.getId().equals(userId)) {
                 c.sendEvent(event, data);
 
             }

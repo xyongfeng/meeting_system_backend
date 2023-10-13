@@ -7,6 +7,9 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * 连接flask的config
+ */
 @Configuration
 public class RestTemplateConfig {
 

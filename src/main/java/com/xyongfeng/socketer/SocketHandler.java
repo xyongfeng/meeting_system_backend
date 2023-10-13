@@ -11,6 +11,7 @@ import com.corundumstudio.socketio.annotation.OnEvent;
 import com.xyongfeng.mapper.MeetingUsersMapper;
 import com.xyongfeng.pojo.MeetingUsers;
 import com.xyongfeng.pojo.Users;
+import com.xyongfeng.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,6 +29,11 @@ public class SocketHandler {
     private MeetingUsersMapper meetingUsersMapper;
     @Autowired
     private SocketIOServer socketIoServer;
+    @Autowired
+    private SocketMapDao socketMapDao;
+
+    @Autowired
+    private RedisUtil redisUtil;
 
 
     /**
@@ -54,8 +60,9 @@ public class SocketHandler {
     @OnDisconnect
     public void onDisconnectEvent(SocketIOClient client) {
 
-        SocketUser socketUser = SocketState.CONNECT_USERS_MAP.get(client.getSessionId());
-        if(socketUser == null){
+//        SocketUser socketUser = SocketState.CONNECT_USERS_MAP.get(client.getSessionId());
+        SocketUser socketUser = socketMapDao.getSocketUserByUUID(client.getSessionId());
+        if (socketUser == null) {
             return;
         }
         // 更新房间的人数
@@ -63,16 +70,17 @@ public class SocketHandler {
         // 每个房间取消投屏，开麦
         socketUser.meetings.forEach(
                 mid -> meetingUsersMapper.update(new MeetingUsers().setSpeeching(false).setUping(false),
-                new QueryWrapper<MeetingUsers>()
-                        .eq("meeting_id_xq", mid)
-                        .eq("users_id_xq", users.getId()))
-                );
+                        new QueryWrapper<MeetingUsers>()
+                                .eq("meeting_id_xq", mid)
+                                .eq("users_id_xq", users.getId()))
+        );
 
         // 对进入的每个房间，告诉其他人，他走了
         socketUser.meetings.forEach(mid -> sockerSender.sendMeetWithout(client, mid, "left_user", users.getId()));
         // 连接信息删除
-        SocketState.CONNECT_USERS_MAP.remove(client.getSessionId());
-        log.info(String.format("断开连接：%s", client.getSessionId()) + " " + SocketState.CONNECT_USERS_MAP.size());
+//        SocketState.CONNECT_USERS_MAP.remove(client.getSessionId());
+        socketMapDao.deleteSocketByUUID(client.getSessionId());
+        log.info(String.format("断开连接：%s", client.getSessionId()).concat(" ").concat(String.valueOf(socketMapDao.getSize())));
     }
 
     /**
@@ -83,27 +91,35 @@ public class SocketHandler {
      */
     @OnEvent("info")
     public void onInfoEvent(SocketIOClient client, Users users) {
-        SocketState.CONNECT_USERS_MAP.remove(client.getSessionId());
+
+//        redisUtil.putUserOnline(users.getId(),);
+
         // 加入连接用户列表
-        SocketState.CONNECT_USERS_MAP.put(client.getSessionId(), new SocketUser(client, users, new ArrayList<>()));
+        SocketUser socketUser = new SocketUser(client, users, new ArrayList<>());
+        socketMapDao.putSocketUser(client.getSessionId(), users.getId(), socketUser);
+
         // 加入用户公共房间
         client.joinRoom(CONNECTROOMID);
 
-        log.info("info：" + users);
+
+        log.info(String.format("info：%s", users));
     }
 
 
     /**
      * 房间消息
+     *
      * @param client
      * @param data
      */
     @OnEvent("meetchat")
     public void onMeetchatEvent(SocketIOClient client, JSONObject data) {
         String meetingId = data.getString("meetingId");
-        Users users = SocketState.CONNECT_USERS_MAP.get(client.getSessionId()).users;
+//        Users users = SocketState.CONNECT_USERS_MAP.get(client.getSessionId()).users;
+        Users users = socketMapDao.getSocketUserByUUID(client.getSessionId()).users;
+
         sockerSender.sendMeetchat(meetingId, users, data);
-        log.info("meetchat：" + data);
+        log.info(String.format("meetchat：%s", data));
     }
 
     /**
@@ -120,8 +136,11 @@ public class SocketHandler {
             sockerSender.sendUserListByid(meetingId, sockerSender.getUserIdBySess(client.getSessionId()));
             return;
         }
+
         // 新加入的用户信息
-        Users joinedUser = SocketState.CONNECT_USERS_MAP.get(client.getSessionId()).users;
+//        Users joinedUser = SocketState.CONNECT_USERS_MAP.get(client.getSessionId()).users;
+        SocketUser socketUser = socketMapDao.getSocketUserByUUID(client.getSessionId());
+        Users joinedUser = socketUser.users;
         // 告诉客户端已经加入可以进行sdp交换了
         JSONObject res = new JSONObject();
         res.put("type", "joined");
@@ -131,7 +150,11 @@ public class SocketHandler {
         socketIoServer.getRoomOperations(meetingId).sendEvent("joined_user", joinedUser);
         sockerSender.sendMeetchatBySys(meetingId, joinedUser.getName().concat("加入房间"));
         // 记录此人加入的房间
-        SocketState.CONNECT_USERS_MAP.get(client.getSessionId()).meetings.add(meetingId);
+        // SocketState.CONNECT_USERS_MAP.get(client.getSessionId()).meetings.add(meetingId);
+
+        socketUser.getMeetings().add(meetingId);
+        socketMapDao.putSocketUser(socketUser.getClient().getSessionId(), socketUser.getUsers().getId(), socketUser);
+
         client.joinRoom(meetingId);
         sockerSender.sendUserListByid(meetingId, joinedUser.getId());
         log.info(String.format("%s 加入房间 %d", joinedUser.getName(), socketIoServer.getRoomOperations(meetingId).getClients().size()));
@@ -143,7 +166,9 @@ public class SocketHandler {
         String meetingId = data.getString("meetingId");
         client.leaveRoom(meetingId);
         sockerSender.sendMeetWithout(client, meetingId, "left_user", sockerSender.getUserIdBySess(client.getSessionId()));
-        log.info(String.format("%s 离开房间 %d", SocketState.CONNECT_USERS_MAP.get(client.getSessionId()).users.getName(), socketIoServer.getRoomOperations(meetingId).getClients().size()));
+//        String name = SocketState.CONNECT_USERS_MAP.get(client.getSessionId()).users.getName();
+        String name = socketMapDao.getSocketUserByUUID(client.getSessionId()).users.getName();
+        log.info(String.format("%s 离开房间 %d", name, socketIoServer.getRoomOperations(meetingId).getClients().size()));
     }
 
     /**
@@ -180,14 +205,14 @@ public class SocketHandler {
         MeetingUsers meetingUsers = meetingUsersMapper.selectOne(new QueryWrapper<MeetingUsers>()
                 .eq("meeting_id_xq", meetingId)
                 .eq("users_id_xq", userId));
-        if(meetingUsers == null){
+        if (meetingUsers == null) {
             return;
         }
         Integer existMinute = meetingUsers.getExistMinute();
         meetingUsersMapper.update(meetingUsers.setExistMinute(existMinute + 1)
                 , new QueryWrapper<MeetingUsers>()
-                .eq("meeting_id_xq", meetingId)
-                .eq("users_id_xq", userId));
+                        .eq("meeting_id_xq", meetingId)
+                        .eq("users_id_xq", userId));
     }
 
 }

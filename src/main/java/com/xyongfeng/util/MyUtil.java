@@ -11,6 +11,7 @@ public class MyUtil {
 
     public static Users getUsers() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         if (authentication == null) {
             return null;
         }

@@ -44,7 +44,7 @@ public class UsersController {
     }
 
     @ApiOperation("接收base64,人脸识别登录")
-    @PostMapping("/loginWithFace")
+//    @PostMapping("/loginWithFace")
     public JsonResult loginWithFace(@RequestBody @Validated ImgBase64Param param) {
         log.info("post:/loginWithFace 接收base64,人脸识别登录。");
         return usersService.loginWithFace(param, jwtTokenUtil, userDetailsService);
@@ -58,7 +58,7 @@ public class UsersController {
     }
 
     @ApiOperation("注册")
-    @PostMapping("/register")
+//    @PostMapping("/register")
     public JsonResult register(@RequestBody @Validated UsersRegisterParam users, HttpServletRequest request
     ) {
         log.info(String.format("post:/users/register，进行注册,%s", users));
@@ -67,8 +67,9 @@ public class UsersController {
 
     @ApiOperation(value = "获取当前登录的用户信息")
     @GetMapping("/info")
-    public JsonResult getAdminInfo(Principal principal) {
-        return usersService.getAdminInfo(principal);
+    public JsonResult getAdminInfo(Principal principal, HttpServletRequest servletRequest) {
+
+        return usersService.getAdminInfo(principal, servletRequest);
     }
 
     @ApiOperation(value = "修改本人基本信息")
@@ -121,7 +122,9 @@ public class UsersController {
     @ApiOperation(value = "退出登录")
     @PostMapping("/logout")
     public JsonResult logout() {
-        return JsonResult.success("退出成功");
+
+
+        return usersService.logout();
     }
 
     @ApiOperation(value = "签到")
@@ -129,7 +132,6 @@ public class UsersController {
     public JsonResult signIn(@RequestBody @Validated ImgBase64Param param, @PathVariable String mid) {
         return usersService.signIn(param, mid);
     }
-
 
 
     @ApiOperation(value = "检查是否签到")

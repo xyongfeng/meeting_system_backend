@@ -1,5 +1,6 @@
 package com.xyongfeng.exceptionHandler;
 
+import com.xyongfeng.exceptionHandler.exception.NormalException;
 import com.xyongfeng.pojo.JsonResult;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import java.util.List;
 
 /**
  * 全局错误抓取
+ *
  * @author xyongfeng
  */
 @RestControllerAdvice
@@ -26,6 +28,7 @@ public class GlobalExceptionHandler {
 
     /**
      * 抓取字段错误
+     *
      * @param e
      * @return
      */
@@ -43,21 +46,30 @@ public class GlobalExceptionHandler {
 //    }
 
     @ExceptionHandler(DateTimeParseException.class)
-    public JsonResult dateTimeParseException(DateTimeParseException e){
+    public JsonResult dateTimeParseException(DateTimeParseException e) {
 
-        return JsonResult.error(String.format("%s: 时间格式错误 格式为:yyyy-MM-dd HH:mm:ss",e.getParsedString()));
+        return JsonResult.error(String.format("%s: 时间格式错误 格式为:yyyy-MM-dd HH:mm:ss", e.getParsedString()));
     }
+
     @ExceptionHandler(SocketTimeoutException.class)
-    public JsonResult socketTimeoutException(SocketTimeoutException e){
+    public JsonResult socketTimeoutException(SocketTimeoutException e) {
         return JsonResult.error("请求超时，请稍后再试");
     }
+
     @ExceptionHandler(ConnectException.class)
-    public JsonResult connectException(ConnectException e){
+    public JsonResult connectException(ConnectException e) {
         return JsonResult.error("人脸识别服务未启动，请通知管理员");
     }
+
     @ExceptionHandler(FileSizeLimitExceededException.class)
-    public JsonResult fileSizeLimitExceededException(FileSizeLimitExceededException e){
+    public JsonResult fileSizeLimitExceededException(FileSizeLimitExceededException e) {
         return JsonResult.error("文件上传失败");
     }
+
+    @ExceptionHandler(NormalException.class)
+    public JsonResult normalException(NormalException e) {
+        return JsonResult.error(e.getCode(),e.getMessage());
+    }
+
 
 }

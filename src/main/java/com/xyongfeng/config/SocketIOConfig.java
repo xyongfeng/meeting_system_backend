@@ -3,8 +3,6 @@ package com.xyongfeng.config;
 import com.corundumstudio.socketio.SocketConfig;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.SpringAnnotationScanner;
-import com.xyongfeng.pojo.config.SocketIOPro;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,9 +40,6 @@ class SocketIOConfig {
      */
     @Bean
     public SocketIOServer socketIoServer() {
-//        com.corundumstudio.socketio.Configuration config = new com.corundumstudio.socketio.Configuration();
-//        config.setHostname("localhost");
-//        config.setPort(9092);
 
         SocketConfig socketConfig = new SocketConfig();
         socketConfig.setTcpNoDelay(true);

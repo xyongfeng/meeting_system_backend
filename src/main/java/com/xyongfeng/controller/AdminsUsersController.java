@@ -64,7 +64,7 @@ public class AdminsUsersController {
     @PutMapping("/users/{uid}")
     public JsonResult update(@RequestBody @Validated UsersUpdateParam users, @PathVariable Integer uid) {
         log.info(String.format("put:/users 修改用户。%s", users));
-        return usersService.update(users, uid);
+        return usersService.update(users, uid, passwordEncoder);
     }
 
     @OperationLogAnnotation(actionModule = "user", actionType = "删除", actionUrl = "/admins/users/#{#uid}")

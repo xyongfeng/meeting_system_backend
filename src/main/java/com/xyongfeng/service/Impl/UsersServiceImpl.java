@@ -14,19 +14,20 @@ import com.xyongfeng.pojo.Param.*;
 import com.xyongfeng.pojo.config.ImgPathPro;
 import com.xyongfeng.service.RoleService;
 import com.xyongfeng.service.UsersService;
-import com.xyongfeng.util.FileUtil;
-import com.xyongfeng.util.JwtTokenUtil;
-import com.xyongfeng.util.MyUtil;
-import com.xyongfeng.util.UserParamConverter;
+import com.xyongfeng.socketer.SocketMapDao;
+import com.xyongfeng.socketer.SocketUser;
+import com.xyongfeng.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -69,6 +70,9 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     private ChatFilterService chatFilterService;
     @Autowired
     private FileUtil fileUtil;
+    @Autowired
+    private RedisUtil redisUtil;
+
 
     @Value("${flask.headerUrl}")
     private String headerUrl;
@@ -95,7 +99,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     }
 
     @Override
-    public JsonResult update(UsersUpdateParam users, Integer uid) {
+    public JsonResult update(UsersUpdateParam users, Integer uid, PasswordEncoder passwordEncoder) {
         users.setId(uid);
         Users one = usersMapper.selectOne(new QueryWrapper<Users>().eq("username_xq", users.getUsername()));
         if (one != null && !one.getId().equals(uid)) {
@@ -104,6 +108,10 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         one = usersMapper.selectOne(new QueryWrapper<Users>().eq("name_xq", users.getName()));
         if (one != null && !one.getId().equals(uid)) {
             return JsonResult.error("修改失败，名称重复");
+        }
+        // 如果设置了密码就加密密码
+        if (StringUtils.hasText(users.getPassword())) {
+            users.setPassword(passwordEncoder.encode(users.getPassword()));
         }
         if (usersMapper.updateById(UserParamConverter.getUsers(users)) > 0) {
             return JsonResult.success("修改成功", users);
@@ -180,6 +188,17 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     }
 
     /**
+     * 根据username获取userId
+     *
+     * @param username
+     * @return
+     */
+    private Integer getUserIdByUserName(String username) {
+        Users users = usersMapper.selectOne(new QueryWrapper<Users>().eq("username_xq", username));
+        return users.getId();
+    }
+
+    /**
      * 通过username获取users
      *
      * @param username
@@ -220,7 +239,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
      * @param userDetails
      * @return
      */
-    private JsonResult saveLogin(JwtTokenUtil jwtTokenUtil, UserDetails userDetails) {
+    private JsonResult saveLogin(JwtTokenUtil jwtTokenUtil, UserDetails userDetails, Integer userId) {
         // 更新security登录用户对象
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
@@ -229,6 +248,9 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         Map<String, String> tokenMap = new HashMap<>();
         tokenMap.put("token", token);
         tokenMap.put("tokenHead", tokenHead);
+        // 写入在线用户中
+        redisUtil.putUserOnline(userId, token);
+
         return JsonResult.success("登录成功", tokenMap);
     }
 
@@ -242,7 +264,14 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         if (null == userDetails || !passwordEncoder.matches(users.getPassword(), userDetails.getPassword())) {
             return JsonResult.error("用户名或密码错误");
         }
-        return saveLogin(jwtTokenUtil, userDetails);
+        // 检查该用户是否已经在线
+        // socketMapDao.getByUserId(getUserByUserName(userDetails.getUsername()).getId())
+        Integer userId = getUserIdByUserName(userDetails.getUsername());
+
+        if (redisUtil.getUserOnline(userId) != null) {
+            return JsonResult.error("该用户已在线");
+        }
+        return saveLogin(jwtTokenUtil, userDetails, userId);
     }
 
     @Override
@@ -264,7 +293,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         }
         Users users = usersMapper.selectById(userId);
         UserDetails userDetails = userDetailsService.loadUserByUsername(users.getUsername());
-        return saveLogin(jwtTokenUtil, userDetails);
+        return saveLogin(jwtTokenUtil, userDetails, userId);
     }
 
 
@@ -289,12 +318,11 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     }
 
     @Override
-    public JsonResult getAdminInfo(Principal principal) {
+    public JsonResult getAdminInfo(Principal principal, HttpServletRequest request) {
         if (principal == null) {
             return null;
         }
-        String username = principal.getName();
-        Users users = getUserByUserName(username);
+        Users users = getUserByUserName(principal.getName());
         users.setPassword(null);
         return JsonResult.success(users);
     }
@@ -792,5 +820,10 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         return JsonResult.error("修改失败，当前密码错误");
     }
 
-
+    @Override
+    public JsonResult logout() {
+        // 删除redis中的记录
+        redisUtil.deleteUserOnline(MyUtil.getUsers().getId());
+        return JsonResult.success("退出成功");
+    }
 }

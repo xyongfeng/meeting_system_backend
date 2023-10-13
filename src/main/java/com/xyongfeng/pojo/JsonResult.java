@@ -1,6 +1,7 @@
 package com.xyongfeng.pojo;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.xyongfeng.content.ResCode;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -46,15 +47,15 @@ public class JsonResult {
      * @return
      */
     public static JsonResult success(String message) {
-        return new JsonResult(200, message);
+        return new JsonResult(ResCode.SUCCESS.getCode(), message);
     }
 
     public static JsonResult success() {
-        return new JsonResult(200);
+        return new JsonResult(ResCode.SUCCESS.getCode());
     }
 
     public static JsonResult success(Object data) {
-        return new JsonResult(200, data);
+        return new JsonResult(ResCode.SUCCESS.getCode(), data);
     }
 
     /**
@@ -65,7 +66,7 @@ public class JsonResult {
      * @return
      */
     public static JsonResult success(String message, Object data) {
-        return new JsonResult(200, message, data);
+        return new JsonResult(ResCode.SUCCESS.getCode(), message, data);
     }
 
     /**
@@ -91,7 +92,7 @@ public class JsonResult {
      * @return
      */
     public static JsonResult error(String message) {
-        return new JsonResult(500, message);
+        return new JsonResult(ResCode.SYSTEM_ERROR.getCode(), message);
     }
 
     /**
@@ -102,7 +103,7 @@ public class JsonResult {
      * @return
      */
     public static JsonResult error(String message, Object data) {
-        return new JsonResult(500, message, data);
+        return new JsonResult(ResCode.SYSTEM_ERROR.getCode(), message, data);
     }
 
     /**

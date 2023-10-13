@@ -1,6 +1,7 @@
 package com.xyongfeng.exceptionHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.xyongfeng.content.ResCode;
 import com.xyongfeng.pojo.JsonResult;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -22,7 +23,7 @@ public class RestfulAccessDeniedHandler implements AccessDeniedHandler {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
-        JsonResult jsonResult = JsonResult.error(403, "权限不足");
+        JsonResult jsonResult = JsonResult.error(ResCode.FORBIDDEN_ERROR.getCode(), "权限不足");
         out.write(new ObjectMapper().writeValueAsString(jsonResult));
         out.flush();
         out.close();

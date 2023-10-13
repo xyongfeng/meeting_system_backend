@@ -1,6 +1,7 @@
 package com.xyongfeng.exceptionHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.xyongfeng.content.ResCode;
 import com.xyongfeng.pojo.JsonResult;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -24,7 +25,8 @@ public class RestAuthorizeationEntryPoint implements AuthenticationEntryPoint {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
-        JsonResult jsonResult = JsonResult.error(401, "请登录再访问");
+        JsonResult jsonResult = JsonResult.error(ResCode.ONLINE_ERROR.getCode(), "请登录再访问");
+
         out.write(new ObjectMapper().writeValueAsString(jsonResult));
         out.flush();
         out.close();
