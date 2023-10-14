@@ -10,6 +10,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpServerErrorException;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
@@ -56,8 +57,8 @@ public class GlobalExceptionHandler {
         return JsonResult.error("请求超时，请稍后再试");
     }
 
-    @ExceptionHandler(ConnectException.class)
-    public JsonResult connectException(ConnectException e) {
+    @ExceptionHandler({ConnectException.class, HttpServerErrorException.class})
+    public JsonResult connectException(Exception e) {
         return JsonResult.error("人脸识别服务未启动，请通知管理员");
     }
 
