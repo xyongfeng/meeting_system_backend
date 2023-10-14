@@ -95,12 +95,11 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
         if (meeting != null && meetingMapper.deleteById(id) > 0) {
 
             sendHiddenMeetNoticeToAllUser(meeting.getId(), String.format("%s 会议已经结束", meeting.getName()), String.format("%s 会议已经结束", meeting.getName()));
+            // 写入结束时间
+            meetingMapper.updateEndDate(id, LocalDateTime.now().toString());
 
             // 向房间其他人发送刷新行为
             sockerSender.sendActionToMeetUser("refresh", id, meeting.getUserId(), null, true);
-
-            // 写入结束时间
-            meetingMapper.updateEndDate(id, LocalDateTime.now().toString());
 
             return meeting;
         }

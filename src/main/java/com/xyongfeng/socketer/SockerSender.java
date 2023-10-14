@@ -98,17 +98,9 @@ public class SockerSender {
     public void sendMessage(String event, JSONObject data) {
         Integer toId = data.getInteger("toId");
         SocketUser socketUser = socketMapDao.getSocketUserByUserId(toId);
-
+        if(socketUser == null) return;
         log.info(String.format("socket:事件: %s,sessionId:%s,对象：%s，data：%s", event, socketUser.client.getSessionId(), socketUser.users, data));
         socketUser.client.sendEvent(event, data);
-
-//        for (SocketUser socketUser : SocketState.CONNECT_USERS_MAP.values()) {
-//            if (socketUser.users.getId().equals(toId)) {
-//                log.info(String.format("socket:事件: %s,sessionId:%s,对象：%s，data：%s", event, socketUser.client.getSessionId(), socketUser.users, data));
-//                socketUser.client.sendEvent(event, data);
-//
-//            }
-//        }
     }
 
     /**
