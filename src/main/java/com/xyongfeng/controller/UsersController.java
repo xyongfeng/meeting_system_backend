@@ -2,7 +2,6 @@ package com.xyongfeng.controller;
 
 import com.xyongfeng.pojo.Param.*;
 import com.xyongfeng.pojo.JsonResult;
-//import com.xyongfeng.pojo.Param.UsersRegisterParam;
 import com.xyongfeng.service.UsersService;
 import com.xyongfeng.util.JwtTokenUtil;
 import com.xyongfeng.util.MyUtil;
@@ -44,7 +43,7 @@ public class UsersController {
     }
 
     @ApiOperation("接收base64,人脸识别登录")
-//    @PostMapping("/loginWithFace")
+    @PostMapping("/loginWithFace")
     public JsonResult loginWithFace(@RequestBody @Validated ImgBase64Param param) {
         log.info("post:/loginWithFace 接收base64,人脸识别登录。");
         return usersService.loginWithFace(param, jwtTokenUtil, userDetailsService);
@@ -58,7 +57,7 @@ public class UsersController {
     }
 
     @ApiOperation("注册")
-//    @PostMapping("/register")
+    @PostMapping("/register")
     public JsonResult register(@RequestBody @Validated UsersRegisterParam users, HttpServletRequest request
     ) {
         log.info(String.format("post:/users/register，进行注册,%s", users));
