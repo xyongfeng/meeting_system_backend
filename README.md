@@ -18,6 +18,8 @@ SpringSecurity + JWT	用户鉴权
 
 Mybatisplus	持久化
 
+Redis 缓存
+
 netty-socketio	消息推送
 
 swagger	生成接口文档
