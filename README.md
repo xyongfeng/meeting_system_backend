@@ -26,6 +26,8 @@ swagger	生成接口文档
 
 ### 接口文档
 
+在**active profiles**为**dev**时访问
+
 http://localhost:8080/doc.html
 
 ### 配置文件
