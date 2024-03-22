@@ -11,10 +11,16 @@ spring:
       date-time: yyyy-MM-dd HH:mm:ss
     pathmatch:
       matching-strategy: ant_path_matcher
+    # 设置匹配静态资源url
+    static-path-pattern: /static/**
   servlet:
     multipart:
       max-file-size: 5MB
       max-request-size: 10MB
+  web:
+    resources:
+      # 映射静态资源路径 一个是本地测试路径，一个是jar包外部资源路径
+      static-locations: classpath:/static/,file:/www/wwwroot/meeting-system/static/
   redis:
     port: 6379
     host: localhost

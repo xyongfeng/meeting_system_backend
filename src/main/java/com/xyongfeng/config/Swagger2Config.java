@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -22,11 +23,15 @@ import java.util.List;
 @Configuration
 @EnableSwagger2
 @Profile("dev")
-public class Swagger2Config extends WebMvcConfigurationSupport {
+/*
+ * 注意：这里不能使用  WebMvcConfigurationSupport  因为这这个类会倒置springboot的自动装配失效，
+ *  * 从而造成SPRINGBOOT 默认配置的  静态资源文件的路径无法访问的问题发生
+ */
+
+public class Swagger2Config extends WebMvcConfigurerAdapter {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 映射静态资源路径 一个是本地测试路径，一个是jar包外部资源路径
-        registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/", "file:/www/wwwroot/meeting-system/static/");
+        super.addResourceHandlers(registry);
         // 映射swagger访问路径
         registry.addResourceHandler("doc.html").addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
