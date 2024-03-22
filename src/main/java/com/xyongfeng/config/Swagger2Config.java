@@ -25,6 +25,9 @@ import java.util.List;
 public class Swagger2Config extends WebMvcConfigurationSupport {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // 映射静态资源路径 一个是本地测试路径，一个是jar包外部资源路径
+        registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/", "file:/www/wwwroot/meeting-system/static/");
+        // 映射swagger访问路径
         registry.addResourceHandler("doc.html").addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
