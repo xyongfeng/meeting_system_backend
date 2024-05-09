@@ -384,7 +384,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         Map<String, Object> map = new HashMap<>();
         try {
             Base64.Encoder encoder = Base64.getEncoder();
-            map.put("imgBase64", encoder.encode(param.getFile().getBytes()));
+            map.put("imgBase64", encoder.encodeToString(param.getFile().getBytes()));
         } catch (IOException e) {
             e.printStackTrace();
         }
